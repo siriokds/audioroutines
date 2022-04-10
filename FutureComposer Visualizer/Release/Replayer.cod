@@ -1,0 +1,3312 @@
+	TITLE	D:\Progetti\VisualC\Prova09cdx\Replayer.cpp
+	.386P
+include listing.inc
+if @Version gt 510
+.model FLAT
+else
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+_DATA	SEGMENT DWORD USE32 PUBLIC 'DATA'
+_DATA	ENDS
+CONST	SEGMENT DWORD USE32 PUBLIC 'CONST'
+CONST	ENDS
+_BSS	SEGMENT PARA USE32 PUBLIC 'BSS'
+_BSS	ENDS
+_TLS	SEGMENT DWORD USE32 PUBLIC 'TLS'
+_TLS	ENDS
+;	COMDAT ??8@YAHABU_GUID@@0@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?setSample@@YAXHH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_Open@@YAHKHH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_Close@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_Start@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_Stop@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_IsPlaying@@YAHXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_Init@@YAHPAC@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_PLAY_MUSIC@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?CheckSequence@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?NEW_NOTE@@YAXH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?EFFECTS@@YAXH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetMixBuffer@@YAPAFXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetPATrow@@YAHXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetREPcnt@@YAHXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetPATtable@@YAPACH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetVOLtable@@YAPACH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetFRQtable@@YAPACH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetSEQtable@@YAPACXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetOfs@@YACHH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetOfsVAL@@YACHH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetOfsSPD@@YACHH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetPeriod@@YAKH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GoNextSeq@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GoPrevSeq@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetInfo@@YAPAUtagDataInfo@@XZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_PutInfo@@YAXPAUtagDataInfo@@@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_GetInfoN@@YAPAUtagDataInfo@@H@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_ChanONOFF@@YAXH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FC6_MusicONOFF@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+FLAT	GROUP _DATA, CONST, _BSS
+	ASSUME	CS: FLAT, DS: FLAT, SS: FLAT
+endif
+PUBLIC	?PERIODS@@3PAFA					; PERIODS
+_BSS	SEGMENT
+_DataInfoPos$S29174 DD 01H DUP (?)
+_BSS	ENDS
+_DATA	SEGMENT
+_DataPlayPos$S29175 DD 010H
+	ORG $+4
+?PERIODS@@3PAFA DW 06b0H				; PERIODS
+	DW	0650H
+	DW	05f4H
+	DW	05a0H
+	DW	054cH
+	DW	0500H
+	DW	04b8H
+	DW	0474H
+	DW	0434H
+	DW	03f8H
+	DW	03c0H
+	DW	038aH
+	DW	0358H
+	DW	0328H
+	DW	02faH
+	DW	02d0H
+	DW	02a6H
+	DW	0280H
+	DW	025cH
+	DW	023aH
+	DW	021aH
+	DW	01fcH
+	DW	01e0H
+	DW	01c5H
+	DW	01acH
+	DW	0194H
+	DW	017dH
+	DW	0168H
+	DW	0153H
+	DW	0140H
+	DW	012eH
+	DW	011dH
+	DW	010dH
+	DW	0feH
+	DW	0f0H
+	DW	0e2H
+	DW	0d6H
+	DW	0caH
+	DW	0beH
+	DW	0b4H
+	DW	0aaH
+	DW	0a0H
+	DW	097H
+	DW	08fH
+	DW	087H
+	DW	07fH
+	DW	078H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	0d60H
+	DW	0ca0H
+	DW	0be8H
+	DW	0b40H
+	DW	0a98H
+	DW	0a00H
+	DW	0970H
+	DW	08e8H
+	DW	0868H
+	DW	07f0H
+	DW	0780H
+	DW	0714H
+	DW	01ac0H
+	DW	01940H
+	DW	017d0H
+	DW	01680H
+	DW	01530H
+	DW	01400H
+	DW	012e0H
+	DW	011d0H
+	DW	010d0H
+	DW	0fe0H
+	DW	0f00H
+	DW	0e28H
+	DW	06b0H
+	DW	0650H
+	DW	05f4H
+	DW	05a0H
+	DW	054cH
+	DW	0500H
+	DW	04b8H
+	DW	0474H
+	DW	0434H
+	DW	03f8H
+	DW	03c0H
+	DW	038aH
+	DW	0358H
+	DW	0328H
+	DW	02faH
+	DW	02d0H
+	DW	02a6H
+	DW	0280H
+	DW	025cH
+	DW	023aH
+	DW	021aH
+	DW	01fcH
+	DW	01e0H
+	DW	01c5H
+	DW	01acH
+	DW	0194H
+	DW	017dH
+	DW	0168H
+	DW	0153H
+	DW	0140H
+	DW	012eH
+	DW	011dH
+	DW	010dH
+	DW	0feH
+	DW	0f0H
+	DW	0e2H
+	DW	0d6H
+	DW	0caH
+	DW	0beH
+	DW	0b4H
+	DW	0aaH
+	DW	0a0H
+	DW	097H
+	DW	08fH
+	DW	087H
+	DW	07fH
+	DW	078H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+	DW	071H
+_DATA	ENDS
+PUBLIC	?setSample@@YAXHH@Z				; setSample
+EXTRN	_VGF1_SetVoiceL:NEAR
+EXTRN	_VGF1_PlayVoice:NEAR
+_BSS	SEGMENT
+	ALIGN	8
+
+_SoundInfo$S29177 DQ 05aH DUP (?)
+_VXdata$S29178 DB 0d0H DUP (?)
+_BSS	ENDS
+;	COMDAT ?setSample@@YAXHH@Z
+_TEXT	SEGMENT
+_voc$ = 8
+_Kick$ = 12
+?setSample@@YAXHH@Z PROC NEAR				; setSample, COMDAT
+
+; 167  : {
+
+  00000	53		 push	 ebx
+  00001	56		 push	 esi
+
+; 168  : int	SmpNum = VXdata[voc].SamplN;
+
+  00002	8b 74 24 0c	 mov	 esi, DWORD PTR _voc$[esp+4]
+  00006	57		 push	 edi
+  00007	8d 04 76	 lea	 eax, DWORD PTR [esi+esi*2]
+  0000a	8d 1c 86	 lea	 ebx, DWORD PTR [esi+eax*4]
+  0000d	c1 e3 02	 shl	 ebx, 2
+  00010	0f be bb 33 00
+	00 00		 movsx	 edi, BYTE PTR _VXdata$S29178[ebx+51]
+
+; 169  : 
+; 170  : 	
+; 171  : //	if (SmpNum == 0x29) SmpNum--;
+; 172  : 
+; 173  : //	if (SoundInfo[SmpNum].Length < 4) { VGF1_StopVoice(voc); return; }
+; 174  : 
+; 175  : 
+; 176  : 	VGF1_SetVoiceL(voc
+; 177  : 		,SoundInfo[SmpNum].Start
+; 178  : 		,SoundInfo[SmpNum].Length);
+
+  00017	0f bf 0c fd 04
+	00 00 00	 movsx	 ecx, WORD PTR _SoundInfo$S29177[edi*8+4]
+  0001f	8b 14 fd 00 00
+	00 00		 mov	 edx, DWORD PTR _SoundInfo$S29177[edi*8]
+  00026	51		 push	 ecx
+  00027	52		 push	 edx
+  00028	56		 push	 esi
+  00029	e8 00 00 00 00	 call	 _VGF1_SetVoiceL
+
+; 179  : 
+; 180  : 
+; 181  : 	if ((VXdata[voc].ON) && (Kick))
+
+  0002e	8a 83 00 00 00
+	00		 mov	 al, BYTE PTR _VXdata$S29178[ebx]
+  00034	83 c4 0c	 add	 esp, 12			; 0000000cH
+  00037	84 c0		 test	 al, al
+  00039	74 40		 je	 SHORT $L29196
+  0003b	8b 44 24 14	 mov	 eax, DWORD PTR _Kick$[esp+8]
+  0003f	85 c0		 test	 eax, eax
+  00041	74 38		 je	 SHORT $L29196
+
+; 182  : 	{
+; 183  : 		VGF1_PlayVoice(voc);
+
+  00043	56		 push	 esi
+  00044	e8 00 00 00 00	 call	 _VGF1_PlayVoice
+
+; 184  : /*
+; 185  : 		if (SoundInfo[SmpNum].LoopS >= SoundInfo[SmpNum].Length)
+; 186  : 		{
+; 187  : 			VGF1_SetVoiceL(voc
+; 188  : 				,SoundInfo[SmpNum].Start
+; 189  : 				,2);
+; 190  : 
+; 191  : 		}
+; 192  : */
+; 193  : 		if (SoundInfo[SmpNum].LoopS < SoundInfo[SmpNum].Length)
+
+  00049	66 8b 04 fd 06
+	00 00 00	 mov	 ax, WORD PTR _SoundInfo$S29177[edi*8+6]
+  00051	66 8b 0c fd 04
+	00 00 00	 mov	 cx, WORD PTR _SoundInfo$S29177[edi*8+4]
+  00059	83 c4 04	 add	 esp, 4
+  0005c	66 3b c1	 cmp	 ax, cx
+  0005f	7d 1a		 jge	 SHORT $L29196
+
+; 194  : 		{
+; 195  : 			VGF1_SetVoiceL(voc
+; 196  : 				,SoundInfo[SmpNum].Start
+; 197  : 				,SoundInfo[SmpNum].Length - SoundInfo[SmpNum].LoopS);
+
+  00061	0f bf c9	 movsx	 ecx, cx
+  00064	0f bf d0	 movsx	 edx, ax
+  00067	8b 04 fd 00 00
+	00 00		 mov	 eax, DWORD PTR _SoundInfo$S29177[edi*8]
+  0006e	2b ca		 sub	 ecx, edx
+  00070	51		 push	 ecx
+  00071	50		 push	 eax
+  00072	56		 push	 esi
+  00073	e8 00 00 00 00	 call	 _VGF1_SetVoiceL
+  00078	83 c4 0c	 add	 esp, 12			; 0000000cH
+$L29196:
+
+; 198  : 
+; 199  : 		}
+; 200  : 	}
+; 201  : 
+; 202  : 
+; 203  : }
+
+  0007b	5f		 pop	 edi
+  0007c	5e		 pop	 esi
+  0007d	5b		 pop	 ebx
+  0007e	c3		 ret	 0
+?setSample@@YAXHH@Z ENDP				; setSample
+_TEXT	ENDS
+PUBLIC	?FC6_Open@@YAHKHH@Z				; FC6_Open
+PUBLIC	?FC6_PLAY_MUSIC@@YAXXZ				; FC6_PLAY_MUSIC
+EXTRN	_VGF1_Open:NEAR
+EXTRN	__imp__InitializeCriticalSection@4:NEAR
+_BSS	SEGMENT
+_InfoCS$S29176 DB 018H DUP (?)
+_FC16Mod$S29179 DB 030H DUP (?)
+_BSS	ENDS
+;	COMDAT ?FC6_Open@@YAHKHH@Z
+_TEXT	SEGMENT
+_User$ = 8
+_m$ = 12
+_n$ = 16
+?FC6_Open@@YAHKHH@Z PROC NEAR				; FC6_Open, COMDAT
+
+; 212  : 		FC16Mod.onoff = 0;
+; 213  : 
+; 214  : 		InitializeCriticalSection(&InfoCS);
+
+  00000	68 00 00 00 00	 push	 OFFSET FLAT:_InfoCS$S29176
+  00005	66 c7 05 00 00
+	00 00 00 00	 mov	 WORD PTR _FC16Mod$S29179, 0
+  0000e	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__InitializeCriticalSection@4
+
+; 215  : 		return VGF1_Open(FC6_PLAY_MUSIC, User, m, n);
+
+  00014	8b 44 24 0c	 mov	 eax, DWORD PTR _n$[esp-4]
+  00018	8b 4c 24 08	 mov	 ecx, DWORD PTR _m$[esp-4]
+  0001c	8b 54 24 04	 mov	 edx, DWORD PTR _User$[esp-4]
+  00020	50		 push	 eax
+  00021	51		 push	 ecx
+  00022	52		 push	 edx
+  00023	68 00 00 00 00	 push	 OFFSET FLAT:?FC6_PLAY_MUSIC@@YAXXZ ; FC6_PLAY_MUSIC
+  00028	e8 00 00 00 00	 call	 _VGF1_Open
+  0002d	83 c4 10	 add	 esp, 16			; 00000010H
+
+; 216  : }
+
+  00030	c3		 ret	 0
+?FC6_Open@@YAHKHH@Z ENDP				; FC6_Open
+_TEXT	ENDS
+PUBLIC	?FC6_Close@@YAXXZ				; FC6_Close
+EXTRN	_VGF1_Close:NEAR
+EXTRN	__imp__DeleteCriticalSection@4:NEAR
+;	COMDAT ?FC6_Close@@YAXXZ
+_TEXT	SEGMENT
+?FC6_Close@@YAXXZ PROC NEAR				; FC6_Close, COMDAT
+
+; 223  : 		FC16Mod.onoff = 0;
+
+  00000	66 c7 05 00 00
+	00 00 00 00	 mov	 WORD PTR _FC16Mod$S29179, 0
+
+; 224  : 
+; 225  : 		VGF1_Close();
+
+  00009	e8 00 00 00 00	 call	 _VGF1_Close
+
+; 226  : 		DeleteCriticalSection(&InfoCS);
+
+  0000e	68 00 00 00 00	 push	 OFFSET FLAT:_InfoCS$S29176
+  00013	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__DeleteCriticalSection@4
+
+; 227  : }
+
+  00019	c3		 ret	 0
+?FC6_Close@@YAXXZ ENDP					; FC6_Close
+_TEXT	ENDS
+PUBLIC	?FC6_Start@@YAXXZ				; FC6_Start
+EXTRN	_VGF1_Start:NEAR
+EXTRN	_VGF1_Reset:NEAR
+;	COMDAT ?FC6_Start@@YAXXZ
+_TEXT	SEGMENT
+?FC6_Start@@YAXXZ PROC NEAR				; FC6_Start, COMDAT
+
+; 233  : 		FC16Mod.onoff = 1;
+
+  00000	66 c7 05 00 00
+	00 00 01 00	 mov	 WORD PTR _FC16Mod$S29179, 1
+
+; 234  : 		DataInfoPos = 0;
+
+  00009	c7 05 00 00 00
+	00 00 00 00 00	 mov	 DWORD PTR _DataInfoPos$S29174, 0
+
+; 235  : 		VGF1_Reset();
+
+  00013	e8 00 00 00 00	 call	 _VGF1_Reset
+
+; 236  : 		VGF1_Start();
+
+  00018	e8 00 00 00 00	 call	 _VGF1_Start
+
+; 237  : 		DataPlayPos = 0;
+
+  0001d	c7 05 00 00 00
+	00 00 00 00 00	 mov	 DWORD PTR _DataPlayPos$S29175, 0
+
+; 238  : }
+
+  00027	c3		 ret	 0
+?FC6_Start@@YAXXZ ENDP					; FC6_Start
+_TEXT	ENDS
+PUBLIC	?FC6_Stop@@YAXXZ				; FC6_Stop
+PUBLIC	?FC6_IsPlaying@@YAHXZ				; FC6_IsPlaying
+EXTRN	_VGF1_Stop:NEAR
+;	COMDAT ?FC6_Stop@@YAXXZ
+_TEXT	SEGMENT
+?FC6_Stop@@YAXXZ PROC NEAR				; FC6_Stop, COMDAT
+
+; 244  : 		if (!FC6_IsPlaying()) return;
+
+  00000	e8 00 00 00 00	 call	 ?FC6_IsPlaying@@YAHXZ	; FC6_IsPlaying
+  00005	85 c0		 test	 eax, eax
+  00007	74 0e		 je	 SHORT $L29206
+
+; 245  : 
+; 246  : 		FC16Mod.onoff = 0;
+
+  00009	66 c7 05 00 00
+	00 00 00 00	 mov	 WORD PTR _FC16Mod$S29179, 0
+
+; 247  : 		VGF1_Stop();
+
+  00012	e9 00 00 00 00	 jmp	 _VGF1_Stop
+$L29206:
+
+; 248  : }
+
+  00017	c3		 ret	 0
+?FC6_Stop@@YAXXZ ENDP					; FC6_Stop
+_TEXT	ENDS
+;	COMDAT ?FC6_IsPlaying@@YAHXZ
+_TEXT	SEGMENT
+?FC6_IsPlaying@@YAHXZ PROC NEAR				; FC6_IsPlaying, COMDAT
+
+; 254  : 		return FC16Mod.onoff;
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _FC16Mod$S29179
+  00005	25 ff ff 00 00	 and	 eax, 65535		; 0000ffffH
+
+; 255  : }
+
+  0000a	c3		 ret	 0
+?FC6_IsPlaying@@YAHXZ ENDP				; FC6_IsPlaying
+_TEXT	ENDS
+PUBLIC	?FC6_Init@@YAHPAC@Z				; FC6_Init
+EXTRN	_VGF1_PokeBlock:NEAR
+EXTRN	_VGF1_StopVoice:NEAR
+_BSS	SEGMENT
+_TabNULL$S29180 DB 050H DUP (?)
+_BSS	ENDS
+;	COMDAT ?FC6_Init@@YAHPAC@Z
+_TEXT	SEGMENT
+_ModAddr$ = 8
+?FC6_Init@@YAHPAC@Z PROC NEAR				; FC6_Init, COMDAT
+
+; 262  : {
+
+  00000	53		 push	 ebx
+  00001	55		 push	 ebp
+  00002	56		 push	 esi
+  00003	57		 push	 edi
+
+; 263  : SBYTE	*p;
+; 264  : SLONG	Start;
+; 265  : int		i;
+; 266  : 
+; 267  : 		FC6_Stop();
+
+  00004	e8 00 00 00 00	 call	 ?FC6_Stop@@YAXXZ	; FC6_Stop
+
+; 268  : 
+; 269  : 		FC16Mod.onoff   = 0;
+; 270  : 
+; 271  : 		FC16Mod.MODaddr = ModAddr;
+
+  00009	8b 74 24 14	 mov	 esi, DWORD PTR _ModAddr$[esp+12]
+  0000d	33 ed		 xor	 ebp, ebp
+  0000f	66 89 2d 00 00
+	00 00		 mov	 WORD PTR _FC16Mod$S29179, bp
+  00016	89 35 04 00 00
+	00		 mov	 DWORD PTR _FC16Mod$S29179+4, esi
+
+; 272  : 		FC16Mod.SMPaddr = ModAddr + FC_GET_SLONG_AT(ModAddr+12);
+
+  0001c	8b 46 0c	 mov	 eax, DWORD PTR [esi+12]
+
+; 273  : //		FC16Mod.SMPsize = FC_GET_SLONG_AT(ModAddr+16);
+; 274  : //		FC16Mod.WAVsize = FC_GET_SLONG_AT(ModAddr+20);
+; 275  : 
+; 276  : 		FC16Mod.SEQnum	= FC_GET_SWORD_AT(ModAddr+0x04);
+; 277  : 		FC16Mod.PATnum	= FC_GET_SWORD_AT(ModAddr+0x06);
+; 278  : 		FC16Mod.VOLnum	= FC_GET_SWORD_AT(ModAddr+0x08);
+; 279  : 		FC16Mod.FRQnum	= FC_GET_SWORD_AT(ModAddr+0x0A);
+; 280  : 
+; 281  : 		FC16Mod.SEQendp = (FC16Mod.SEQnum * SEQSIZE);
+; 282  : 
+; 283  : 		FC16Mod.SEQinfo = ModAddr + 0x90;
+; 284  : 		FC16Mod.PATinfo = FC16Mod.SEQinfo + FC16Mod.SEQendp;
+; 285  : 		FC16Mod.VOLinfo = FC16Mod.PATinfo + (FC16Mod.PATnum * 64);
+; 286  : 		FC16Mod.FRQinfo = FC16Mod.VOLinfo + (FC16Mod.VOLnum * 64);
+; 287  : 
+; 288  : //--------------------------------------------------------
+; 289  : 
+; 290  : 		Start = 0;
+; 291  : 		for (p = ModAddr + 0x18, i = 0; i < 10; i++, p += 4)
+
+  0001f	8d 5e 18	 lea	 ebx, DWORD PTR [esi+24]
+  00022	03 c6		 add	 eax, esi
+  00024	a3 08 00 00 00	 mov	 DWORD PTR _FC16Mod$S29179+8, eax
+  00029	66 8b 46 04	 mov	 ax, WORD PTR [esi+4]
+  0002d	66 a3 20 00 00
+	00		 mov	 WORD PTR _FC16Mod$S29179+32, ax
+  00033	66 8b 4e 06	 mov	 cx, WORD PTR [esi+6]
+  00037	66 89 0d 22 00
+	00 00		 mov	 WORD PTR _FC16Mod$S29179+34, cx
+  0003e	66 8b 7e 08	 mov	 di, WORD PTR [esi+8]
+  00042	66 89 3d 24 00
+	00 00		 mov	 WORD PTR _FC16Mod$S29179+36, di
+  00049	66 8b 56 0a	 mov	 dx, WORD PTR [esi+10]
+  0004d	0f bf c0	 movsx	 eax, ax
+  00050	66 89 15 26 00
+	00 00		 mov	 WORD PTR _FC16Mod$S29179+38, dx
+  00057	8d 96 90 00 00
+	00		 lea	 edx, DWORD PTR [esi+144]
+  0005d	c1 e0 04	 shl	 eax, 4
+  00060	89 15 0c 00 00
+	00		 mov	 DWORD PTR _FC16Mod$S29179+12, edx
+  00066	a3 10 00 00 00	 mov	 DWORD PTR _FC16Mod$S29179+16, eax
+  0006b	03 d0		 add	 edx, eax
+  0006d	0f bf c1	 movsx	 eax, cx
+  00070	0f bf cf	 movsx	 ecx, di
+  00073	c1 e0 06	 shl	 eax, 6
+  00076	03 c2		 add	 eax, edx
+  00078	89 15 14 00 00
+	00		 mov	 DWORD PTR _FC16Mod$S29179+20, edx
+  0007e	c1 e1 06	 shl	 ecx, 6
+  00081	03 c8		 add	 ecx, eax
+  00083	a3 18 00 00 00	 mov	 DWORD PTR _FC16Mod$S29179+24, eax
+  00088	89 0d 1c 00 00
+	00		 mov	 DWORD PTR _FC16Mod$S29179+28, ecx
+  0008e	33 c9		 xor	 ecx, ecx
+  00090	b8 04 00 00 00	 mov	 eax, OFFSET FLAT:_SoundInfo$S29177+4
+$L29220:
+
+; 292  : 		{
+; 293  : 			SoundInfo[i].Start  = Start;
+
+  00095	89 48 fc	 mov	 DWORD PTR [eax-4], ecx
+
+; 294  : 			SoundInfo[i].Length = FC_GET_SWORD_AT(p);
+
+  00098	66 8b 3b	 mov	 di, WORD PTR [ebx]
+  0009b	66 89 38	 mov	 WORD PTR [eax], di
+
+; 295  : 			SoundInfo[i].LoopS  = SoundInfo[i].Length;
+
+  0009e	66 89 78 02	 mov	 WORD PTR [eax+2], di
+
+; 296  : 			Start += SoundInfo[i].Length;
+
+  000a2	0f bf 38	 movsx	 edi, WORD PTR [eax]
+  000a5	83 c0 08	 add	 eax, 8
+  000a8	03 cf		 add	 ecx, edi
+  000aa	83 c3 04	 add	 ebx, 4
+  000ad	3d 54 00 00 00	 cmp	 eax, OFFSET FLAT:_SoundInfo$S29177+84
+  000b2	7c e1		 jl	 SHORT $L29220
+
+; 297  : 		}
+; 298  : 
+; 299  : 		Start += 16;
+
+  000b4	83 c1 10	 add	 ecx, 16			; 00000010H
+
+; 300  : 		for (p = ModAddr + 0x40, i = 10; i < 90; i++, p++)
+
+  000b7	83 c6 40	 add	 esi, 64			; 00000040H
+
+; 365  : 		  }
+; 366  : 		}
+; 367  : 
+; 368  : 		return 0;
+; 369  : }
+
+  000ba	b8 54 00 00 00	 mov	 eax, OFFSET FLAT:_SoundInfo$S29177+84
+$L29224:
+  000bf	89 48 fc	 mov	 DWORD PTR [eax-4], ecx
+  000c2	83 c0 08	 add	 eax, 8
+  000c5	66 0f be 3e	 movsx	 di, BYTE PTR [esi]
+  000c9	d1 e7		 shl	 edi, 1
+  000cb	66 89 78 f8	 mov	 WORD PTR [eax-8], di
+  000cf	66 89 68 fa	 mov	 WORD PTR [eax-6], bp
+  000d3	0f bf 78 f8	 movsx	 edi, WORD PTR [eax-8]
+  000d7	03 cf		 add	 ecx, edi
+  000d9	83 c1 02	 add	 ecx, 2
+  000dc	46		 inc	 esi
+  000dd	3d d4 02 00 00	 cmp	 eax, OFFSET FLAT:_SoundInfo$S29177+724
+  000e2	7c db		 jl	 SHORT $L29224
+  000e4	8b 0d 0c 00 00
+	00		 mov	 ecx, DWORD PTR _FC16Mod$S29179+12
+  000ea	8a 41 0c	 mov	 al, BYTE PTR [ecx+12]
+  000ed	c6 05 03 00 00
+	00 03		 mov	 BYTE PTR _FC16Mod$S29179+3, 3
+  000f4	84 c0		 test	 al, al
+  000f6	74 05		 je	 SHORT $L29477
+
+; 301  : 		{
+; 302  : 			SoundInfo[i].Start  = Start;
+; 303  : 			SoundInfo[i].Length = (*p << 1);
+; 304  : 			SoundInfo[i].LoopS = 0;
+; 305  : 			Start += SoundInfo[i].Length;
+; 306  : 			Start += 2;
+; 307  : 		}
+; 308  : 
+; 309  : //--------------------------------------------------------
+; 310  : 
+; 311  : 		p = FC16Mod.SEQinfo;
+; 312  : 
+; 313  : 		// get replay speed, if 0 use default value (3);
+; 314  : //		FC16Mod.REPspd = 5;
+; 315  : 		FC16Mod.REPspd = (!p[12]) ? 3 : p[12];
+
+  000f8	a2 03 00 00 00	 mov	 BYTE PTR _FC16Mod$S29179+3, al
+$L29477:
+
+; 316  : 		FC16Mod.REPcnt = 1;
+
+  000fd	c6 05 02 00 00
+	00 01		 mov	 BYTE PTR _FC16Mod$S29179+2, 1
+
+; 317  : 		FC16Mod.PAToffs = 64;
+
+  00104	c7 05 2c 00 00
+	00 40 00 00 00	 mov	 DWORD PTR _FC16Mod$S29179+44, 64 ; 00000040H
+
+; 318  : //		FC16Mod.SEQoffs = FC16Mod.SEQendp;
+; 319  : 		FC16Mod.SEQoffs = (SEQSIZE * (SEQSTART-1));
+
+  0010e	c7 05 28 00 00
+	00 f0 ff ff ff	 mov	 DWORD PTR _FC16Mod$S29179+40, -16 ; fffffff0H
+
+; 320  : 
+; 321  : 
+; 322  : 		for (p = FC16Mod.SEQinfo, i = 0; i < 4; i++, p += 3)
+
+  00118	33 db		 xor	 ebx, ebx
+  0011a	8d 69 02	 lea	 ebp, DWORD PTR [ecx+2]
+  0011d	be 0e 00 00 00	 mov	 esi, OFFSET FLAT:_VXdata$S29178+14
+  00122	eb 06		 jmp	 SHORT $L29227
+$L29488:
+
+; 316  : 		FC16Mod.REPcnt = 1;
+
+  00124	8b 15 14 00 00
+	00		 mov	 edx, DWORD PTR _FC16Mod$S29179+20
+$L29227:
+
+; 323  : 		{
+; 324  : 			memset((VXdata+i), 0, sizeof(tVOCSTR));
+
+  0012a	b9 0d 00 00 00	 mov	 ecx, 13			; 0000000dH
+  0012f	33 c0		 xor	 eax, eax
+  00131	8d 7e f2	 lea	 edi, DWORD PTR [esi-14]
+
+; 325  : 
+; 326  : 			VXdata[i].VoiceN = i;
+; 327  : 			VXdata[i].VolTspd = 1;
+; 328  : 			VXdata[i].VolTcnt = 1;
+; 329  : 
+; 330  : 			VXdata[i].PatPtr = FC16Mod.PATinfo + (p[0] * 64);
+; 331  : 			VXdata[i].NoteTR = p[1];	// Transpose value
+; 332  : 			VXdata[i].SampTR = p[2];	// SoundTranspose value
+; 333  : 
+; 334  : 			VXdata[i].VolPtr = &TabNULL[5];
+; 335  : 			VXdata[i].FrqPtr = &TabNULL[5];
+; 336  : 			VGF1_StopVoice(i);
+
+  00134	53		 push	 ebx
+  00135	f3 ab		 rep stosd
+  00137	88 1e		 mov	 BYTE PTR [esi], bl
+  00139	c6 46 05 01	 mov	 BYTE PTR [esi+5], 1
+  0013d	c6 46 06 01	 mov	 BYTE PTR [esi+6], 1
+  00141	0f be 45 fe	 movsx	 eax, BYTE PTR [ebp-2]
+  00145	c1 e0 06	 shl	 eax, 6
+  00148	03 c2		 add	 eax, edx
+  0014a	89 46 f7	 mov	 DWORD PTR [esi-9], eax
+  0014d	8a 4d ff	 mov	 cl, BYTE PTR [ebp-1]
+  00150	88 4e fe	 mov	 BYTE PTR [esi-2], cl
+  00153	8a 55 00	 mov	 dl, BYTE PTR [ebp]
+  00156	b8 05 00 00 00	 mov	 eax, OFFSET FLAT:_TabNULL$S29180+5
+  0015b	88 56 ff	 mov	 BYTE PTR [esi-1], dl
+  0015e	89 46 08	 mov	 DWORD PTR [esi+8], eax
+  00161	89 46 10	 mov	 DWORD PTR [esi+16], eax
+  00164	e8 00 00 00 00	 call	 _VGF1_StopVoice
+  00169	83 c4 04	 add	 esp, 4
+  0016c	83 c6 34	 add	 esi, 52			; 00000034H
+  0016f	43		 inc	 ebx
+  00170	83 c5 03	 add	 ebp, 3
+  00173	81 fe de 00 00
+	00		 cmp	 esi, OFFSET FLAT:_VXdata$S29178+222
+  00179	7c a9		 jl	 SHORT $L29488
+
+; 337  : 		}
+; 338  : 		TabNULL[5] = (SBYTE)0xE1;
+; 339  : 
+; 340  : 		VXdata[0].ON = CH00_ON;
+; 341  : 		VXdata[1].ON = CH01_ON;
+; 342  : 		VXdata[2].ON = CH02_ON;
+; 343  : 		VXdata[3].ON = CH03_ON;
+; 344  : 
+; 345  : //---------------------------------------------------------
+; 346  : 
+; 347  : 		p = FC16Mod.SMPaddr;
+
+  0017b	8b 3d 08 00 00
+	00		 mov	 edi, DWORD PTR _FC16Mod$S29179+8
+  00181	c6 05 05 00 00
+	00 e1		 mov	 BYTE PTR _TabNULL$S29180+5, -31 ; ffffffe1H
+  00188	c6 05 00 00 00
+	00 01		 mov	 BYTE PTR _VXdata$S29178, 1
+  0018f	c6 05 34 00 00
+	00 01		 mov	 BYTE PTR _VXdata$S29178+52, 1
+  00196	c6 05 68 00 00
+	00 01		 mov	 BYTE PTR _VXdata$S29178+104, 1
+  0019d	c6 05 9c 00 00
+	00 01		 mov	 BYTE PTR _VXdata$S29178+156, 1
+
+; 365  : 		  }
+; 366  : 		}
+; 367  : 
+; 368  : 		return 0;
+; 369  : }
+
+  001a4	be 04 00 00 00	 mov	 esi, OFFSET FLAT:_SoundInfo$S29177+4
+$L29232:
+  001a9	66 8b 06	 mov	 ax, WORD PTR [esi]
+  001ac	66 85 c0	 test	 ax, ax
+  001af	7e 16		 jle	 SHORT $L29233
+  001b1	8b 4e fc	 mov	 ecx, DWORD PTR [esi-4]
+  001b4	0f bf c0	 movsx	 eax, ax
+  001b7	50		 push	 eax
+  001b8	57		 push	 edi
+  001b9	51		 push	 ecx
+  001ba	e8 00 00 00 00	 call	 _VGF1_PokeBlock
+  001bf	0f bf 16	 movsx	 edx, WORD PTR [esi]
+  001c2	83 c4 0c	 add	 esp, 12			; 0000000cH
+  001c5	03 fa		 add	 edi, edx
+$L29233:
+  001c7	83 c6 08	 add	 esi, 8
+  001ca	81 fe 54 00 00
+	00		 cmp	 esi, OFFSET FLAT:_SoundInfo$S29177+84
+  001d0	7c d7		 jl	 SHORT $L29232
+  001d2	be 54 00 00 00	 mov	 esi, OFFSET FLAT:_SoundInfo$S29177+84
+$L29237:
+
+; 348  : 		for (i = 0; i < 10; i++)
+; 349  : 		{
+; 350  : 		  if (SoundInfo[i].Length > 0)
+; 351  : 		  {
+; 352  : 			VGF1_PokeBlock(SoundInfo[i].Start,(char*)p,SoundInfo[i].Length);
+; 353  : 			p += SoundInfo[i].Length;
+; 354  : 		  }	
+; 355  : 		}
+; 356  : 
+; 357  : 
+; 358  : //		p = FC16Mod.SMPaddr + FC16Mod.SMPsize;
+; 359  : 		for (i = 10; i < 90; i++)
+; 360  : 		{
+; 361  : 		  if (SoundInfo[i].Length > 0)
+
+  001d7	66 8b 06	 mov	 ax, WORD PTR [esi]
+  001da	66 85 c0	 test	 ax, ax
+  001dd	7e 16		 jle	 SHORT $L29238
+
+; 362  : 		  {
+; 363  : 			VGF1_PokeBlock(SoundInfo[i].Start,(char*)p,SoundInfo[i].Length);
+
+  001df	8b 4e fc	 mov	 ecx, DWORD PTR [esi-4]
+  001e2	0f bf c0	 movsx	 eax, ax
+  001e5	50		 push	 eax
+  001e6	57		 push	 edi
+  001e7	51		 push	 ecx
+  001e8	e8 00 00 00 00	 call	 _VGF1_PokeBlock
+
+; 364  : 			p += SoundInfo[i].Length;
+
+  001ed	0f bf 16	 movsx	 edx, WORD PTR [esi]
+  001f0	83 c4 0c	 add	 esp, 12			; 0000000cH
+  001f3	03 fa		 add	 edi, edx
+$L29238:
+  001f5	83 c6 08	 add	 esi, 8
+  001f8	81 fe d4 02 00
+	00		 cmp	 esi, OFFSET FLAT:_SoundInfo$S29177+724
+  001fe	7c d7		 jl	 SHORT $L29237
+
+; 365  : 		  }
+; 366  : 		}
+; 367  : 
+; 368  : 		return 0;
+; 369  : }
+
+  00200	5f		 pop	 edi
+  00201	5e		 pop	 esi
+  00202	5d		 pop	 ebp
+  00203	33 c0		 xor	 eax, eax
+  00205	5b		 pop	 ebx
+  00206	c3		 ret	 0
+?FC6_Init@@YAHPAC@Z ENDP				; FC6_Init
+_TEXT	ENDS
+PUBLIC	?FC6_GetMixBuffer@@YAPAFXZ			; FC6_GetMixBuffer
+PUBLIC	?FC6_GetREPcnt@@YAHXZ				; FC6_GetREPcnt
+PUBLIC	?FC6_GetSEQtable@@YAPACXZ			; FC6_GetSEQtable
+PUBLIC	?FC6_GetPATtable@@YAPACH@Z			; FC6_GetPATtable
+PUBLIC	?FC6_GetVOLtable@@YAPACH@Z			; FC6_GetVOLtable
+PUBLIC	?FC6_GetFRQtable@@YAPACH@Z			; FC6_GetFRQtable
+PUBLIC	?FC6_GetPATrow@@YAHXZ				; FC6_GetPATrow
+PUBLIC	?FC6_GetOfs@@YACHH@Z				; FC6_GetOfs
+PUBLIC	?FC6_GetOfsVAL@@YACHH@Z				; FC6_GetOfsVAL
+PUBLIC	?FC6_GetOfsSPD@@YACHH@Z				; FC6_GetOfsSPD
+PUBLIC	?FC6_GetPeriod@@YAKH@Z				; FC6_GetPeriod
+PUBLIC	?NEW_NOTE@@YAXH@Z				; NEW_NOTE
+PUBLIC	?EFFECTS@@YAXH@Z				; EFFECTS
+PUBLIC	?CheckSequence@@YAXXZ				; CheckSequence
+EXTRN	_VGF1_GetVol:NEAR
+EXTRN	_VGF1_GetSampleOfs:NEAR
+EXTRN	_VGF1_GetSampleSize:NEAR
+EXTRN	__imp__EnterCriticalSection@4:NEAR
+EXTRN	__imp__LeaveCriticalSection@4:NEAR
+_BSS	SEGMENT
+_DataInfo$S29173 DB 049c0H DUP (?)
+_BSS	ENDS
+;	COMDAT ?FC6_PLAY_MUSIC@@YAXXZ
+_TEXT	SEGMENT
+?FC6_PLAY_MUSIC@@YAXXZ PROC NEAR			; FC6_PLAY_MUSIC, COMDAT
+
+; 376  : {
+
+  00000	57		 push	 edi
+
+; 377  : int	i;
+; 378  : 		if (!FC16Mod.onoff) return;
+
+  00001	33 ff		 xor	 edi, edi
+  00003	66 39 3d 00 00
+	00 00		 cmp	 WORD PTR _FC16Mod$S29179, di
+  0000a	0f 84 7e 03 00
+	00		 je	 $L29243
+
+; 379  : 
+; 380  : 		if (--FC16Mod.REPcnt) goto noNewNote;
+
+  00010	a0 02 00 00 00	 mov	 al, BYTE PTR _FC16Mod$S29179+2
+  00015	56		 push	 esi
+  00016	fe c8		 dec	 al
+  00018	55		 push	 ebp
+  00019	53		 push	 ebx
+  0001a	a2 02 00 00 00	 mov	 BYTE PTR _FC16Mod$S29179+2, al
+  0001f	75 5f		 jne	 SHORT $noNewNote$29247
+
+; 381  : 
+; 382  : 		if (FC16Mod.PAToffs < 64) goto noNewPatt;
+
+  00021	83 3d 2c 00 00
+	00 40		 cmp	 DWORD PTR _FC16Mod$S29179+44, 64 ; 00000040H
+  00028	7c 18		 jl	 SHORT $noNewPatt$29250
+
+; 383  : 		FC16Mod.PAToffs = 0;
+; 384  : 		FC16Mod.SEQoffs += SEQSIZE;
+
+  0002a	a1 28 00 00 00	 mov	 eax, DWORD PTR _FC16Mod$S29179+40
+  0002f	89 3d 2c 00 00
+	00		 mov	 DWORD PTR _FC16Mod$S29179+44, edi
+  00035	83 c0 10	 add	 eax, 16			; 00000010H
+  00038	a3 28 00 00 00	 mov	 DWORD PTR _FC16Mod$S29179+40, eax
+
+; 385  : 		CheckSequence();
+
+  0003d	e8 00 00 00 00	 call	 ?CheckSequence@@YAXXZ	; CheckSequence
+$noNewPatt$29250:
+
+; 386  : noNewPatt:
+; 387  : 		FC16Mod.REPcnt = FC16Mod.REPspd;	// Restore replayspeed counter
+
+  00042	a0 03 00 00 00	 mov	 al, BYTE PTR _FC16Mod$S29179+3
+
+; 388  : 		NEW_NOTE(0);
+
+  00047	57		 push	 edi
+  00048	a2 02 00 00 00	 mov	 BYTE PTR _FC16Mod$S29179+2, al
+  0004d	e8 00 00 00 00	 call	 ?NEW_NOTE@@YAXH@Z	; NEW_NOTE
+  00052	83 c4 04	 add	 esp, 4
+
+; 389  : 		NEW_NOTE(1);
+
+  00055	6a 01		 push	 1
+  00057	e8 00 00 00 00	 call	 ?NEW_NOTE@@YAXH@Z	; NEW_NOTE
+  0005c	83 c4 04	 add	 esp, 4
+
+; 390  : 		NEW_NOTE(2);
+
+  0005f	6a 02		 push	 2
+  00061	e8 00 00 00 00	 call	 ?NEW_NOTE@@YAXH@Z	; NEW_NOTE
+  00066	83 c4 04	 add	 esp, 4
+
+; 391  : 		NEW_NOTE(3);
+
+  00069	6a 03		 push	 3
+  0006b	e8 00 00 00 00	 call	 ?NEW_NOTE@@YAXH@Z	; NEW_NOTE
+
+; 392  : 
+; 393  : 		FC16Mod.PAToffs += 2;
+
+  00070	a1 2c 00 00 00	 mov	 eax, DWORD PTR _FC16Mod$S29179+44
+  00075	83 c4 04	 add	 esp, 4
+  00078	83 c0 02	 add	 eax, 2
+  0007b	a3 2c 00 00 00	 mov	 DWORD PTR _FC16Mod$S29179+44, eax
+$noNewNote$29247:
+
+; 394  : noNewNote:
+; 395  : 		EFFECTS(0);
+
+  00080	57		 push	 edi
+  00081	e8 00 00 00 00	 call	 ?EFFECTS@@YAXH@Z	; EFFECTS
+  00086	83 c4 04	 add	 esp, 4
+
+; 396  : 		EFFECTS(1);
+
+  00089	6a 01		 push	 1
+  0008b	e8 00 00 00 00	 call	 ?EFFECTS@@YAXH@Z	; EFFECTS
+  00090	83 c4 04	 add	 esp, 4
+
+; 397  : 		EFFECTS(2);
+
+  00093	6a 02		 push	 2
+  00095	e8 00 00 00 00	 call	 ?EFFECTS@@YAXH@Z	; EFFECTS
+  0009a	83 c4 04	 add	 esp, 4
+
+; 398  : 		EFFECTS(3);
+
+  0009d	6a 03		 push	 3
+  0009f	e8 00 00 00 00	 call	 ?EFFECTS@@YAXH@Z	; EFFECTS
+  000a4	83 c4 04	 add	 esp, 4
+
+; 399  : 
+; 400  : //-------------------
+; 401  : 
+; 402  : 		EnterCriticalSection(&InfoCS);
+
+  000a7	68 00 00 00 00	 push	 OFFSET FLAT:_InfoCS$S29176
+  000ac	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+
+; 403  : 
+; 404  : 		DataInfo[DataInfoPos].ActRow = FC6_GetPATrow();
+
+  000b2	e8 00 00 00 00	 call	 ?FC6_GetPATrow@@YAHXZ	; FC6_GetPATrow
+  000b7	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _DataInfoPos$S29174
+  000bd	8b d1		 mov	 edx, ecx
+  000bf	c1 e2 03	 shl	 edx, 3
+  000c2	2b d1		 sub	 edx, ecx
+  000c4	8d 14 91	 lea	 edx, DWORD PTR [ecx+edx*4]
+  000c7	8d 0c 51	 lea	 ecx, DWORD PTR [ecx+edx*2]
+  000ca	89 04 8d 00 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[ecx*4], eax
+
+; 405  : 		DataInfo[DataInfoPos].RepCnt = FC6_GetREPcnt();
+
+  000d1	e8 00 00 00 00	 call	 ?FC6_GetREPcnt@@YAHXZ	; FC6_GetREPcnt
+  000d6	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _DataInfoPos$S29174
+  000dc	8b d1		 mov	 edx, ecx
+  000de	c1 e2 03	 shl	 edx, 3
+  000e1	2b d1		 sub	 edx, ecx
+  000e3	8d 14 91	 lea	 edx, DWORD PTR [ecx+edx*4]
+  000e6	8d 14 51	 lea	 edx, DWORD PTR [ecx+edx*2]
+  000e9	89 04 95 04 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[edx*4+4], eax
+
+; 406  : 		DataInfo[DataInfoPos].SeqPtr = FC6_GetSEQtable();
+
+  000f0	8b c1		 mov	 eax, ecx
+  000f2	c1 e0 03	 shl	 eax, 3
+  000f5	2b c1		 sub	 eax, ecx
+  000f7	8d 14 81	 lea	 edx, DWORD PTR [ecx+eax*4]
+  000fa	8d 34 51	 lea	 esi, DWORD PTR [ecx+edx*2]
+  000fd	c1 e6 02	 shl	 esi, 2
+  00100	e8 00 00 00 00	 call	 ?FC6_GetSEQtable@@YAPACXZ ; FC6_GetSEQtable
+  00105	89 86 08 00 00
+	00		 mov	 DWORD PTR _DataInfo$S29173[esi+8], eax
+
+; 407  : 		DataInfo[DataInfoPos].SeqRow = FC16Mod.SEQoffs / SEQSIZE;
+
+  0010b	a1 28 00 00 00	 mov	 eax, DWORD PTR _FC16Mod$S29179+40
+  00110	99		 cdq
+
+; 408  : 
+; 409  : 		DataInfo[DataInfoPos].MixBuffer = FC6_GetMixBuffer();
+
+  00111	8b 2d 00 00 00
+	00		 mov	 ebp, DWORD PTR _DataInfoPos$S29174
+  00117	83 e2 0f	 and	 edx, 15			; 0000000fH
+  0011a	03 c2		 add	 eax, edx
+  0011c	c1 f8 04	 sar	 eax, 4
+  0011f	89 86 0c 00 00
+	00		 mov	 DWORD PTR _DataInfo$S29173[esi+12], eax
+  00125	8b c5		 mov	 eax, ebp
+  00127	c1 e0 03	 shl	 eax, 3
+  0012a	2b c5		 sub	 eax, ebp
+  0012c	8d 4c 85 00	 lea	 ecx, DWORD PTR [ebp+eax*4]
+  00130	8d 6c 4d 00	 lea	 ebp, DWORD PTR [ebp+ecx*2]
+  00134	c1 e5 02	 shl	 ebp, 2
+  00137	e8 00 00 00 00	 call	 ?FC6_GetMixBuffer@@YAPAFXZ ; FC6_GetMixBuffer
+  0013c	89 85 10 00 00
+	00		 mov	 DWORD PTR _DataInfo$S29173[ebp+16], eax
+  00142	33 f6		 xor	 esi, esi
+  00144	bb 0b 00 00 00	 mov	 ebx, OFFSET FLAT:_VXdata$S29178+11
+$L29252:
+
+; 410  : 		for (i = 0; i < 4; i++)
+; 411  : 		{
+; 412  : 			DataInfo[DataInfoPos].Chan[i].ON = (VXdata[i].ON & FC16Mod.onoff);
+
+  00149	66 0f be 53 f5	 movsx	 dx, BYTE PTR [ebx-11]
+  0014e	a1 00 00 00 00	 mov	 eax, DWORD PTR _FC16Mod$S29179
+  00153	81 e2 ff ff 00
+	00		 and	 edx, 65535		; 0000ffffH
+  00159	25 ff ff 00 00	 and	 eax, 65535		; 0000ffffH
+
+; 413  : 
+; 414  : 			DataInfo[DataInfoPos].Chan[i].PatPtr = FC6_GetPATtable(i);
+
+  0015e	57		 push	 edi
+  0015f	23 d0		 and	 edx, eax
+  00161	89 94 2e 14 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+ebp+20], edx
+  00168	e8 00 00 00 00	 call	 ?FC6_GetPATtable@@YAPACH@Z ; FC6_GetPATtable
+  0016d	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _DataInfoPos$S29174
+  00173	83 c4 04	 add	 esp, 4
+  00176	8b d1		 mov	 edx, ecx
+  00178	c1 e2 03	 shl	 edx, 3
+  0017b	2b d1		 sub	 edx, ecx
+
+; 415  : 
+; 416  : 			DataInfo[DataInfoPos].Chan[i].VolPtr = FC6_GetVOLtable(i);
+
+  0017d	57		 push	 edi
+  0017e	8d 14 91	 lea	 edx, DWORD PTR [ecx+edx*4]
+  00181	8d 0c 51	 lea	 ecx, DWORD PTR [ecx+edx*2]
+  00184	89 84 8e 18 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+ecx*4+24], eax
+  0018b	e8 00 00 00 00	 call	 ?FC6_GetVOLtable@@YAPACH@Z ; FC6_GetVOLtable
+  00190	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _DataInfoPos$S29174
+  00196	83 c4 04	 add	 esp, 4
+  00199	8b d1		 mov	 edx, ecx
+  0019b	c1 e2 03	 shl	 edx, 3
+  0019e	2b d1		 sub	 edx, ecx
+
+; 417  : 			DataInfo[DataInfoPos].Chan[i].VolOfs = FC6_GetOfs(i,0);
+
+  001a0	6a 00		 push	 0
+  001a2	57		 push	 edi
+  001a3	8d 14 91	 lea	 edx, DWORD PTR [ecx+edx*4]
+  001a6	8d 0c 51	 lea	 ecx, DWORD PTR [ecx+edx*2]
+  001a9	89 84 8e 1c 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+ecx*4+28], eax
+  001b0	e8 00 00 00 00	 call	 ?FC6_GetOfs@@YACHH@Z	; FC6_GetOfs
+  001b5	0f be d0	 movsx	 edx, al
+  001b8	a1 00 00 00 00	 mov	 eax, DWORD PTR _DataInfoPos$S29174
+  001bd	83 c4 08	 add	 esp, 8
+  001c0	8b c8		 mov	 ecx, eax
+  001c2	c1 e1 03	 shl	 ecx, 3
+  001c5	2b c8		 sub	 ecx, eax
+
+; 418  : 			DataInfo[DataInfoPos].Chan[i].VolOfsVal = FC6_GetOfsVAL(i,0);
+
+  001c7	6a 00		 push	 0
+  001c9	57		 push	 edi
+  001ca	8d 0c 88	 lea	 ecx, DWORD PTR [eax+ecx*4]
+  001cd	8d 04 48	 lea	 eax, DWORD PTR [eax+ecx*2]
+  001d0	89 94 86 20 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+eax*4+32], edx
+  001d7	e8 00 00 00 00	 call	 ?FC6_GetOfsVAL@@YACHH@Z	; FC6_GetOfsVAL
+  001dc	0f be c8	 movsx	 ecx, al
+  001df	a1 00 00 00 00	 mov	 eax, DWORD PTR _DataInfoPos$S29174
+  001e4	83 c4 08	 add	 esp, 8
+  001e7	8b d0		 mov	 edx, eax
+  001e9	c1 e2 03	 shl	 edx, 3
+  001ec	2b d0		 sub	 edx, eax
+
+; 419  : 			DataInfo[DataInfoPos].Chan[i].VolOfsSpd = FC6_GetOfsSPD(i,0);
+
+  001ee	6a 00		 push	 0
+  001f0	57		 push	 edi
+  001f1	8d 14 90	 lea	 edx, DWORD PTR [eax+edx*4]
+  001f4	8d 04 50	 lea	 eax, DWORD PTR [eax+edx*2]
+  001f7	89 8c 86 24 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+eax*4+36], ecx
+  001fe	e8 00 00 00 00	 call	 ?FC6_GetOfsSPD@@YACHH@Z	; FC6_GetOfsSPD
+  00203	0f be c8	 movsx	 ecx, al
+  00206	a1 00 00 00 00	 mov	 eax, DWORD PTR _DataInfoPos$S29174
+  0020b	83 c4 08	 add	 esp, 8
+  0020e	8b d0		 mov	 edx, eax
+  00210	c1 e2 03	 shl	 edx, 3
+  00213	2b d0		 sub	 edx, eax
+
+; 420  : 
+; 421  : 			DataInfo[DataInfoPos].Chan[i].FrqPtr = FC6_GetFRQtable(i);
+
+  00215	57		 push	 edi
+  00216	8d 14 90	 lea	 edx, DWORD PTR [eax+edx*4]
+  00219	8d 04 50	 lea	 eax, DWORD PTR [eax+edx*2]
+  0021c	89 8c 86 28 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+eax*4+40], ecx
+  00223	e8 00 00 00 00	 call	 ?FC6_GetFRQtable@@YAPACH@Z ; FC6_GetFRQtable
+  00228	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _DataInfoPos$S29174
+  0022e	83 c4 04	 add	 esp, 4
+  00231	8b d1		 mov	 edx, ecx
+  00233	c1 e2 03	 shl	 edx, 3
+  00236	2b d1		 sub	 edx, ecx
+
+; 422  : 			DataInfo[DataInfoPos].Chan[i].FrqOfs = FC6_GetOfs(i,1);
+
+  00238	6a 01		 push	 1
+  0023a	57		 push	 edi
+  0023b	8d 14 91	 lea	 edx, DWORD PTR [ecx+edx*4]
+  0023e	8d 0c 51	 lea	 ecx, DWORD PTR [ecx+edx*2]
+  00241	89 84 8e 2c 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+ecx*4+44], eax
+  00248	e8 00 00 00 00	 call	 ?FC6_GetOfs@@YACHH@Z	; FC6_GetOfs
+  0024d	0f be d0	 movsx	 edx, al
+  00250	a1 00 00 00 00	 mov	 eax, DWORD PTR _DataInfoPos$S29174
+  00255	83 c4 08	 add	 esp, 8
+  00258	8b c8		 mov	 ecx, eax
+  0025a	c1 e1 03	 shl	 ecx, 3
+  0025d	2b c8		 sub	 ecx, eax
+  0025f	8d 0c 88	 lea	 ecx, DWORD PTR [eax+ecx*4]
+
+; 423  : 			DataInfo[DataInfoPos].Chan[i].FrqOfsVal = FC6_GetOfsVAL(i,1);
+
+  00262	6a 01		 push	 1
+  00264	57		 push	 edi
+  00265	8d 04 48	 lea	 eax, DWORD PTR [eax+ecx*2]
+  00268	89 94 86 30 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+eax*4+48], edx
+  0026f	e8 00 00 00 00	 call	 ?FC6_GetOfsVAL@@YACHH@Z	; FC6_GetOfsVAL
+  00274	0f be c8	 movsx	 ecx, al
+  00277	a1 00 00 00 00	 mov	 eax, DWORD PTR _DataInfoPos$S29174
+  0027c	83 c4 08	 add	 esp, 8
+  0027f	8b d0		 mov	 edx, eax
+  00281	c1 e2 03	 shl	 edx, 3
+  00284	2b d0		 sub	 edx, eax
+
+; 424  : 			DataInfo[DataInfoPos].Chan[i].FrqOfsSpd = FC6_GetOfsSPD(i,1);
+
+  00286	6a 01		 push	 1
+  00288	57		 push	 edi
+  00289	8d 14 90	 lea	 edx, DWORD PTR [eax+edx*4]
+  0028c	8d 04 50	 lea	 eax, DWORD PTR [eax+edx*2]
+  0028f	89 8c 86 34 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+eax*4+52], ecx
+  00296	e8 00 00 00 00	 call	 ?FC6_GetOfsSPD@@YACHH@Z	; FC6_GetOfsSPD
+  0029b	0f be c8	 movsx	 ecx, al
+  0029e	a1 00 00 00 00	 mov	 eax, DWORD PTR _DataInfoPos$S29174
+  002a3	83 c4 08	 add	 esp, 8
+  002a6	8b d0		 mov	 edx, eax
+  002a8	c1 e2 03	 shl	 edx, 3
+  002ab	2b d0		 sub	 edx, eax
+
+; 425  : 
+; 426  : 			DataInfo[DataInfoPos].Chan[i].Period = FC6_GetPeriod(i);
+
+  002ad	57		 push	 edi
+  002ae	8d 14 90	 lea	 edx, DWORD PTR [eax+edx*4]
+  002b1	8d 14 50	 lea	 edx, DWORD PTR [eax+edx*2]
+  002b4	89 8c 96 38 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+edx*4+56], ecx
+  002bb	8b c8		 mov	 ecx, eax
+  002bd	c1 e1 03	 shl	 ecx, 3
+  002c0	2b c8		 sub	 ecx, eax
+  002c2	8d 14 88	 lea	 edx, DWORD PTR [eax+ecx*4]
+  002c5	8d 04 50	 lea	 eax, DWORD PTR [eax+edx*2]
+  002c8	8d 2c 86	 lea	 ebp, DWORD PTR [esi+eax*4]
+  002cb	e8 00 00 00 00	 call	 ?FC6_GetPeriod@@YAKH@Z	; FC6_GetPeriod
+
+; 427  : 			DataInfo[DataInfoPos].Chan[i].Volume = VXdata[i].Volume;
+
+  002d0	8a 0b		 mov	 cl, BYTE PTR [ebx]
+  002d2	83 c4 04	 add	 esp, 4
+  002d5	89 85 3c 00 00
+	00		 mov	 DWORD PTR _DataInfo$S29173[ebp+60], eax
+  002db	88 8d 40 00 00
+	00		 mov	 BYTE PTR _DataInfo$S29173[ebp+64], cl
+
+; 428  : 			DataInfo[DataInfoPos].Chan[i].DevVolume = VGF1_GetVol(i);
+
+  002e1	57		 push	 edi
+  002e2	e8 00 00 00 00	 call	 _VGF1_GetVol
+  002e7	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _DataInfoPos$S29174
+  002ed	83 c4 04	 add	 esp, 4
+  002f0	8b d1		 mov	 edx, ecx
+  002f2	c1 e2 03	 shl	 edx, 3
+  002f5	2b d1		 sub	 edx, ecx
+
+; 429  : 
+; 430  : 			DataInfo[DataInfoPos].Chan[i].SampleOfs = VGF1_GetSampleOfs(i);
+
+  002f7	57		 push	 edi
+  002f8	8d 14 91	 lea	 edx, DWORD PTR [ecx+edx*4]
+  002fb	8d 0c 51	 lea	 ecx, DWORD PTR [ecx+edx*2]
+  002fe	88 84 8e 41 00
+	00 00		 mov	 BYTE PTR _DataInfo$S29173[esi+ecx*4+65], al
+  00305	e8 00 00 00 00	 call	 _VGF1_GetSampleOfs
+  0030a	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _DataInfoPos$S29174
+  00310	83 c4 04	 add	 esp, 4
+  00313	8b d1		 mov	 edx, ecx
+  00315	c1 e2 03	 shl	 edx, 3
+  00318	2b d1		 sub	 edx, ecx
+
+; 431  : 			DataInfo[DataInfoPos].Chan[i].SampleSiz = VGF1_GetSampleSize(i);
+
+  0031a	57		 push	 edi
+  0031b	8d 14 91	 lea	 edx, DWORD PTR [ecx+edx*4]
+  0031e	8d 14 51	 lea	 edx, DWORD PTR [ecx+edx*2]
+  00321	89 84 96 42 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+edx*4+66], eax
+  00328	8b c1		 mov	 eax, ecx
+  0032a	c1 e0 03	 shl	 eax, 3
+  0032d	2b c1		 sub	 eax, ecx
+  0032f	8d 14 81	 lea	 edx, DWORD PTR [ecx+eax*4]
+  00332	8d 2c 51	 lea	 ebp, DWORD PTR [ecx+edx*2]
+  00335	c1 e5 02	 shl	 ebp, 2
+  00338	e8 00 00 00 00	 call	 _VGF1_GetSampleSize
+  0033d	83 c4 04	 add	 esp, 4
+  00340	89 84 2e 46 00
+	00 00		 mov	 DWORD PTR _DataInfo$S29173[esi+ebp+70], eax
+  00347	83 c3 34	 add	 ebx, 52			; 00000034H
+  0034a	47		 inc	 edi
+  0034b	83 c6 36	 add	 esi, 54			; 00000036H
+  0034e	81 fb db 00 00
+	00		 cmp	 ebx, OFFSET FLAT:_VXdata$S29178+219
+  00354	0f 8c ef fd ff
+	ff		 jl	 $L29252
+
+; 432  : 		}
+; 433  : 
+; 434  : 		DataPlayPos++; DataPlayPos %= 80;
+
+  0035a	a1 00 00 00 00	 mov	 eax, DWORD PTR _DataPlayPos$S29175
+  0035f	b9 50 00 00 00	 mov	 ecx, 80			; 00000050H
+  00364	40		 inc	 eax
+
+; 435  : 		DataInfoPos++; DataInfoPos %= 80;
+; 436  : 
+; 437  : 		LeaveCriticalSection(&InfoCS);
+
+  00365	68 00 00 00 00	 push	 OFFSET FLAT:_InfoCS$S29176
+  0036a	99		 cdq
+  0036b	f7 f9		 idiv	 ecx
+  0036d	89 15 00 00 00
+	00		 mov	 DWORD PTR _DataPlayPos$S29175, edx
+  00373	8b 15 00 00 00
+	00		 mov	 edx, DWORD PTR _DataInfoPos$S29174
+  00379	8d 42 01	 lea	 eax, DWORD PTR [edx+1]
+  0037c	99		 cdq
+  0037d	f7 f9		 idiv	 ecx
+  0037f	89 15 00 00 00
+	00		 mov	 DWORD PTR _DataInfoPos$S29174, edx
+  00385	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+  0038b	5b		 pop	 ebx
+  0038c	5d		 pop	 ebp
+  0038d	5e		 pop	 esi
+$L29243:
+
+; 438  : }
+
+  0038e	5f		 pop	 edi
+  0038f	c3		 ret	 0
+?FC6_PLAY_MUSIC@@YAXXZ ENDP				; FC6_PLAY_MUSIC
+_TEXT	ENDS
+;	COMDAT ?CheckSequence@@YAXXZ
+_TEXT	SEGMENT
+?CheckSequence@@YAXXZ PROC NEAR				; CheckSequence, COMDAT
+
+; 445  : int		i;
+; 446  : SBYTE	*p;
+; 447  : 
+; 448  : 	if (FC16Mod.SEQoffs >= FC16Mod.SEQendp) FC16Mod.SEQoffs = 0;
+
+  00000	a1 28 00 00 00	 mov	 eax, DWORD PTR _FC16Mod$S29179+40
+  00005	8b 0d 10 00 00
+	00		 mov	 ecx, DWORD PTR _FC16Mod$S29179+16
+  0000b	3b c1		 cmp	 eax, ecx
+  0000d	56		 push	 esi
+  0000e	7c 07		 jl	 SHORT $L29259
+  00010	33 c0		 xor	 eax, eax
+  00012	a3 28 00 00 00	 mov	 DWORD PTR _FC16Mod$S29179+40, eax
+$L29259:
+
+; 449  : 
+; 450  : 	if ((p = FC16Mod.SEQinfo + FC16Mod.SEQoffs) == NULL) return;
+
+  00017	8b 0d 0c 00 00
+	00		 mov	 ecx, DWORD PTR _FC16Mod$S29179+12
+  0001d	03 c8		 add	 ecx, eax
+  0001f	85 c9		 test	 ecx, ecx
+  00021	74 3f		 je	 SHORT $L29264
+
+; 451  : 
+; 452  : 	if (p[12])	FC16Mod.REPspd = 
+
+  00023	8a 41 0c	 mov	 al, BYTE PTR [ecx+12]
+  00026	84 c0		 test	 al, al
+  00028	74 0a		 je	 SHORT $L29261
+
+; 453  : 				FC16Mod.REPcnt = p[12];		// Get replay speed
+
+  0002a	a2 02 00 00 00	 mov	 BYTE PTR _FC16Mod$S29179+2, al
+  0002f	a2 03 00 00 00	 mov	 BYTE PTR _FC16Mod$S29179+3, al
+$L29261:
+
+; 454  : 
+; 455  : 	for (i = 0; i < 4; i++, p += 3)
+
+  00034	8b 35 14 00 00
+	00		 mov	 esi, DWORD PTR _FC16Mod$S29179+20
+  0003a	b8 0c 00 00 00	 mov	 eax, OFFSET FLAT:_VXdata$S29178+12
+$L29262:
+
+; 456  : 	{
+; 457  : 		VXdata[i].PatPtr = 
+; 458  : 			FC16Mod.PATinfo + (p[0] * 64);	// Pattern to play
+
+  0003f	0f be 11	 movsx	 edx, BYTE PTR [ecx]
+  00042	c1 e2 06	 shl	 edx, 6
+  00045	03 d6		 add	 edx, esi
+  00047	83 c1 03	 add	 ecx, 3
+  0004a	89 50 f9	 mov	 DWORD PTR [eax-7], edx
+
+; 459  : 			VXdata[i].NoteTR = p[1];		// Transpose value
+
+  0004d	8a 51 fe	 mov	 dl, BYTE PTR [ecx-2]
+  00050	88 10		 mov	 BYTE PTR [eax], dl
+
+; 460  : 			VXdata[i].SampTR = p[2];		// SoundTranspose value
+
+  00052	8a 51 ff	 mov	 dl, BYTE PTR [ecx-1]
+  00055	88 50 01	 mov	 BYTE PTR [eax+1], dl
+  00058	83 c0 34	 add	 eax, 52			; 00000034H
+  0005b	3d dc 00 00 00	 cmp	 eax, OFFSET FLAT:_VXdata$S29178+220
+  00060	7c dd		 jl	 SHORT $L29262
+$L29264:
+
+; 461  : 	}
+; 462  : }
+
+  00062	5e		 pop	 esi
+  00063	c3		 ret	 0
+?CheckSequence@@YAXXZ ENDP				; CheckSequence
+_TEXT	ENDS
+;	COMDAT ?NEW_NOTE@@YAXH@Z
+_TEXT	SEGMENT
+_voc$ = 8
+?NEW_NOTE@@YAXH@Z PROC NEAR				; NEW_NOTE, COMDAT
+
+; 477  : SBYTE	*p, note, info, temp;
+; 478  : 
+; 479  : 	if (VXdata[voc].PatPtr == NULL) return;
+
+  00000	8b 54 24 04	 mov	 edx, DWORD PTR _voc$[esp-4]
+  00004	53		 push	 ebx
+  00005	55		 push	 ebp
+  00006	56		 push	 esi
+  00007	8d 04 52	 lea	 eax, DWORD PTR [edx+edx*2]
+  0000a	57		 push	 edi
+  0000b	8d 34 82	 lea	 esi, DWORD PTR [edx+eax*4]
+  0000e	c1 e6 02	 shl	 esi, 2
+  00011	8b 86 05 00 00
+	00		 mov	 eax, DWORD PTR _VXdata$S29178[esi+5]
+  00017	85 c0		 test	 eax, eax
+  00019	0f 84 62 01 00
+	00		 je	 $L29266
+
+; 480  : 
+; 481  : 	p = VXdata[voc].PatPtr + FC16Mod.PAToffs;
+
+  0001f	8b 2d 2c 00 00
+	00		 mov	 ebp, DWORD PTR _FC16Mod$S29179+44
+
+; 482  : 	info = p[1];	// Get info byte #1 (bl)
+; 483  : 	note = p[0];	// Get note			(al)
+
+  00025	8a 4c 05 00	 mov	 cl, BYTE PTR [ebp+eax]
+  00029	8a 5c 05 01	 mov	 bl, BYTE PTR [ebp+eax+1]
+  0002d	8d 7c 05 01	 lea	 edi, DWORD PTR [ebp+eax+1]
+
+; 484  : 	if (note) goto ww1;
+
+  00031	84 c9		 test	 cl, cl
+  00033	74 0b		 je	 SHORT $L29272
+
+; 486  : 	goto ww11;
+; 487  : ww1:
+; 488  : 	VXdata[voc].Period = 0;
+
+  00035	66 c7 86 09 00
+	00 00 00 00	 mov	 WORD PTR _VXdata$S29178[esi+9], 0
+  0003e	eb 05		 jmp	 SHORT $ww11$29278
+$L29272:
+
+; 485  : 	if (!(info &= 0xC0)) goto noport;
+
+  00040	80 e3 c0	 and	 bl, -64			; ffffffc0H
+  00043	74 16		 je	 SHORT $noport$29276
+$ww11$29278:
+
+; 489  : ww11:
+; 490  : 	VXdata[voc].PortaV = 0;
+; 491  : 	if (!(info & 0x80)) goto noport;
+
+  00045	f6 c3 80	 test	 bl, 128			; 00000080H
+  00048	c6 86 11 00 00
+	00 00		 mov	 BYTE PTR _VXdata$S29178[esi+17], 0
+  0004f	74 0a		 je	 SHORT $noport$29276
+
+; 492  : 	VXdata[voc].PortaV = p[3];
+
+  00051	8a 44 05 03	 mov	 al, BYTE PTR [ebp+eax+3]
+  00055	88 86 11 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+17], al
+$noport$29276:
+
+; 493  : noport:
+; 494  : 	if (!(note &= 0x7F)) return;
+
+  0005b	80 e1 7f	 and	 cl, 127			; 0000007fH
+  0005e	0f 84 1d 01 00
+	00		 je	 $L29266
+
+; 495  : 	VXdata[voc].Note = note;
+
+  00064	88 8e 0f 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+15], cl
+
+; 496  : 	VXdata[voc].Info = info = p[1];
+
+  0006a	8a 1f		 mov	 bl, BYTE PTR [edi]
+
+; 497  : 
+; 498  : 	VGF1_StopVoice(voc);
+
+  0006c	52		 push	 edx
+  0006d	88 9e 10 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+16], bl
+  00073	e8 00 00 00 00	 call	 _VGF1_StopVoice
+
+; 499  : 
+; 500  : 	info = (info & 0x3F);
+; 501  : 	info += VXdata[voc].SampTR;
+
+  00078	8a 86 0d 00 00
+	00		 mov	 al, BYTE PTR _VXdata$S29178[esi+13]
+  0007e	80 e3 3f	 and	 bl, 63			; 0000003fH
+  00081	02 c3		 add	 al, bl
+  00083	83 c4 04	 add	 esp, 4
+
+; 502  : 
+; 503  : 	//Control #1
+; 504  : //	if (info >= FC16Mod.VOLnum) info = FC16Mod.VOLnum-1;
+; 505  : 
+; 506  : 	if (info >= FC16Mod.VOLnum)
+
+  00086	66 0f be c8	 movsx	 cx, al
+  0008a	66 3b 0d 24 00
+	00 00		 cmp	 cx, WORD PTR _FC16Mod$S29179+36
+  00091	7c 5a		 jl	 SHORT $L29283
+
+; 507  : 	{
+; 508  : 		VXdata[voc].VolTspd = 0;
+
+  00093	c6 86 13 00 00
+	00 00		 mov	 BYTE PTR _VXdata$S29178[esi+19], 0
+
+; 509  : 		VXdata[voc].VolTcnt = 0;
+
+  0009a	c6 86 14 00 00
+	00 00		 mov	 BYTE PTR _VXdata$S29178[esi+20], 0
+
+; 510  : 		VXdata[voc].VibSpd = 0;
+
+  000a1	c6 86 27 00 00
+	00 00		 mov	 BYTE PTR _VXdata$S29178[esi+39], 0
+
+; 511  : 		VXdata[voc].VibXOR = 0;
+
+  000a8	c6 86 2b 00 00
+	00 00		 mov	 BYTE PTR _VXdata$S29178[esi+43], 0
+
+; 512  : 		VXdata[voc].VibAmp = 0; 
+
+  000af	c6 86 28 00 00
+	00 00		 mov	 BYTE PTR _VXdata$S29178[esi+40], 0
+
+; 513  : 		VXdata[voc].VibDel = 0;
+; 514  : 		VXdata[voc].FrqOfs = 0;
+
+  000b6	33 c0		 xor	 eax, eax
+  000b8	c6 86 2a 00 00
+	00 00		 mov	 BYTE PTR _VXdata$S29178[esi+42], 0
+  000bf	89 86 22 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+34], eax
+
+; 515  : 		VXdata[voc].VolSus = 0; 
+
+  000c5	88 86 15 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+21], al
+
+; 516  : 		VXdata[voc].FrqSus = 0;
+
+  000cb	88 86 26 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+38], al
+
+; 517  : 		VXdata[voc].VolOfs = 0;
+
+  000d1	89 86 1a 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+26], eax
+
+; 518  : 
+; 519  : 		VXdata[voc].VolPtr = &TabNULL[5];
+
+  000d7	b8 05 00 00 00	 mov	 eax, OFFSET FLAT:_TabNULL$S29180+5
+  000dc	89 86 16 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+22], eax
+
+; 520  : 		VXdata[voc].FrqPtr = &TabNULL[5];
+
+  000e2	89 86 1e 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+30], eax
+
+; 544  : 
+; 545  : 
+; 546  : }
+
+  000e8	5f		 pop	 edi
+  000e9	5e		 pop	 esi
+  000ea	5d		 pop	 ebp
+  000eb	5b		 pop	 ebx
+  000ec	c3		 ret	 0
+$L29283:
+
+; 521  : 		return;
+; 522  : 	}
+; 523  : 
+; 524  : 	p = FC16Mod.VOLinfo + (info * 64);
+
+  000ed	8b 0d 18 00 00
+	00		 mov	 ecx, DWORD PTR _FC16Mod$S29179+24
+
+; 525  : 	VXdata[voc].VolOfs = 0;
+
+  000f3	33 ff		 xor	 edi, edi
+  000f5	0f be c0	 movsx	 eax, al
+  000f8	c1 e0 06	 shl	 eax, 6
+  000fb	03 c1		 add	 eax, ecx
+  000fd	89 be 1a 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+26], edi
+
+; 526  : 	
+; 527  : 	VXdata[voc].VolTspd = p[0];
+; 528  : 	VXdata[voc].VolTcnt = VXdata[voc].VolTspd;
+; 529  : 
+; 530  : 	temp = p[1];
+; 531  : 
+; 532  : 	//Control #2
+; 533  : 	if (temp >= FC16Mod.FRQnum) temp = FC16Mod.FRQnum-1;
+
+  00103	66 8b 15 26 00
+	00 00		 mov	 dx, WORD PTR _FC16Mod$S29179+38
+  0010a	8a 08		 mov	 cl, BYTE PTR [eax]
+  0010c	88 8e 13 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+19], cl
+  00112	88 8e 14 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+20], cl
+  00118	8a 48 01	 mov	 cl, BYTE PTR [eax+1]
+  0011b	66 0f be d9	 movsx	 bx, cl
+  0011f	66 3b da	 cmp	 bx, dx
+  00122	7c 04		 jl	 SHORT $L29284
+  00124	fe ca		 dec	 dl
+  00126	8a ca		 mov	 cl, dl
+$L29284:
+
+; 534  : 
+; 535  : 	VXdata[voc].VibSpd = p[2];
+
+  00128	8a 50 02	 mov	 dl, BYTE PTR [eax+2]
+
+; 536  : 	VXdata[voc].VibXOR = 0x40;
+; 537  : 	VXdata[voc].VibAmp = VXdata[voc].VibAmpC = p[3];
+; 538  : 	VXdata[voc].VibDel = p[4];
+; 539  : 	p += 5;
+; 540  : 	VXdata[voc].VolPtr = p;
+
+  0012b	83 c0 05	 add	 eax, 5
+  0012e	88 96 27 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+39], dl
+  00134	c6 86 2b 00 00
+	00 40		 mov	 BYTE PTR _VXdata$S29178[esi+43], 64 ; 00000040H
+  0013b	8a 50 fe	 mov	 dl, BYTE PTR [eax-2]
+  0013e	88 96 29 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+41], dl
+  00144	88 96 28 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+40], dl
+  0014a	8a 50 ff	 mov	 dl, BYTE PTR [eax-1]
+  0014d	88 96 2a 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+42], dl
+  00153	89 86 16 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+22], eax
+
+; 541  : 	VXdata[voc].FrqPtr = FC16Mod.FRQinfo + (temp * 64);
+
+  00159	0f be c1	 movsx	 eax, cl
+  0015c	8b 0d 1c 00 00
+	00		 mov	 ecx, DWORD PTR _FC16Mod$S29179+28
+  00162	c1 e0 06	 shl	 eax, 6
+  00165	03 c1		 add	 eax, ecx
+  00167	89 86 1e 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+30], eax
+
+; 542  : 
+; 543  : 	VXdata[voc].FrqOfs = VXdata[voc].VolSus = VXdata[voc].FrqSus = 0;
+
+  0016d	c6 86 26 00 00
+	00 00		 mov	 BYTE PTR _VXdata$S29178[esi+38], 0
+  00174	c6 86 15 00 00
+	00 00		 mov	 BYTE PTR _VXdata$S29178[esi+21], 0
+  0017b	89 be 22 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+34], edi
+$L29266:
+
+; 544  : 
+; 545  : 
+; 546  : }
+
+  00181	5f		 pop	 edi
+  00182	5e		 pop	 esi
+  00183	5d		 pop	 ebp
+  00184	5b		 pop	 ebx
+  00185	c3		 ret	 0
+?NEW_NOTE@@YAXH@Z ENDP					; NEW_NOTE
+_TEXT	ENDS
+EXTRN	_VGF1_SetPeriod:NEAR
+EXTRN	_VGF1_SetVol:NEAR
+;	COMDAT ?EFFECTS@@YAXH@Z
+_TEXT	SEGMENT
+_voc$ = 8
+_v$ = -12
+_TabOffset$ = -8
+_Period$ = -4
+?EFFECTS@@YAXH@Z PROC NEAR				; EFFECTS, COMDAT
+
+; 556  : {
+
+  00000	55		 push	 ebp
+  00001	8b ec		 mov	 ebp, esp
+  00003	83 ec 0c	 sub	 esp, 12			; 0000000cH
+
+; 557  : tVOCSTR	*v = &VXdata[voc];
+
+  00006	8b 45 08	 mov	 eax, DWORD PTR _voc$[ebp]
+  00009	53		 push	 ebx
+  0000a	56		 push	 esi
+
+; 558  : 
+; 559  : UBYTE	val;
+; 560  : SBYTE	*p, tmp;
+; 561  : SLONG	TabOffset;
+; 562  : SWORD	Period;
+; 563  : 
+; 564  : 
+; 565  : 
+; 566  : 	if (v == NULL) return;
+
+  0000b	33 db		 xor	 ebx, ebx
+  0000d	8d 0c 40	 lea	 ecx, DWORD PTR [eax+eax*2]
+  00010	8d 34 88	 lea	 esi, DWORD PTR [eax+ecx*4]
+  00013	c1 e6 02	 shl	 esi, 2
+  00016	8d 8e 00 00 00
+	00		 lea	 ecx, DWORD PTR _VXdata$S29178[esi]
+  0001c	3b cb		 cmp	 ecx, ebx
+  0001e	89 4d f4	 mov	 DWORD PTR _v$[ebp], ecx
+  00021	0f 84 22 03 00
+	00		 je	 $L29286
+
+; 567  : 
+; 568  : 
+; 569  : 
+; 570  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 571  : // FREQUENCY EFFECTS
+; 572  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 573  : testsustain:
+; 574  : 	if (VXdata[voc].FrqSus == 0) goto sustzero;
+
+  00027	8a 8e 26 00 00
+	00		 mov	 cl, BYTE PTR _VXdata$S29178[esi+38]
+  0002d	57		 push	 edi
+  0002e	3a cb		 cmp	 cl, bl
+  00030	0f 85 ac 00 00
+	00		 jne	 $L29295
+
+; 576  : 	goto VOLUfx;
+; 577  : sustzero:
+; 578  : 	p = VXdata[voc].FrqPtr + VXdata[voc].FrqOfs;
+
+  00036	8b 3d 1c 00 00
+	00		 mov	 edi, DWORD PTR _FC16Mod$S29179+28
+$testsustain$29294:
+  0003c	8b 8e 22 00 00
+	00		 mov	 ecx, DWORD PTR _VXdata$S29178[esi+34]
+  00042	8b 96 1e 00 00
+	00		 mov	 edx, DWORD PTR _VXdata$S29178[esi+30]
+  00048	03 ca		 add	 ecx, edx
+$testeffects$29300:
+
+; 579  : testeffects:
+; 580  : 	val = p[0];
+
+  0004a	8a 11		 mov	 dl, BYTE PTR [ecx]
+
+; 581  : 	if (val == 0xE1) goto VOLUfx;
+
+  0004c	80 fa e1	 cmp	 dl, 225			; 000000e1H
+  0004f	0f 84 93 00 00
+	00		 je	 $VOLUfx$29298
+
+; 582  : 
+; 583  : 	if (val != 0xE0) goto testnewsound;	// E0 = loop to point of FRQtable
+
+  00055	80 fa e0	 cmp	 dl, 224			; 000000e0H
+  00058	75 16		 jne	 SHORT $testnewsound$29304
+
+; 584  : 
+; 585  : 	VXdata[voc].FrqOfs = (SLONG)(p[1] & 0x3F);
+
+  0005a	8a 49 01	 mov	 cl, BYTE PTR [ecx+1]
+  0005d	83 e1 3f	 and	 ecx, 63			; 0000003fH
+  00060	89 8e 22 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+34], ecx
+
+; 586  : 	p = VXdata[voc].FrqPtr + VXdata[voc].FrqOfs;
+
+  00066	8b 96 1e 00 00
+	00		 mov	 edx, DWORD PTR _VXdata$S29178[esi+30]
+  0006c	03 ca		 add	 ecx, edx
+
+; 587  : 	val = p[0];
+
+  0006e	8a 11		 mov	 dl, BYTE PTR [ecx]
+$testnewsound$29304:
+
+; 588  : 
+; 589  : testnewsound:
+; 590  : 	if (val != 0xE2) goto testE4;		// E2 = set waveform (kick!)
+
+  00070	80 fa e2	 cmp	 dl, 226			; 000000e2H
+  00073	0f 84 3d 03 00
+	00		 je	 $L29307
+
+; 597  : 	goto transpose;
+; 598  : 
+; 599  : testE4:
+; 600  : 	if (val != 0xE4) goto testE9;		// E4 = change waveform (no kick!)
+
+  00079	80 fa e4	 cmp	 dl, 228			; 000000e4H
+  0007c	0f 84 1c 03 00
+	00		 je	 $L29312
+
+; 603  : 	VXdata[voc].FrqOfs += 2;
+; 604  : 	goto transpose;
+; 605  : 
+; 606  : testE9:
+; 607  : 	if (val != 0xE9) goto testpatjmp;
+
+  00082	80 fa e9	 cmp	 dl, 233			; 000000e9H
+  00085	75 07		 jne	 SHORT $testpatjmp$29317
+
+; 608  : 	VXdata[voc].FrqOfs += 3;
+
+  00087	83 86 22 00 00
+	00 03		 add	 DWORD PTR _VXdata$S29178[esi+34], 3
+$testpatjmp$29317:
+
+; 609  : 
+; 610  : testpatjmp:
+; 611  : 	if (val != 0xE7) goto testpitchbend;
+
+  0008e	80 fa e7	 cmp	 dl, 231			; 000000e7H
+  00091	75 17		 jne	 SHORT $testpitchbend$29320
+
+; 612  : 	VXdata[voc].FrqOfs = 0;
+
+  00093	89 9e 22 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+34], ebx
+
+; 613  : 	p = VXdata[voc].FrqPtr = FC16Mod.FRQinfo + (p[1] * 64);
+
+  00099	0f be 49 01	 movsx	 ecx, BYTE PTR [ecx+1]
+  0009d	c1 e1 06	 shl	 ecx, 6
+  000a0	03 cf		 add	 ecx, edi
+  000a2	89 8e 1e 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+30], ecx
+
+; 614  : 	goto testeffects;
+
+  000a8	eb a0		 jmp	 SHORT $testeffects$29300
+$testpitchbend$29320:
+
+; 615  : 
+; 616  : testpitchbend:
+; 617  : 	if (val != 0xEA) goto testnewsustain;
+
+  000aa	80 fa ea	 cmp	 dl, 234			; 000000eaH
+  000ad	0f 84 c8 02 00
+	00		 je	 $L29322
+
+; 621  : 	goto transpose;
+; 622  : 
+; 623  : testnewsustain:
+; 624  : 	if (val != 0xE8) goto testnewvib;
+
+  000b3	80 fa e8	 cmp	 dl, 232			; 000000e8H
+  000b6	0f 85 93 02 00
+	00		 jne	 $testnewvib$29327
+
+; 625  : 	VXdata[voc].FrqSus = p[1];
+
+  000bc	8a 51 01	 mov	 dl, BYTE PTR [ecx+1]
+  000bf	88 96 26 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+38], dl
+
+; 626  : 	VXdata[voc].FrqOfs += 2;
+
+  000c5	8b 96 22 00 00
+	00		 mov	 edx, DWORD PTR _VXdata$S29178[esi+34]
+  000cb	83 c2 02	 add	 edx, 2
+  000ce	89 96 22 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+34], edx
+  000d4	8a 8e 26 00 00
+	00		 mov	 cl, BYTE PTR _VXdata$S29178[esi+38]
+  000da	3a cb		 cmp	 cl, bl
+  000dc	0f 84 5a ff ff
+	ff		 je	 $testsustain$29294
+$L29295:
+
+; 575  : 	VXdata[voc].FrqSus--;
+
+  000e2	fe 8e 26 00 00
+	00		 dec	 BYTE PTR _VXdata$S29178[esi+38]
+$VOLUfx$29298:
+
+; 639  : 
+; 640  : 
+; 641  : 
+; 642  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 643  : // VOLUME EFFECTS
+; 644  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 645  : VOLUfx:
+; 646  : 	if (!VXdata[voc].VolSus) goto volsustzero;
+
+  000e8	8a 8e 15 00 00
+	00		 mov	 cl, BYTE PTR _VXdata$S29178[esi+21]
+  000ee	3a cb		 cmp	 cl, bl
+  000f0	0f 85 17 01 00
+	00		 jne	 $L29331
+
+; 648  : 	goto calcperiod;
+; 649  : 
+; 650  : volsustzero:
+; 651  : 	if (VXdata[voc].VBendC) goto do_VOLbend;
+
+  000f6	38 9e 31 00 00
+	00		 cmp	 BYTE PTR _VXdata$S29178[esi+49], bl
+  000fc	0f 85 be 00 00
+	00		 jne	 $do_VOLbend$29337
+
+; 652  : 	if (--VXdata[voc].VolTcnt) goto calcperiod;
+
+  00102	8a 8e 14 00 00
+	00		 mov	 cl, BYTE PTR _VXdata$S29178[esi+20]
+  00108	fe c9		 dec	 cl
+  0010a	88 8e 14 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+20], cl
+  00110	0f 85 ff 00 00
+	00		 jne	 $calcperiod$29334
+
+; 653  : 	VXdata[voc].VolTcnt = VXdata[voc].VolTspd;
+
+  00116	8a 8e 13 00 00
+	00		 mov	 cl, BYTE PTR _VXdata$S29178[esi+19]
+  0011c	88 8e 14 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+20], cl
+
+; 654  : 
+; 655  : volu_cmd:
+; 656  : 	p = VXdata[voc].VolPtr + VXdata[voc].VolOfs;
+
+  00122	8b 8e 16 00 00
+	00		 mov	 ecx, DWORD PTR _VXdata$S29178[esi+22]
+  00128	03 8e 1a 00 00
+	00		 add	 ecx, DWORD PTR _VXdata$S29178[esi+26]
+
+; 657  : 	val = p[0];
+
+  0012e	8a 11		 mov	 dl, BYTE PTR [ecx]
+
+; 658  : 
+; 659  : //testvoluend:
+; 660  : 	if (val == 0xE1) goto calcperiod;		// VolSeq END
+
+  00130	80 fa e1	 cmp	 dl, 225			; 000000e1H
+  00133	0f 84 dc 00 00
+	00		 je	 $calcperiod$29334
+$volu_cmd$29341:
+
+; 661  : 	if (val != 0xEA) goto testVOLsustain;	// VolSeq NEWBEND
+
+  00139	80 fa ea	 cmp	 dl, 234			; 000000eaH
+  0013c	74 61		 je	 SHORT $L29344
+
+; 665  : 	goto do_VOLbend;
+; 666  : 
+; 667  : testVOLsustain:
+; 668  : 	if (val != 0xE8) goto testVOLloop;		// VolSeq SUSTAIN
+
+  0013e	80 fa e8	 cmp	 dl, 232			; 000000e8H
+  00141	74 42		 je	 SHORT $L29348
+
+; 671  : 	goto calcperiod;
+; 672  : 
+; 673  : testVOLloop:
+; 674  : 	if (val != 0xE0) goto setvolume;		// VolSeq LOOP
+
+  00143	80 fa e0	 cmp	 dl, 224			; 000000e0H
+  00146	75 23		 jne	 SHORT $setvolume$29353
+
+; 675  : 	VXdata[voc].VolOfs = (p[1] & 0x3F) - 5;
+
+  00148	8a 51 01	 mov	 dl, BYTE PTR [ecx+1]
+  0014b	83 e2 3f	 and	 edx, 63			; 0000003fH
+  0014e	8d 4a fb	 lea	 ecx, DWORD PTR [edx-5]
+  00151	89 8e 1a 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+26], ecx
+  00157	8b 96 16 00 00
+	00		 mov	 edx, DWORD PTR _VXdata$S29178[esi+22]
+  0015d	03 ca		 add	 ecx, edx
+  0015f	8a 11		 mov	 dl, BYTE PTR [ecx]
+  00161	80 fa e1	 cmp	 dl, 225			; 000000e1H
+  00164	75 d3		 jne	 SHORT $volu_cmd$29341
+
+; 835  : }
+
+  00166	e9 aa 00 00 00	 jmp	 $calcperiod$29334
+$setvolume$29353:
+
+; 686  : 	goto calcperiod;
+; 687  : 
+; 688  : setvolume:
+; 689  : 	VXdata[voc].Volume = p[0];
+
+  0016b	8a 09		 mov	 cl, BYTE PTR [ecx]
+  0016d	88 8e 0b 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+11], cl
+
+; 690  : 	VXdata[voc].VolOfs++;
+
+  00173	8b 8e 1a 00 00
+	00		 mov	 ecx, DWORD PTR _VXdata$S29178[esi+26]
+  00179	41		 inc	 ecx
+  0017a	89 8e 1a 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+26], ecx
+  00180	e9 90 00 00 00	 jmp	 $calcperiod$29334
+$L29348:
+
+; 669  : 	VXdata[voc].VolSus = p[1];
+
+  00185	8a 51 01	 mov	 dl, BYTE PTR [ecx+1]
+  00188	88 96 15 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+21], dl
+
+; 670  : 	VXdata[voc].VolOfs += 2;
+
+  0018e	8b 8e 1a 00 00
+	00		 mov	 ecx, DWORD PTR _VXdata$S29178[esi+26]
+  00194	83 c1 02	 add	 ecx, 2
+  00197	89 8e 1a 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+26], ecx
+
+; 835  : }
+
+  0019d	eb 76		 jmp	 SHORT $calcperiod$29334
+$L29344:
+
+; 662  : 	VXdata[voc].VBendS = p[1];
+
+  0019f	8a 51 01	 mov	 dl, BYTE PTR [ecx+1]
+  001a2	88 96 30 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+48], dl
+
+; 663  : 	VXdata[voc].VBendC = p[2];
+
+  001a8	8a 49 02	 mov	 cl, BYTE PTR [ecx+2]
+  001ab	88 8e 31 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+49], cl
+
+; 664  : 	VXdata[voc].VolOfs += 3;
+
+  001b1	8b 8e 1a 00 00
+	00		 mov	 ecx, DWORD PTR _VXdata$S29178[esi+26]
+  001b7	83 c1 03	 add	 ecx, 3
+  001ba	89 8e 1a 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+26], ecx
+$do_VOLbend$29337:
+
+; 676  : 	goto volu_cmd;
+; 677  : 
+; 678  : do_VOLbend:
+; 679  : 	VXdata[voc].VBendX ^= 0xFF;				// DO VOLBend
+
+  001c0	8a 8e 32 00 00
+	00		 mov	 cl, BYTE PTR _VXdata$S29178[esi+50]
+  001c6	f6 d1		 not	 cl
+
+; 680  : 	if (!VXdata[voc].VBendX) goto calcperiod;
+
+  001c8	3a cb		 cmp	 cl, bl
+  001ca	88 8e 32 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+50], cl
+  001d0	74 43		 je	 SHORT $calcperiod$29334
+
+; 681  : 	VXdata[voc].VBendC--;
+
+  001d2	8a 96 31 00 00
+	00		 mov	 dl, BYTE PTR _VXdata$S29178[esi+49]
+  001d8	fe ca		 dec	 dl
+  001da	88 96 31 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+49], dl
+
+; 682  : 	VXdata[voc].Volume += VXdata[voc].VBendS;
+
+  001e0	8a 96 30 00 00
+	00		 mov	 dl, BYTE PTR _VXdata$S29178[esi+48]
+  001e6	8a 8e 0b 00 00
+	00		 mov	 cl, BYTE PTR _VXdata$S29178[esi+11]
+  001ec	02 ca		 add	 cl, dl
+  001ee	88 8e 0b 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+11], cl
+
+; 683  : 
+; 684  : 	if (!(VXdata[voc].VBendS & 0x80)) goto calcperiod;
+
+  001f4	8a 8e 30 00 00
+	00		 mov	 cl, BYTE PTR _VXdata$S29178[esi+48]
+  001fa	f6 c1 80	 test	 cl, 128			; 00000080H
+  001fd	74 16		 je	 SHORT $calcperiod$29334
+
+; 685  : 	VXdata[voc].Volume = VXdata[voc].VBendC = 0;
+
+  001ff	88 9e 31 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+49], bl
+  00205	88 9e 0b 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+11], bl
+
+; 835  : }
+
+  0020b	eb 08		 jmp	 SHORT $calcperiod$29334
+$L29331:
+
+; 647  : 	VXdata[voc].VolSus--;
+
+  0020d	fe c9		 dec	 cl
+  0020f	88 8e 15 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+21], cl
+$calcperiod$29334:
+
+; 691  : 
+; 692  : 
+; 693  : 
+; 694  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 695  : // CALCULATE PERIOD
+; 696  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 697  : calcperiod:
+; 698  : 
+; 699  : 	tmp = VXdata[voc].FreqTR;
+
+  00215	8a 8e 2f 00 00
+	00		 mov	 cl, BYTE PTR _VXdata$S29178[esi+47]
+
+; 700  : 	if (tmp < 0) goto lockednote;		// is < 0? -> locked note
+
+  0021b	3a cb		 cmp	 cl, bl
+  0021d	7c 10		 jl	 SHORT $lockednote$29361
+
+; 701  : 
+; 702  : 	tmp += VXdata[voc].Note;			// +Note
+; 703  : 	tmp += VXdata[voc].NoteTR;			// +NoteTR
+
+  0021f	8a 96 0f 00 00
+	00		 mov	 dl, BYTE PTR _VXdata$S29178[esi+15]
+  00225	8a 9e 0c 00 00
+	00		 mov	 bl, BYTE PTR _VXdata$S29178[esi+12]
+  0022b	02 d3		 add	 dl, bl
+  0022d	02 ca		 add	 cl, dl
+$lockednote$29361:
+
+; 704  : 
+; 705  : lockednote:
+; 706  : 	tmp &= 0x7F;						// use only lower 7bit
+
+  0022f	80 e1 7f	 and	 cl, 127			; 0000007fH
+
+; 707  : 	TabOffset = (tmp * 2);				// (TABOFS OF NOTE*2)
+
+  00232	0f be c9	 movsx	 ecx, cl
+  00235	d1 e1		 shl	 ecx, 1
+  00237	89 4d f8	 mov	 DWORD PTR _TabOffset$[ebp], ecx
+
+; 708  : 	Period = PERIODS[tmp];
+
+  0023a	66 8b 89 00 00
+	00 00		 mov	 cx, WORD PTR ?PERIODS@@3PAFA[ecx]
+  00241	89 4d fc	 mov	 DWORD PTR _Period$[ebp], ecx
+
+; 709  : 
+; 710  : 	VXdata[voc].PER = Period;	// DEBUG
+
+  00244	66 89 8e 01 00
+	00 00		 mov	 WORD PTR _VXdata$S29178[esi+1], cx
+
+; 711  : 
+; 712  : 
+; 713  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 714  : // VIBRATOR
+; 715  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 716  : 
+; 717  : 
+; 718  : 	__asm
+; 719  : 	{
+; 720  : 		mov	 edi,v
+
+  0024b	8b 7d f4	 mov	 edi, DWORD PTR _v$[ebp]
+
+; 721  : 		xor	 ecx,ecx
+
+  0024e	33 c9		 xor	 ecx, ecx
+
+; 722  : 
+; 723  : 		mov	 ebx,TabOffset			; BX = d5 = TabOffset (idx*2)
+
+  00250	8b 5d f8	 mov	 ebx, DWORD PTR _TabOffset$[ebp]
+
+; 724  : 		mov	 cl,[edi]v.VibXOR		; CL = d7 = VibXORval
+
+  00253	8a 4f 2b	 mov	 cl, BYTE PTR [edi+43]
+
+; 725  : 		cmp	 [edi]v.VibDel,0
+
+  00256	80 7f 2a 00	 cmp	 BYTE PTR [edi+42], 0
+
+; 726  : 		jz	 vibrator
+
+  0025a	74 05		 je	 SHORT $vibrator$29363
+
+; 727  : 		dec	 [edi]v.VibDel
+
+  0025c	fe 4f 2a	 dec	 BYTE PTR [edi+42]
+
+; 728  : 		jmp	 novibrato
+
+  0025f	eb 50		 jmp	 SHORT $novibrato$29364
+$vibrator$29363:
+
+; 729  : vibrator:
+; 730  : 		xor	 edx,edx
+
+  00261	33 d2		 xor	 edx, edx
+
+; 731  : 		mov	 ch,[edi]v.VibAmp
+
+  00263	8a 6f 28	 mov	 ch, BYTE PTR [edi+40]
+
+; 732  : 		add	 ch,ch					; CH = d4 = VibAmp * 2
+
+  00266	02 ed		 add	 ch, ch
+
+; 733  : 		mov	 dl,[edi]v.VibAmpC		; DL = d1 = VibAmpCounter
+
+  00268	8a 57 29	 mov	 dl, BYTE PTR [edi+41]
+
+; 734  : 		test cl,80h
+
+  0026b	f6 c1 80	 test	 cl, -128		; ffffff80H
+
+; 735  : 		jz	 vib1
+
+  0026e	74 05		 je	 SHORT $vib1$29365
+
+; 736  : 		test cl,1
+
+  00270	f6 c1 01	 test	 cl, 1
+
+; 737  : 		jnz	 vib4
+
+  00273	75 20		 jne	 SHORT $vib4$29366
+$vib1$29365:
+
+; 738  : vib1:	
+; 739  : 		test cl,20h
+
+  00275	f6 c1 20	 test	 cl, 32			; 00000020H
+
+; 740  : 		jnz	 vib2
+
+  00278	75 0c		 jne	 SHORT $vib2$29367
+
+; 741  : 		sub	 dl,[edi]v.VibSpd
+
+  0027a	2a 57 27	 sub	 dl, BYTE PTR [edi+39]
+
+; 742  : 		jnc	 vib3
+
+  0027d	73 13		 jae	 SHORT $vib3$29368
+
+; 743  : 		or	 cl,20h
+
+  0027f	80 c9 20	 or	 cl, 32			; 00000020H
+
+; 744  : 		xor	 edx,edx
+
+  00282	33 d2		 xor	 edx, edx
+
+; 745  : 		jmp	 vib3
+
+  00284	eb 0c		 jmp	 SHORT $vib3$29368
+$vib2$29367:
+
+; 746  : vib2:	
+; 747  : 		add	 dl,[edi]v.VibSpd
+
+  00286	02 57 27	 add	 dl, BYTE PTR [edi+39]
+
+; 748  : 		cmp	 dl,ch
+
+  00289	3a d5		 cmp	 dl, ch
+
+; 749  : 		jc	 vib3
+
+  0028b	72 05		 jb	 SHORT $vib3$29368
+
+; 750  : 		and	 cl,0DFh
+
+  0028d	80 e1 df	 and	 cl, -33			; ffffffdfH
+
+; 751  : 		mov	 dl,ch
+
+  00290	8a d5		 mov	 dl, ch
+$vib3$29368:
+
+; 752  : vib3:
+; 753  : 		mov	 [edi]v.VibAmpC,dl
+
+  00292	88 57 29	 mov	 BYTE PTR [edi+41], dl
+$vib4$29366:
+
+; 754  : vib4:
+; 755  : 		shr  ch,1
+
+  00295	d0 ed		 shr	 ch, 1
+
+; 756  : 		sub	 dl,ch
+
+  00297	2a d5		 sub	 dl, ch
+
+; 757  : 		jnc	 vib5
+
+  00299	73 05		 jae	 SHORT $vib5$29369
+
+; 758  : 		sub	 dx,0100h
+
+  0029b	66 81 ea 00 01	 sub	 dx, 256			; 00000100H
+$vib5$29369:
+
+; 759  : vib5:
+; 760  : 		add	 bl,0A0h
+
+  002a0	80 c3 a0	 add	 bl, -96			; ffffffa0H
+
+; 761  : 		jc	 vib7
+
+  002a3	72 08		 jb	 SHORT $vib7$29370
+$vib6$29371:
+
+; 762  : vib6:
+; 763  : 		add	 dx,dx
+
+  002a5	66 03 d2	 add	 dx, dx
+
+; 764  : 		add	 bl,018h
+
+  002a8	80 c3 18	 add	 bl, 24			; 00000018H
+
+; 765  : 		jnc	 vib6
+
+  002ab	73 f8		 jae	 SHORT $vib6$29371
+$vib7$29370:
+
+; 766  : vib7:
+; 767  : 		add  Period,dx
+
+  002ad	66 01 55 fc	 add	 WORD PTR _Period$[ebp], dx
+$novibrato$29364:
+
+; 768  : novibrato:
+; 769  : 		xor	 cl,1
+
+  002b1	80 f1 01	 xor	 cl, 1
+
+; 770  : 		mov	 [edi]v.VibXOR,cl
+
+  002b4	88 4f 2b	 mov	 BYTE PTR [edi+43], cl
+
+; 771  : 	}
+; 772  : 
+; 773  : 
+; 774  : 
+; 775  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 776  : // PORTAMENTO
+; 777  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 778  : 	__asm 
+; 779  : 	{
+; 780  : 		mov	 edi,v
+
+  002b7	8b 7d f4	 mov	 edi, DWORD PTR _v$[ebp]
+
+; 781  : 		xor	 [edi]v.PortaX,1		; every 2 frames!!!
+
+  002ba	80 77 12 01	 xor	 BYTE PTR [edi+18], 1
+
+; 782  : 		jz	 noporta
+
+  002be	74 18		 je	 SHORT $noporta$29372
+
+; 783  : 
+; 784  : 		xor	 ebx,ebx
+
+  002c0	33 db		 xor	 ebx, ebx
+
+; 785  : 		mov	 bl,[edi]v.PortaV
+
+  002c2	8a 5f 11	 mov	 bl, BYTE PTR [edi+17]
+
+; 786  : 		or	 bl,bl
+
+  002c5	0a db		 or	 bl, bl
+
+; 787  : 		jz	 noporta
+
+  002c7	74 0f		 je	 SHORT $noporta$29372
+
+; 788  : 		cmp	 bl,1Fh
+
+  002c9	80 fb 1f	 cmp	 bl, 31			; 0000001fH
+
+; 789  : 		jbe	 portaup
+
+  002cc	76 06		 jbe	 SHORT $portaup$29373
+
+; 790  : //portadown: 
+; 791  : 		and	 bl,1Fh
+
+  002ce	80 e3 1f	 and	 bl, 31			; 0000001fH
+
+; 792  : 		neg	 bx
+
+  002d1	66 f7 db	 neg	 bx
+$portaup$29373:
+
+; 793  : portaup:
+; 794  : 		sub  [edi]v.Period,bx
+
+  002d4	66 29 5f 09	 sub	 WORD PTR [edi+9], bx
+$noporta$29372:
+
+; 795  : noporta:
+; 796  : 
+; 797  : 	}
+; 798  : 
+; 799  : 
+; 800  : 
+; 801  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 802  : // PITCH BEND
+; 803  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 804  : 	__asm
+; 805  : 	{
+; 806  : 		mov	 edi,v
+
+  002d8	8b 7d f4	 mov	 edi, DWORD PTR _v$[ebp]
+
+; 807  : 		xor	 [edi]v.PBendX,1		; every 2 frames!!!
+
+  002db	80 77 2e 01	 xor	 BYTE PTR [edi+46], 1
+
+; 808  : 		jz	 addporta
+
+  002df	74 1c		 je	 SHORT $addporta$29374
+
+; 809  : 
+; 810  : 		cmp	 [edi]v.PBendC,0
+
+  002e1	80 7f 2d 00	 cmp	 BYTE PTR [edi+45], 0
+
+; 811  : 		jz	 addporta
+
+  002e5	74 16		 je	 SHORT $addporta$29374
+
+; 812  : 		dec	 [edi]v.PBendC
+
+  002e7	fe 4f 2d	 dec	 BYTE PTR [edi+45]
+
+; 813  : 		xor	 ebx,ebx
+
+  002ea	33 db		 xor	 ebx, ebx
+
+; 814  : 		mov	 bl,[edi]v.PBend
+
+  002ec	8a 5f 2c	 mov	 bl, BYTE PTR [edi+44]
+
+; 815  : 		test bl,80h
+
+  002ef	f6 c3 80	 test	 bl, -128		; ffffff80H
+
+; 816  : 		jz	 pitchup
+
+  002f2	74 05		 je	 SHORT $pitchup$29375
+
+; 817  : 		and  bx,0FFh
+
+  002f4	66 81 e3 ff 00	 and	 bx, 255			; 000000ffH
+$pitchup$29375:
+
+; 818  : pitchup:
+; 819  : 		sub	 [edi]v.Period,bx
+
+  002f9	66 29 5f 09	 sub	 WORD PTR [edi+9], bx
+$addporta$29374:
+
+; 820  : addporta:
+; 821  : 	}
+; 822  : 
+; 823  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 824  : // CHECK LIMITS
+; 825  : //<<<<<<<<<<<<<<<<<<<<<<<<<<
+; 826  : 
+; 827  : 		Period += VXdata[voc].Period;
+
+  002fd	66 8b 8e 09 00
+	00 00		 mov	 cx, WORD PTR _VXdata$S29178[esi+9]
+  00304	8b 7d fc	 mov	 edi, DWORD PTR _Period$[ebp]
+  00307	03 f9		 add	 edi, ecx
+
+; 828  : 		if (Period <= 0x0070) Period = 0x0071;
+
+  00309	66 83 ff 70	 cmp	 di, 112			; 00000070H
+  0030d	7f 05		 jg	 SHORT $L29376
+  0030f	bf 71 00 00 00	 mov	 edi, 113		; 00000071H
+$L29376:
+
+; 829  : 		if (Period >  0x0d60) Period = 0x0d60;
+
+  00314	66 81 ff 60 0d	 cmp	 di, 3424		; 00000d60H
+  00319	7e 05		 jle	 SHORT $L29377
+  0031b	bf 60 0d 00 00	 mov	 edi, 3424		; 00000d60H
+$L29377:
+
+; 830  : 
+; 831  : 		VGF1_SetPeriod(voc, Period);
+
+  00320	0f bf d7	 movsx	 edx, di
+  00323	52		 push	 edx
+  00324	50		 push	 eax
+  00325	e8 00 00 00 00	 call	 _VGF1_SetPeriod
+
+; 832  : 		VGF1_SetVol(voc, VXdata[voc].Volume);
+
+  0032a	0f be 86 0b 00
+	00 00		 movsx	 eax, BYTE PTR _VXdata$S29178[esi+11]
+  00331	8b 4d 08	 mov	 ecx, DWORD PTR _voc$[ebp]
+  00334	83 c4 08	 add	 esp, 8
+  00337	50		 push	 eax
+  00338	51		 push	 ecx
+  00339	e8 00 00 00 00	 call	 _VGF1_SetVol
+  0033e	83 c4 08	 add	 esp, 8
+
+; 833  : 
+; 834  : 		VXdata[voc].PER2 = Period;	// DEBUG
+
+  00341	66 89 be 03 00
+	00 00		 mov	 WORD PTR _VXdata$S29178[esi+3], di
+  00348	5f		 pop	 edi
+$L29286:
+
+; 835  : }
+
+  00349	5e		 pop	 esi
+  0034a	5b		 pop	 ebx
+  0034b	8b e5		 mov	 esp, ebp
+  0034d	5d		 pop	 ebp
+  0034e	c3		 ret	 0
+$testnewvib$29327:
+
+; 627  : 	goto testsustain;
+; 628  : 
+; 629  : testnewvib:
+; 630  : 	if (val != 0xE3) goto transpose;
+
+  0034f	80 fa e3	 cmp	 dl, 227			; 000000e3H
+  00352	0f 85 94 00 00
+	00		 jne	 $transpose$29310
+
+; 631  : 	VXdata[voc].FrqOfs += 3;
+
+  00358	8b 96 22 00 00
+	00		 mov	 edx, DWORD PTR _VXdata$S29178[esi+34]
+  0035e	83 c2 03	 add	 edx, 3
+  00361	89 96 22 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+34], edx
+
+; 632  : 	VXdata[voc].VibSpd = p[1];
+
+  00367	8a 51 01	 mov	 dl, BYTE PTR [ecx+1]
+  0036a	88 96 27 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+39], dl
+
+; 633  : 	VXdata[voc].VibAmp = p[2];
+
+  00370	8a 49 02	 mov	 cl, BYTE PTR [ecx+2]
+  00373	88 8e 28 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+40], cl
+  00379	eb 71		 jmp	 SHORT $transpose$29310
+$L29322:
+
+; 618  : 	VXdata[voc].PBend  = p[1];
+
+  0037b	8a 51 01	 mov	 dl, BYTE PTR [ecx+1]
+  0037e	88 96 2c 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+44], dl
+
+; 619  : 	VXdata[voc].PBendC = p[2];
+
+  00384	8a 49 02	 mov	 cl, BYTE PTR [ecx+2]
+  00387	88 8e 2d 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+45], cl
+
+; 620  : 	VXdata[voc].FrqOfs += 3;
+
+  0038d	8b 8e 22 00 00
+	00		 mov	 ecx, DWORD PTR _VXdata$S29178[esi+34]
+  00393	83 c1 03	 add	 ecx, 3
+  00396	89 8e 22 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+34], ecx
+
+; 835  : }
+
+  0039c	eb 4e		 jmp	 SHORT $transpose$29310
+$L29312:
+
+; 601  : 	VXdata[voc].SamplN = p[1] & 0x3F;
+
+  0039e	8a 51 01	 mov	 dl, BYTE PTR [ecx+1]
+
+; 602  : 	setSample(voc,0);
+
+  003a1	53		 push	 ebx
+  003a2	80 e2 3f	 and	 dl, 63			; 0000003fH
+  003a5	50		 push	 eax
+  003a6	88 96 33 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+51], dl
+  003ac	e8 00 00 00 00	 call	 ?setSample@@YAXHH@Z	; setSample
+  003b1	83 c4 08	 add	 esp, 8
+
+; 835  : }
+
+  003b4	eb 24		 jmp	 SHORT $L29512
+$L29307:
+
+; 591  : 
+; 592  : 	VXdata[voc].SamplN = p[1] & 0x3F;
+
+  003b6	8a 49 01	 mov	 cl, BYTE PTR [ecx+1]
+
+; 593  : 	setSample(voc,1);
+
+  003b9	6a 01		 push	 1
+  003bb	80 e1 3f	 and	 cl, 63			; 0000003fH
+  003be	50		 push	 eax
+  003bf	88 8e 33 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+51], cl
+  003c5	e8 00 00 00 00	 call	 ?setSample@@YAXHH@Z	; setSample
+
+; 594  : 	VXdata[voc].VolOfs = 0;
+
+  003ca	89 9e 1a 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+26], ebx
+  003d0	83 c4 08	 add	 esp, 8
+
+; 595  : 	VXdata[voc].VolTcnt = 1;
+
+  003d3	c6 86 14 00 00
+	00 01		 mov	 BYTE PTR _VXdata$S29178[esi+20], 1
+$L29512:
+
+; 596  : 	VXdata[voc].FrqOfs += 2;
+
+  003da	8b 86 22 00 00
+	00		 mov	 eax, DWORD PTR _VXdata$S29178[esi+34]
+  003e0	83 c0 02	 add	 eax, 2
+  003e3	89 86 22 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+34], eax
+  003e9	8b 45 08	 mov	 eax, DWORD PTR _voc$[ebp]
+$transpose$29310:
+
+; 634  : 
+; 635  : transpose:
+; 636  : 	p = VXdata[voc].FrqPtr + VXdata[voc].FrqOfs;
+
+  003ec	8b 8e 22 00 00
+	00		 mov	 ecx, DWORD PTR _VXdata$S29178[esi+34]
+  003f2	8b 96 1e 00 00
+	00		 mov	 edx, DWORD PTR _VXdata$S29178[esi+30]
+  003f8	03 ca		 add	 ecx, edx
+
+; 637  : 	VXdata[voc].FreqTR = p[0];
+
+  003fa	8a 11		 mov	 dl, BYTE PTR [ecx]
+  003fc	88 96 2f 00 00
+	00		 mov	 BYTE PTR _VXdata$S29178[esi+47], dl
+
+; 638  : 	VXdata[voc].FrqOfs++;
+
+  00402	8b 8e 22 00 00
+	00		 mov	 ecx, DWORD PTR _VXdata$S29178[esi+34]
+  00408	41		 inc	 ecx
+  00409	89 8e 22 00 00
+	00		 mov	 DWORD PTR _VXdata$S29178[esi+34], ecx
+  0040f	e9 d4 fc ff ff	 jmp	 $VOLUfx$29298
+?EFFECTS@@YAXH@Z ENDP					; EFFECTS
+_TEXT	ENDS
+EXTRN	_VGF1_GetMixBuffer:NEAR
+;	COMDAT ?FC6_GetMixBuffer@@YAPAFXZ
+_TEXT	SEGMENT
+?FC6_GetMixBuffer@@YAPAFXZ PROC NEAR			; FC6_GetMixBuffer, COMDAT
+
+; 844  : 	return VGF1_GetMixBuffer();
+
+  00000	e9 00 00 00 00	 jmp	 _VGF1_GetMixBuffer
+?FC6_GetMixBuffer@@YAPAFXZ ENDP				; FC6_GetMixBuffer
+_TEXT	ENDS
+;	COMDAT ?FC6_GetPATrow@@YAHXZ
+_TEXT	SEGMENT
+?FC6_GetPATrow@@YAHXZ PROC NEAR				; FC6_GetPATrow, COMDAT
+
+; 853  : 	return (FC16Mod.PAToffs / 2);
+
+  00000	a1 2c 00 00 00	 mov	 eax, DWORD PTR _FC16Mod$S29179+44
+  00005	99		 cdq
+  00006	2b c2		 sub	 eax, edx
+  00008	d1 f8		 sar	 eax, 1
+
+; 854  : }
+
+  0000a	c3		 ret	 0
+?FC6_GetPATrow@@YAHXZ ENDP				; FC6_GetPATrow
+_TEXT	ENDS
+;	COMDAT ?FC6_GetREPcnt@@YAHXZ
+_TEXT	SEGMENT
+?FC6_GetREPcnt@@YAHXZ PROC NEAR				; FC6_GetREPcnt, COMDAT
+
+; 860  : 	return (FC16Mod.REPcnt);
+
+  00000	0f be 05 02 00
+	00 00		 movsx	 eax, BYTE PTR _FC16Mod$S29179+2
+
+; 861  : }
+
+  00007	c3		 ret	 0
+?FC6_GetREPcnt@@YAHXZ ENDP				; FC6_GetREPcnt
+_TEXT	ENDS
+;	COMDAT ?FC6_GetPATtable@@YAPACH@Z
+_TEXT	SEGMENT
+_voc$ = 8
+?FC6_GetPATtable@@YAPACH@Z PROC NEAR			; FC6_GetPATtable, COMDAT
+
+; 867  : 	return VXdata[voc].PatPtr;
+
+  00000	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  00004	8d 0c 40	 lea	 ecx, DWORD PTR [eax+eax*2]
+  00007	8d 14 88	 lea	 edx, DWORD PTR [eax+ecx*4]
+  0000a	8b 04 95 05 00
+	00 00		 mov	 eax, DWORD PTR _VXdata$S29178[edx*4+5]
+
+; 868  : }
+
+  00011	c3		 ret	 0
+?FC6_GetPATtable@@YAPACH@Z ENDP				; FC6_GetPATtable
+_TEXT	ENDS
+;	COMDAT ?FC6_GetVOLtable@@YAPACH@Z
+_TEXT	SEGMENT
+_voc$ = 8
+?FC6_GetVOLtable@@YAPACH@Z PROC NEAR			; FC6_GetVOLtable, COMDAT
+
+; 874  : 	return VXdata[voc].VolPtr;
+
+  00000	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  00004	8d 0c 40	 lea	 ecx, DWORD PTR [eax+eax*2]
+  00007	8d 14 88	 lea	 edx, DWORD PTR [eax+ecx*4]
+  0000a	8b 04 95 16 00
+	00 00		 mov	 eax, DWORD PTR _VXdata$S29178[edx*4+22]
+
+; 875  : }
+
+  00011	c3		 ret	 0
+?FC6_GetVOLtable@@YAPACH@Z ENDP				; FC6_GetVOLtable
+_TEXT	ENDS
+;	COMDAT ?FC6_GetFRQtable@@YAPACH@Z
+_TEXT	SEGMENT
+_voc$ = 8
+?FC6_GetFRQtable@@YAPACH@Z PROC NEAR			; FC6_GetFRQtable, COMDAT
+
+; 881  : 	return VXdata[voc].FrqPtr;
+
+  00000	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  00004	8d 0c 40	 lea	 ecx, DWORD PTR [eax+eax*2]
+  00007	8d 14 88	 lea	 edx, DWORD PTR [eax+ecx*4]
+  0000a	8b 04 95 1e 00
+	00 00		 mov	 eax, DWORD PTR _VXdata$S29178[edx*4+30]
+
+; 882  : }
+
+  00011	c3		 ret	 0
+?FC6_GetFRQtable@@YAPACH@Z ENDP				; FC6_GetFRQtable
+_TEXT	ENDS
+;	COMDAT ?FC6_GetSEQtable@@YAPACXZ
+_TEXT	SEGMENT
+?FC6_GetSEQtable@@YAPACXZ PROC NEAR			; FC6_GetSEQtable, COMDAT
+
+; 888  : 	return (FC16Mod.SEQinfo + FC16Mod.SEQoffs);
+
+  00000	a1 0c 00 00 00	 mov	 eax, DWORD PTR _FC16Mod$S29179+12
+  00005	8b 0d 28 00 00
+	00		 mov	 ecx, DWORD PTR _FC16Mod$S29179+40
+  0000b	03 c1		 add	 eax, ecx
+
+; 889  : }
+
+  0000d	c3		 ret	 0
+?FC6_GetSEQtable@@YAPACXZ ENDP				; FC6_GetSEQtable
+_TEXT	ENDS
+;	COMDAT ?FC6_GetOfs@@YACHH@Z
+_TEXT	SEGMENT
+_voc$ = 8
+_frq$ = 12
+?FC6_GetOfs@@YACHH@Z PROC NEAR				; FC6_GetOfs, COMDAT
+
+; 895  : 	if (!frq) return (SBYTE)VXdata[voc].VolOfs;
+
+  00000	8b 44 24 08	 mov	 eax, DWORD PTR _frq$[esp-4]
+  00004	85 c0		 test	 eax, eax
+  00006	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  0000a	8d 0c 40	 lea	 ecx, DWORD PTR [eax+eax*2]
+  0000d	8d 14 88	 lea	 edx, DWORD PTR [eax+ecx*4]
+  00010	75 08		 jne	 SHORT $L29395
+  00012	8a 04 95 1a 00
+	00 00		 mov	 al, BYTE PTR _VXdata$S29178[edx*4+26]
+
+; 897  : }
+
+  00019	c3		 ret	 0
+$L29395:
+
+; 896  : 	return (SBYTE)VXdata[voc].FrqOfs;
+
+  0001a	8a 04 95 22 00
+	00 00		 mov	 al, BYTE PTR _VXdata$S29178[edx*4+34]
+
+; 897  : }
+
+  00021	c3		 ret	 0
+?FC6_GetOfs@@YACHH@Z ENDP				; FC6_GetOfs
+_TEXT	ENDS
+;	COMDAT ?FC6_GetOfsVAL@@YACHH@Z
+_TEXT	SEGMENT
+_voc$ = 8
+_frq$ = 12
+?FC6_GetOfsVAL@@YACHH@Z PROC NEAR			; FC6_GetOfsVAL, COMDAT
+
+; 903  : 	if (!frq) 
+
+  00000	8b 44 24 08	 mov	 eax, DWORD PTR _frq$[esp-4]
+  00004	85 c0		 test	 eax, eax
+
+; 904  : 		return (SBYTE)((VXdata[voc].VolPtr + VXdata[voc].VolOfs)[0]);
+
+  00006	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  0000a	8d 0c 40	 lea	 ecx, DWORD PTR [eax+eax*2]
+  0000d	8d 04 88	 lea	 eax, DWORD PTR [eax+ecx*4]
+  00010	75 12		 jne	 SHORT $L29401
+  00012	8b 14 85 16 00
+	00 00		 mov	 edx, DWORD PTR _VXdata$S29178[eax*4+22]
+  00019	8b 04 85 1a 00
+	00 00		 mov	 eax, DWORD PTR _VXdata$S29178[eax*4+26]
+
+; 905  : 
+; 906  : 	return (SBYTE)((VXdata[voc].FrqPtr + VXdata[voc].FrqOfs)[0]);
+
+  00020	8a 04 02	 mov	 al, BYTE PTR [edx+eax]
+
+; 907  : }
+
+  00023	c3		 ret	 0
+$L29401:
+
+; 905  : 
+; 906  : 	return (SBYTE)((VXdata[voc].FrqPtr + VXdata[voc].FrqOfs)[0]);
+
+  00024	8b 14 85 1e 00
+	00 00		 mov	 edx, DWORD PTR _VXdata$S29178[eax*4+30]
+  0002b	8b 04 85 22 00
+	00 00		 mov	 eax, DWORD PTR _VXdata$S29178[eax*4+34]
+  00032	8a 04 02	 mov	 al, BYTE PTR [edx+eax]
+
+; 907  : }
+
+  00035	c3		 ret	 0
+?FC6_GetOfsVAL@@YACHH@Z ENDP				; FC6_GetOfsVAL
+_TEXT	ENDS
+;	COMDAT ?FC6_GetOfsSPD@@YACHH@Z
+_TEXT	SEGMENT
+_voc$ = 8
+_frq$ = 12
+?FC6_GetOfsSPD@@YACHH@Z PROC NEAR			; FC6_GetOfsSPD, COMDAT
+
+; 913  : 	if (!frq) return (SBYTE)VXdata[voc].VolTspd;
+
+  00000	8b 44 24 08	 mov	 eax, DWORD PTR _frq$[esp-4]
+  00004	85 c0		 test	 eax, eax
+  00006	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  0000a	8d 0c 40	 lea	 ecx, DWORD PTR [eax+eax*2]
+  0000d	8d 14 88	 lea	 edx, DWORD PTR [eax+ecx*4]
+  00010	8a 04 95 13 00
+	00 00		 mov	 al, BYTE PTR _VXdata$S29178[edx*4+19]
+
+; 914  : 	return (SBYTE)VXdata[voc].VolTspd;
+; 915  : }
+
+  00017	c3		 ret	 0
+?FC6_GetOfsSPD@@YACHH@Z ENDP				; FC6_GetOfsSPD
+_TEXT	ENDS
+;	COMDAT ?FC6_GetPeriod@@YAKH@Z
+_TEXT	SEGMENT
+_voc$ = 8
+?FC6_GetPeriod@@YAKH@Z PROC NEAR			; FC6_GetPeriod, COMDAT
+
+; 921  : 	return (((ULONG)VXdata[voc].PER) << 16) | (VXdata[voc].PER2);
+
+  00000	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  00004	33 d2		 xor	 edx, edx
+  00006	8d 0c 40	 lea	 ecx, DWORD PTR [eax+eax*2]
+  00009	8d 0c 88	 lea	 ecx, DWORD PTR [eax+ecx*4]
+  0000c	33 c0		 xor	 eax, eax
+  0000e	c1 e1 02	 shl	 ecx, 2
+  00011	66 8b 91 01 00
+	00 00		 mov	 dx, WORD PTR _VXdata$S29178[ecx+1]
+  00018	66 8b 81 03 00
+	00 00		 mov	 ax, WORD PTR _VXdata$S29178[ecx+3]
+  0001f	c1 e2 10	 shl	 edx, 16			; 00000010H
+  00022	0b c2		 or	 eax, edx
+
+; 922  : }
+
+  00024	c3		 ret	 0
+?FC6_GetPeriod@@YAKH@Z ENDP				; FC6_GetPeriod
+_TEXT	ENDS
+PUBLIC	?FC6_GoNextSeq@@YAXXZ				; FC6_GoNextSeq
+;	COMDAT ?FC6_GoNextSeq@@YAXXZ
+_TEXT	SEGMENT
+?FC6_GoNextSeq@@YAXXZ PROC NEAR				; FC6_GoNextSeq, COMDAT
+
+; 928  : 		FC16Mod.PAToffs = 64;
+
+  00000	c7 05 2c 00 00
+	00 40 00 00 00	 mov	 DWORD PTR _FC16Mod$S29179+44, 64 ; 00000040H
+
+; 929  : 		FC16Mod.REPcnt = 1;
+
+  0000a	c6 05 02 00 00
+	00 01		 mov	 BYTE PTR _FC16Mod$S29179+2, 1
+
+; 930  : //		VGF1_Reset();
+; 931  : }
+
+  00011	c3		 ret	 0
+?FC6_GoNextSeq@@YAXXZ ENDP				; FC6_GoNextSeq
+_TEXT	ENDS
+PUBLIC	?FC6_GoPrevSeq@@YAXXZ				; FC6_GoPrevSeq
+;	COMDAT ?FC6_GoPrevSeq@@YAXXZ
+_TEXT	SEGMENT
+?FC6_GoPrevSeq@@YAXXZ PROC NEAR				; FC6_GoPrevSeq, COMDAT
+
+; 938  : 		FC16Mod.SEQoffs -= (SEQSIZE * 2);
+
+  00000	a1 28 00 00 00	 mov	 eax, DWORD PTR _FC16Mod$S29179+40
+  00005	83 e8 20	 sub	 eax, 32			; 00000020H
+  00008	a3 28 00 00 00	 mov	 DWORD PTR _FC16Mod$S29179+40, eax
+
+; 939  : 
+; 940  : 		if (FC16Mod.SEQoffs < 0) 
+
+  0000d	79 0d		 jns	 SHORT $L29417
+
+; 941  : 			FC16Mod.SEQoffs = FC16Mod.SEQendp - SEQSIZE;
+
+  0000f	a1 10 00 00 00	 mov	 eax, DWORD PTR _FC16Mod$S29179+16
+  00014	83 c0 f0	 add	 eax, -16		; fffffff0H
+  00017	a3 28 00 00 00	 mov	 DWORD PTR _FC16Mod$S29179+40, eax
+$L29417:
+
+; 942  : 
+; 943  : 		FC6_GoNextSeq();
+
+  0001c	e9 00 00 00 00	 jmp	 ?FC6_GoNextSeq@@YAXXZ	; FC6_GoNextSeq
+?FC6_GoPrevSeq@@YAXXZ ENDP				; FC6_GoPrevSeq
+_TEXT	ENDS
+PUBLIC	?FC6_GetInfo@@YAPAUtagDataInfo@@XZ		; FC6_GetInfo
+;	COMDAT ?FC6_GetInfo@@YAPAUtagDataInfo@@XZ
+_TEXT	SEGMENT
+?FC6_GetInfo@@YAPAUtagDataInfo@@XZ PROC NEAR		; FC6_GetInfo, COMDAT
+
+; 951  : {
+
+  00000	56		 push	 esi
+
+; 952  : tDataInfo* p;
+; 953  : 
+; 954  : 		EnterCriticalSection(&InfoCS);
+
+  00001	68 00 00 00 00	 push	 OFFSET FLAT:_InfoCS$S29176
+  00006	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+
+; 955  : 		p = &DataInfo[DataPlayPos];
+
+  0000c	a1 00 00 00 00	 mov	 eax, DWORD PTR _DataPlayPos$S29175
+
+; 956  : 		LeaveCriticalSection(&InfoCS);
+
+  00011	68 00 00 00 00	 push	 OFFSET FLAT:_InfoCS$S29176
+  00016	8b c8		 mov	 ecx, eax
+  00018	c1 e1 03	 shl	 ecx, 3
+  0001b	2b c8		 sub	 ecx, eax
+  0001d	8d 14 88	 lea	 edx, DWORD PTR [eax+ecx*4]
+  00020	8d 04 50	 lea	 eax, DWORD PTR [eax+edx*2]
+  00023	8d 34 85 00 00
+	00 00		 lea	 esi, DWORD PTR _DataInfo$S29173[eax*4]
+  0002a	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+
+; 957  : 		return p;
+
+  00030	8b c6		 mov	 eax, esi
+
+; 958  : }
+
+  00032	5e		 pop	 esi
+  00033	c3		 ret	 0
+?FC6_GetInfo@@YAPAUtagDataInfo@@XZ ENDP			; FC6_GetInfo
+_TEXT	ENDS
+PUBLIC	?FC6_PutInfo@@YAXPAUtagDataInfo@@@Z		; FC6_PutInfo
+;	COMDAT ?FC6_PutInfo@@YAXPAUtagDataInfo@@@Z
+_TEXT	SEGMENT
+_dst$ = 8
+?FC6_PutInfo@@YAXPAUtagDataInfo@@@Z PROC NEAR		; FC6_PutInfo, COMDAT
+
+; 964  : {
+
+  00000	56		 push	 esi
+  00001	57		 push	 edi
+
+; 965  : 		EnterCriticalSection(&InfoCS);
+
+  00002	68 00 00 00 00	 push	 OFFSET FLAT:_InfoCS$S29176
+  00007	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+
+; 966  : 		memcpy(dst,&DataInfo[DataPlayPos],sizeof(tDataInfo));
+
+  0000d	a1 00 00 00 00	 mov	 eax, DWORD PTR _DataPlayPos$S29175
+  00012	8b 7c 24 0c	 mov	 edi, DWORD PTR _dst$[esp+4]
+  00016	8b c8		 mov	 ecx, eax
+
+; 967  : 		LeaveCriticalSection(&InfoCS);
+
+  00018	68 00 00 00 00	 push	 OFFSET FLAT:_InfoCS$S29176
+  0001d	c1 e1 03	 shl	 ecx, 3
+  00020	2b c8		 sub	 ecx, eax
+  00022	8d 14 88	 lea	 edx, DWORD PTR [eax+ecx*4]
+  00025	b9 3b 00 00 00	 mov	 ecx, 59			; 0000003bH
+  0002a	8d 04 50	 lea	 eax, DWORD PTR [eax+edx*2]
+  0002d	8d 34 85 00 00
+	00 00		 lea	 esi, DWORD PTR _DataInfo$S29173[eax*4]
+  00034	f3 a5		 rep movsd
+  00036	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+
+; 968  : }
+
+  0003c	5f		 pop	 edi
+  0003d	5e		 pop	 esi
+  0003e	c3		 ret	 0
+?FC6_PutInfo@@YAXPAUtagDataInfo@@@Z ENDP		; FC6_PutInfo
+_TEXT	ENDS
+PUBLIC	?FC6_GetInfoN@@YAPAUtagDataInfo@@H@Z		; FC6_GetInfoN
+;	COMDAT ?FC6_GetInfoN@@YAPAUtagDataInfo@@H@Z
+_TEXT	SEGMENT
+_n$ = 8
+?FC6_GetInfoN@@YAPAUtagDataInfo@@H@Z PROC NEAR		; FC6_GetInfoN, COMDAT
+
+; 974  : tDataInfo* p;
+; 975  : 
+; 976  : 		EnterCriticalSection(&InfoCS);
+
+  00000	68 00 00 00 00	 push	 OFFSET FLAT:_InfoCS$S29176
+  00005	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+
+; 977  : 		p = &DataInfo[n % 80];
+; 978  : 		LeaveCriticalSection(&InfoCS);
+
+  0000b	68 00 00 00 00	 push	 OFFSET FLAT:_InfoCS$S29176
+  00010	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+
+; 979  : 		return p;
+
+  00016	8b 44 24 04	 mov	 eax, DWORD PTR _n$[esp-4]
+  0001a	b9 50 00 00 00	 mov	 ecx, 80			; 00000050H
+  0001f	99		 cdq
+  00020	f7 f9		 idiv	 ecx
+  00022	8b c2		 mov	 eax, edx
+  00024	c1 e0 03	 shl	 eax, 3
+  00027	2b c2		 sub	 eax, edx
+  00029	8d 0c 82	 lea	 ecx, DWORD PTR [edx+eax*4]
+  0002c	8d 14 4a	 lea	 edx, DWORD PTR [edx+ecx*2]
+  0002f	8d 04 95 00 00
+	00 00		 lea	 eax, DWORD PTR _DataInfo$S29173[edx*4]
+
+; 980  : }
+
+  00036	c3		 ret	 0
+?FC6_GetInfoN@@YAPAUtagDataInfo@@H@Z ENDP		; FC6_GetInfoN
+_TEXT	ENDS
+PUBLIC	?FC6_ChanONOFF@@YAXH@Z				; FC6_ChanONOFF
+;	COMDAT ?FC6_ChanONOFF@@YAXH@Z
+_TEXT	SEGMENT
+_chn$ = 8
+?FC6_ChanONOFF@@YAXH@Z PROC NEAR			; FC6_ChanONOFF, COMDAT
+
+; 986  : 	chn &= 3;
+
+  00000	8b 44 24 04	 mov	 eax, DWORD PTR _chn$[esp-4]
+  00004	83 e0 03	 and	 eax, 3
+
+; 987  : 
+; 988  : 	if (VXdata[chn].ON)
+
+  00007	8d 0c 40	 lea	 ecx, DWORD PTR [eax+eax*2]
+  0000a	8d 0c 88	 lea	 ecx, DWORD PTR [eax+ecx*4]
+  0000d	8a 14 8d 00 00
+	00 00		 mov	 dl, BYTE PTR _VXdata$S29178[ecx*4]
+  00014	84 d2		 test	 dl, dl
+  00016	74 12		 je	 SHORT $L29429
+
+; 989  : 	{
+; 990  : 		VXdata[chn].ON = 0;
+; 991  : 		VGF1_StopVoice(chn);
+
+  00018	50		 push	 eax
+  00019	c6 04 8d 00 00
+	00 00 00	 mov	 BYTE PTR _VXdata$S29178[ecx*4], 0
+  00021	e8 00 00 00 00	 call	 _VGF1_StopVoice
+  00026	83 c4 04	 add	 esp, 4
+
+; 995  : }
+
+  00029	c3		 ret	 0
+$L29429:
+
+; 992  : 	}
+; 993  : 	else
+; 994  : 		VXdata[chn].ON = 1;
+
+  0002a	c6 04 8d 00 00
+	00 00 01	 mov	 BYTE PTR _VXdata$S29178[ecx*4], 1
+
+; 995  : }
+
+  00032	c3		 ret	 0
+?FC6_ChanONOFF@@YAXH@Z ENDP				; FC6_ChanONOFF
+_TEXT	ENDS
+PUBLIC	?FC6_MusicONOFF@@YAXXZ				; FC6_MusicONOFF
+EXTRN	_VGF1_SetChanMasterVol:NEAR
+;	COMDAT ?FC6_MusicONOFF@@YAXXZ
+_TEXT	SEGMENT
+?FC6_MusicONOFF@@YAXXZ PROC NEAR			; FC6_MusicONOFF, COMDAT
+
+; 1001 : 	if (FC16Mod.onoff)
+
+  00000	66 83 3d 00 00
+	00 00 00	 cmp	 WORD PTR _FC16Mod$S29179, 0
+  00008	74 3a		 je	 SHORT $L29432
+
+; 1002 : 	{
+; 1003 : 		FC16Mod.onoff = 0;
+; 1004 : 		VGF1_SetChanMasterVol(0,0);
+
+  0000a	6a 00		 push	 0
+  0000c	6a 00		 push	 0
+  0000e	66 c7 05 00 00
+	00 00 00 00	 mov	 WORD PTR _FC16Mod$S29179, 0
+  00017	e8 00 00 00 00	 call	 _VGF1_SetChanMasterVol
+  0001c	83 c4 08	 add	 esp, 8
+
+; 1005 : 		VGF1_SetChanMasterVol(1,0);
+
+  0001f	6a 00		 push	 0
+  00021	6a 01		 push	 1
+  00023	e8 00 00 00 00	 call	 _VGF1_SetChanMasterVol
+  00028	83 c4 08	 add	 esp, 8
+
+; 1006 : 		VGF1_SetChanMasterVol(2,0);
+
+  0002b	6a 00		 push	 0
+  0002d	6a 02		 push	 2
+  0002f	e8 00 00 00 00	 call	 _VGF1_SetChanMasterVol
+  00034	83 c4 08	 add	 esp, 8
+
+; 1007 : 		VGF1_SetChanMasterVol(3,0);
+
+  00037	6a 00		 push	 0
+
+; 1015 : 		VGF1_SetChanMasterVol(3,64);
+
+  00039	6a 03		 push	 3
+  0003b	e8 00 00 00 00	 call	 _VGF1_SetChanMasterVol
+  00040	83 c4 08	 add	 esp, 8
+
+; 1016 : 	}
+; 1017 : 
+; 1018 : }
+
+  00043	c3		 ret	 0
+$L29432:
+
+; 1008 : 	}
+; 1009 : 	else
+; 1010 : 	{
+; 1011 : 		FC16Mod.onoff = 1;
+; 1012 : 		VGF1_SetChanMasterVol(0,64);
+
+  00044	6a 40		 push	 64			; 00000040H
+  00046	6a 00		 push	 0
+  00048	66 c7 05 00 00
+	00 00 01 00	 mov	 WORD PTR _FC16Mod$S29179, 1
+  00051	e8 00 00 00 00	 call	 _VGF1_SetChanMasterVol
+  00056	83 c4 08	 add	 esp, 8
+
+; 1013 : 		VGF1_SetChanMasterVol(1,64);
+
+  00059	6a 40		 push	 64			; 00000040H
+  0005b	6a 01		 push	 1
+  0005d	e8 00 00 00 00	 call	 _VGF1_SetChanMasterVol
+  00062	83 c4 08	 add	 esp, 8
+
+; 1014 : 		VGF1_SetChanMasterVol(2,64);
+
+  00065	6a 40		 push	 64			; 00000040H
+  00067	6a 02		 push	 2
+  00069	e8 00 00 00 00	 call	 _VGF1_SetChanMasterVol
+  0006e	83 c4 08	 add	 esp, 8
+
+; 1015 : 		VGF1_SetChanMasterVol(3,64);
+
+  00071	6a 40		 push	 64			; 00000040H
+  00073	6a 03		 push	 3
+  00075	e8 00 00 00 00	 call	 _VGF1_SetChanMasterVol
+  0007a	83 c4 08	 add	 esp, 8
+
+; 1016 : 	}
+; 1017 : 
+; 1018 : }
+
+  0007d	c3		 ret	 0
+?FC6_MusicONOFF@@YAXXZ ENDP				; FC6_MusicONOFF
+_TEXT	ENDS
+END

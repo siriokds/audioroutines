@@ -1,0 +1,190 @@
+	TITLE	D:\Progetti\VisualC\Prova09cdx\KTsc.cpp
+	.386P
+include listing.inc
+if @Version gt 510
+.model FLAT
+else
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+_DATA	SEGMENT DWORD USE32 PUBLIC 'DATA'
+_DATA	ENDS
+CONST	SEGMENT DWORD USE32 PUBLIC 'CONST'
+CONST	ENDS
+_BSS	SEGMENT DWORD USE32 PUBLIC 'BSS'
+_BSS	ENDS
+_TLS	SEGMENT DWORD USE32 PUBLIC 'TLS'
+_TLS	ENDS
+;	COMDAT ??8@YAHABU_GUID@@0@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?SetTSC@KTSC@@QAEXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?GetTSC@KTSC@@QAE_JXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?GetCPUms@KTSC@@QAEMXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+FLAT	GROUP _DATA, CONST, _BSS
+	ASSUME	CS: FLAT, DS: FLAT, SS: FLAT
+endif
+PUBLIC	?SetTSC@KTSC@@QAEXXZ				; KTSC::SetTSC
+;	COMDAT ?SetTSC@KTSC@@QAEXXZ
+_TEXT	SEGMENT
+_val$ = -8
+?SetTSC@KTSC@@QAEXXZ PROC NEAR				; KTSC::SetTSC, COMDAT
+
+; 7    : {
+
+  00000	55		 push	 ebp
+  00001	8b ec		 mov	 ebp, esp
+  00003	83 ec 08	 sub	 esp, 8
+  00006	57		 push	 edi
+
+; 8    : __int64	val;
+; 9    : 
+; 10   : 	__asm	
+; 11   : 	{
+; 12   : 		push	edi
+
+  00007	57		 push	 edi
+
+; 13   : 		rdtsc
+
+  00008	0f 31		 rdtsc
+
+; 14   : 		lea		edi,val
+
+  0000a	8d bd f8 ff ff
+	ff		 lea	 edi, DWORD PTR _val$[ebp]
+
+; 15   : 		mov		[edi],eax
+
+  00010	89 07		 mov	 DWORD PTR [edi], eax
+
+; 16   : 		mov		[edi+4],edx
+
+  00012	89 57 04	 mov	 DWORD PTR [edi+4], edx
+
+; 17   : 		pop		edi
+
+  00015	5f		 pop	 edi
+
+; 18   : 	}
+; 19   : 
+; 20   : 	m_value = val;
+
+  00016	8b 45 f8	 mov	 eax, DWORD PTR _val$[ebp]
+  00019	8b 55 fc	 mov	 edx, DWORD PTR _val$[ebp+4]
+  0001c	89 01		 mov	 DWORD PTR [ecx], eax
+  0001e	89 51 04	 mov	 DWORD PTR [ecx+4], edx
+
+; 21   : }
+
+  00021	5f		 pop	 edi
+  00022	8b e5		 mov	 esp, ebp
+  00024	5d		 pop	 ebp
+  00025	c3		 ret	 0
+?SetTSC@KTSC@@QAEXXZ ENDP				; KTSC::SetTSC
+_TEXT	ENDS
+PUBLIC	?GetTSC@KTSC@@QAE_JXZ				; KTSC::GetTSC
+;	COMDAT ?GetTSC@KTSC@@QAE_JXZ
+_TEXT	SEGMENT
+_val$ = -8
+?GetTSC@KTSC@@QAE_JXZ PROC NEAR				; KTSC::GetTSC, COMDAT
+
+; 27   : {
+
+  00000	55		 push	 ebp
+  00001	8b ec		 mov	 ebp, esp
+  00003	83 ec 08	 sub	 esp, 8
+  00006	57		 push	 edi
+
+; 28   : __int64	val;
+; 29   : 
+; 30   : 	__asm	
+; 31   : 	{
+; 32   : 		push	edi
+
+  00007	57		 push	 edi
+
+; 33   : 		rdtsc
+
+  00008	0f 31		 rdtsc
+
+; 34   : 		lea		edi,val
+
+  0000a	8d bd f8 ff ff
+	ff		 lea	 edi, DWORD PTR _val$[ebp]
+
+; 35   : 		mov		[edi],eax
+
+  00010	89 07		 mov	 DWORD PTR [edi], eax
+
+; 36   : 		mov		[edi+4],edx
+
+  00012	89 57 04	 mov	 DWORD PTR [edi+4], edx
+
+; 37   : 		pop		edi
+
+  00015	5f		 pop	 edi
+
+; 38   : 	}
+; 39   : 
+; 40   : 	m_value = val - m_value;
+
+  00016	8b 45 f8	 mov	 eax, DWORD PTR _val$[ebp]
+  00019	8b 11		 mov	 edx, DWORD PTR [ecx]
+  0001b	8b 79 04	 mov	 edi, DWORD PTR [ecx+4]
+  0001e	2b c2		 sub	 eax, edx
+  00020	8b 55 fc	 mov	 edx, DWORD PTR _val$[ebp+4]
+  00023	89 01		 mov	 DWORD PTR [ecx], eax
+  00025	1b d7		 sbb	 edx, edi
+
+; 41   : 
+; 42   : 	return m_value;
+; 43   : }
+
+  00027	5f		 pop	 edi
+  00028	89 51 04	 mov	 DWORD PTR [ecx+4], edx
+  0002b	8b 01		 mov	 eax, DWORD PTR [ecx]
+  0002d	8b e5		 mov	 esp, ebp
+  0002f	5d		 pop	 ebp
+  00030	c3		 ret	 0
+?GetTSC@KTSC@@QAE_JXZ ENDP				; KTSC::GetTSC
+_TEXT	ENDS
+PUBLIC	?GetCPUms@KTSC@@QAEMXZ				; KTSC::GetCPUms
+PUBLIC	__real@8@3fec95217cb0fbcdc800
+EXTRN	__fltused:NEAR
+;	COMDAT __real@8@3fec95217cb0fbcdc800
+; File D:\Progetti\VisualC\Prova09cdx\KTsc.cpp
+CONST	SEGMENT
+__real@8@3fec95217cb0fbcdc800 DQ 03ec2a42f961f79b9r ; 2.22222e-006
+CONST	ENDS
+;	COMDAT ?GetCPUms@KTSC@@QAEMXZ
+_TEXT	SEGMENT
+?GetCPUms@KTSC@@QAEMXZ PROC NEAR			; KTSC::GetCPUms, COMDAT
+
+; 49   : {
+
+  00000	56		 push	 esi
+  00001	8b f1		 mov	 esi, ecx
+
+; 50   : 	GetTSC();
+
+  00003	e8 00 00 00 00	 call	 ?GetTSC@KTSC@@QAE_JXZ	; KTSC::GetTSC
+
+; 51   : 	return float(double(m_value) / (KTSC_CPUSPEED * 1000));
+
+  00008	df 2e		 fild	 QWORD PTR [esi]
+  0000a	5e		 pop	 esi
+  0000b	dc 0d 00 00 00
+	00		 fmul	 QWORD PTR __real@8@3fec95217cb0fbcdc800
+
+; 52   : }
+
+  00011	c3		 ret	 0
+?GetCPUms@KTSC@@QAEMXZ ENDP				; KTSC::GetCPUms
+_TEXT	ENDS
+END

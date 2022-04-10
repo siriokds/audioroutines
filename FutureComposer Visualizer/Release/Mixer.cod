@@ -1,0 +1,2505 @@
+	TITLE	D:\Progetti\VisualC\Prova09cdx\Mixer.cpp
+	.386P
+include listing.inc
+if @Version gt 510
+.model FLAT
+else
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+_DATA	SEGMENT DWORD USE32 PUBLIC 'DATA'
+_DATA	ENDS
+CONST	SEGMENT DWORD USE32 PUBLIC 'CONST'
+CONST	ENDS
+_BSS	SEGMENT PARA USE32 PUBLIC 'BSS'
+_BSS	ENDS
+_TLS	SEGMENT DWORD USE32 PUBLIC 'TLS'
+_TLS	ENDS
+;	COMDAT ??8@YAHABU_GUID@@0@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_FilterONOFF
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_GetSampleOfs
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_GetSampleSize
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?MixInitVolTab@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_Open
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_Start
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_Stop
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_Close
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_Peek
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_Poke
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_PokeBlock
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_PokeBlock16
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_PokeBlockD
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_PokeBlockQ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_PokeBlockX
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_SetFreq
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_SetPeriod
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_SetVol
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_GetVol
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_SetVoiceL
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_PlayVoice
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_StopVoice
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?FirMemory@@YAXPAFH@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?MixFillBuffer@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?MixStereoNormal@@YAJPACPAFJJJ11@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?AddStereoNormal@@YAXHPAFJ@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_GetMixBuffer
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_Reset
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_SetChanMasterVol
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_GetChanMasterVol
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_GetMixStress
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _VGF1_GetActiveChannels
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+FLAT	GROUP _DATA, CONST, _BSS
+	ASSUME	CS: FLAT, DS: FLAT, SS: FLAT
+endif
+_BSS	SEGMENT
+_MixerStress DD	01H DUP (?)
+_MixerRunning DD 01H DUP (?)
+_Started DD	01H DUP (?)
+_BSS	ENDS
+_DATA	SEGMENT
+_Filter	DD	01H
+_DATA	ENDS
+PUBLIC	_VGF1_FilterONOFF
+;	COMDAT _VGF1_FilterONOFF
+_TEXT	SEGMENT
+_VGF1_FilterONOFF PROC NEAR				; COMDAT
+
+; 90   : 	Filter = (!Filter) ? 1 : 0;
+
+  00000	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _Filter
+  00006	33 c0		 xor	 eax, eax
+  00008	85 c9		 test	 ecx, ecx
+  0000a	0f 94 c0	 sete	 al
+  0000d	a3 00 00 00 00	 mov	 DWORD PTR _Filter, eax
+
+; 91   : }
+
+  00012	c3		 ret	 0
+_VGF1_FilterONOFF ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_GetSampleOfs
+_BSS	SEGMENT
+_MixChn	DB	090H DUP (?)
+_BSS	ENDS
+;	COMDAT _VGF1_GetSampleOfs
+_TEXT	SEGMENT
+_voc$ = 8
+_VGF1_GetSampleOfs PROC NEAR				; COMDAT
+
+; 97   : 	if ((voc < 0) || (voc >= NUMCHN)) return 0;
+
+  00000	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  00004	85 c0		 test	 eax, eax
+  00006	7c 10		 jl	 SHORT $L42042
+  00008	83 f8 04	 cmp	 eax, 4
+  0000b	7d 0b		 jge	 SHORT $L42042
+
+; 98   : 
+; 99   : 	return MixChn[voc].SamplePos;
+
+  0000d	8d 04 c0	 lea	 eax, DWORD PTR [eax+eax*8]
+  00010	8b 04 85 0c 00
+	00 00		 mov	 eax, DWORD PTR _MixChn[eax*4+12]
+
+; 100  : }
+
+  00017	c3		 ret	 0
+$L42042:
+
+; 97   : 	if ((voc < 0) || (voc >= NUMCHN)) return 0;
+
+  00018	33 c0		 xor	 eax, eax
+
+; 100  : }
+
+  0001a	c3		 ret	 0
+_VGF1_GetSampleOfs ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_GetSampleSize
+;	COMDAT _VGF1_GetSampleSize
+_TEXT	SEGMENT
+_voc$ = 8
+_VGF1_GetSampleSize PROC NEAR				; COMDAT
+
+; 106  : 	if ((voc < 0) || (voc >= NUMCHN)) return 0;
+
+  00000	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  00004	85 c0		 test	 eax, eax
+  00006	7c 10		 jl	 SHORT $L42047
+  00008	83 f8 04	 cmp	 eax, 4
+  0000b	7d 0b		 jge	 SHORT $L42047
+
+; 107  : 
+; 108  : 	return MixChn[voc].SampleSize;
+
+  0000d	8d 04 c0	 lea	 eax, DWORD PTR [eax+eax*8]
+  00010	8b 04 85 08 00
+	00 00		 mov	 eax, DWORD PTR _MixChn[eax*4+8]
+
+; 109  : }
+
+  00017	c3		 ret	 0
+$L42047:
+
+; 106  : 	if ((voc < 0) || (voc >= NUMCHN)) return 0;
+
+  00018	33 c0		 xor	 eax, eax
+
+; 109  : }
+
+  0001a	c3		 ret	 0
+_VGF1_GetSampleSize ENDP
+_TEXT	ENDS
+PUBLIC	?MixInitVolTab@@YAXXZ				; MixInitVolTab
+_BSS	SEGMENT
+_VolTab	DD	01H DUP (?)
+_BSS	ENDS
+;	COMDAT ?MixInitVolTab@@YAXXZ
+_TEXT	SEGMENT
+?MixInitVolTab@@YAXXZ PROC NEAR				; MixInitVolTab, COMDAT
+
+; 114  : {
+
+  00000	53		 push	 ebx
+  00001	55		 push	 ebp
+  00002	56		 push	 esi
+  00003	57		 push	 edi
+
+; 115  : SWORD	*pVolTab = VolTab;
+; 116  : int		vol,byt;
+; 117  : 
+; 118  : 		for (byt = 0; byt < 256; byt++) *pVolTab++ = 0;
+
+  00004	8b 3d 00 00 00
+	00		 mov	 edi, DWORD PTR _VolTab
+  0000a	b9 80 00 00 00	 mov	 ecx, 128		; 00000080H
+  0000f	33 c0		 xor	 eax, eax
+
+; 119  : 
+; 120  : 		for (vol = 1; vol < (MAXVOL+1); vol++, pVolTab += 256)
+
+  00011	bd 00 80 ff ff	 mov	 ebp, -32768		; ffff8000H
+  00016	f3 ab		 rep stosd
+  00018	a1 00 00 00 00	 mov	 eax, DWORD PTR _VolTab
+  0001d	bf 00 01 00 00	 mov	 edi, 256		; 00000100H
+  00022	8d 98 00 02 00
+	00		 lea	 ebx, DWORD PTR [eax+512]
+$L42057:
+
+; 121  : 		{
+; 122  :   			for (byt = -128; byt < 128; byt++)
+
+  00028	b9 80 ff ff ff	 mov	 ecx, -128		; ffffff80H
+  0002d	8b f5		 mov	 esi, ebp
+$L42060:
+
+; 123  : 			  pVolTab[(UBYTE)byt] = (byt * vol * 256) / MAXVOL / 4;
+
+  0002f	8b c6		 mov	 eax, esi
+  00031	03 f7		 add	 esi, edi
+  00033	99		 cdq
+  00034	83 e2 3f	 and	 edx, 63			; 0000003fH
+  00037	03 c2		 add	 eax, edx
+  00039	c1 f8 06	 sar	 eax, 6
+  0003c	99		 cdq
+  0003d	83 e2 03	 and	 edx, 3
+  00040	03 c2		 add	 eax, edx
+  00042	8b d1		 mov	 edx, ecx
+  00044	c1 f8 02	 sar	 eax, 2
+  00047	81 e2 ff 00 00
+	00		 and	 edx, 255		; 000000ffH
+  0004d	41		 inc	 ecx
+  0004e	81 f9 80 00 00
+	00		 cmp	 ecx, 128		; 00000080H
+  00054	66 89 04 53	 mov	 WORD PTR [ebx+edx*2], ax
+  00058	7c d5		 jl	 SHORT $L42060
+  0005a	81 ed 00 80 00
+	00		 sub	 ebp, 32768		; 00008000H
+  00060	81 c7 00 01 00
+	00		 add	 edi, 256		; 00000100H
+  00066	81 c3 00 02 00
+	00		 add	 ebx, 512		; 00000200H
+  0006c	81 fd 00 80 df
+	ff		 cmp	 ebp, -2129920		; ffdf8000H
+  00072	7f b4		 jg	 SHORT $L42057
+  00074	5f		 pop	 edi
+  00075	5e		 pop	 esi
+  00076	5d		 pop	 ebp
+  00077	5b		 pop	 ebx
+
+; 124  : 		}
+; 125  : }
+
+  00078	c3		 ret	 0
+?MixInitVolTab@@YAXXZ ENDP				; MixInitVolTab
+_TEXT	ENDS
+PUBLIC	_VGF1_Open
+EXTRN	__imp__InitializeCriticalSection@4:NEAR
+EXTRN	__imp__GlobalAlloc@8:NEAR
+EXTRN	__imp__GlobalLock@4:NEAR
+EXTRN	__imp__GlobalFree@4:NEAR
+EXTRN	_DOut_Open:NEAR
+_BSS	SEGMENT
+_BUF_MULT DD	01H DUP (?)
+_BUF_NUM DD	01H DUP (?)
+_CallBackFunc DD 01H DUP (?)
+_hMixTotalMem DD 01H DUP (?)
+_MixTotalMem DD	01H DUP (?)
+_GF1Mem	DD	01H DUP (?)
+_MixBuf	DD	01H DUP (?)
+_csVGF1	DB	018H DUP (?)
+_BSS	ENDS
+;	COMDAT _VGF1_Open
+_TEXT	SEGMENT
+_callb$ = 8
+_User$ = 12
+__MULT$ = 16
+__NUM$ = 20
+_VGF1_Open PROC NEAR					; COMDAT
+
+; 131  : int		err,voc;
+; 132  : UBYTE	*p;
+; 133  : 
+; 134  : 	BUF_MULT = (_MULT < 4) ? 4 : _MULT;
+
+  00000	8b 4c 24 0c	 mov	 ecx, DWORD PTR __MULT$[esp-4]
+  00004	83 f9 04	 cmp	 ecx, 4
+  00007	7d 05		 jge	 SHORT $L42364
+  00009	b9 04 00 00 00	 mov	 ecx, 4
+$L42364:
+
+; 135  : 	BUF_NUM  = (_NUM  < 4) ? 4 : _NUM;
+
+  0000e	8b 44 24 10	 mov	 eax, DWORD PTR __NUM$[esp-4]
+  00012	89 0d 00 00 00
+	00		 mov	 DWORD PTR _BUF_MULT, ecx
+  00018	83 f8 04	 cmp	 eax, 4
+  0001b	c7 05 00 00 00
+	00 04 00 00 00	 mov	 DWORD PTR _BUF_NUM, 4
+  00025	7c 05		 jl	 SHORT $L42367
+  00027	a3 00 00 00 00	 mov	 DWORD PTR _BUF_NUM, eax
+$L42367:
+
+; 136  : 
+; 137  : 	if (
+; 138  : 		(hMixTotalMem = GlobalAlloc(
+; 139  : 			  GPTR,
+; 140  : 			  VOLTABLEN				// Allocate Voltab
+; 141  : 			+ VDRAM_LEN				// Allocate DRAM
+; 142  : 			+ (MIXBUFLEN*BUF_MULT*2)// Allocate MixBuf
+; 143  : 			+ 2048)					// +2Kb more to be sure...
+; 144  : 		) == NULL) return 2;
+
+  0002c	8d 04 49	 lea	 eax, DWORD PTR [ecx+ecx*2]
+  0002f	53		 push	 ebx
+  00030	c1 e0 04	 shl	 eax, 4
+  00033	03 c1		 add	 eax, ecx
+  00035	8d 04 c0	 lea	 eax, DWORD PTR [eax+eax*8]
+  00038	8d 0c c5 00 8a
+	04 00		 lea	 ecx, DWORD PTR [eax*8+297472]
+  0003f	51		 push	 ecx
+  00040	6a 40		 push	 64			; 00000040H
+  00042	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__GlobalAlloc@8
+  00048	33 db		 xor	 ebx, ebx
+  0004a	a3 00 00 00 00	 mov	 DWORD PTR _hMixTotalMem, eax
+  0004f	3b c3		 cmp	 eax, ebx
+  00051	75 07		 jne	 SHORT $L42076
+  00053	b8 02 00 00 00	 mov	 eax, 2
+  00058	5b		 pop	 ebx
+
+; 200  : }
+
+  00059	c3		 ret	 0
+$L42076:
+
+; 145  : 	
+; 146  : 	if ((MixTotalMem = (UBYTE*) GlobalLock(hMixTotalMem)) == NULL)
+
+  0005a	50		 push	 eax
+  0005b	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__GlobalLock@4
+  00061	3b c3		 cmp	 eax, ebx
+  00063	a3 00 00 00 00	 mov	 DWORD PTR _MixTotalMem, eax
+  00068	75 14		 jne	 SHORT $L42078
+
+; 147  : 	{
+; 148  : 		GlobalFree(hMixTotalMem);
+
+  0006a	8b 15 00 00 00
+	00		 mov	 edx, DWORD PTR _hMixTotalMem
+  00070	52		 push	 edx
+  00071	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__GlobalFree@4
+
+; 149  : 		return 2;
+
+  00077	b8 02 00 00 00	 mov	 eax, 2
+  0007c	5b		 pop	 ebx
+
+; 200  : }
+
+  0007d	c3		 ret	 0
+$L42078:
+
+; 150  : 	}
+; 151  : 
+; 152  : //-------------------------------------------------------------------------
+; 153  : 	p = MixTotalMem + 1024;
+
+  0007e	05 00 04 00 00	 add	 eax, 1024		; 00000400H
+
+; 154  : 
+; 155  : 	VolTab = (SWORD*)(p);
+
+  00083	a3 00 00 00 00	 mov	 DWORD PTR _VolTab, eax
+
+; 156  : 	GF1Mem = (SBYTE*)(p + VOLTABLEN);
+
+  00088	8d 88 00 82 00
+	00		 lea	 ecx, DWORD PTR [eax+33280]
+
+; 157  : 	MixBuf = (SWORD*)(p + VOLTABLEN + VDRAM_LEN);
+
+  0008e	05 00 82 04 00	 add	 eax, 295424		; 00048200H
+  00093	89 0d 00 00 00
+	00		 mov	 DWORD PTR _GF1Mem, ecx
+  00099	a3 00 00 00 00	 mov	 DWORD PTR _MixBuf, eax
+
+; 158  : 
+; 159  : 	MixInitVolTab();
+
+  0009e	e8 00 00 00 00	 call	 ?MixInitVolTab@@YAXXZ	; MixInitVolTab
+
+; 160  : 
+; 161  : //-------------------------------------------------------------------------
+; 162  : 	CallBackFunc = callb;
+
+  000a3	8b 54 24 08	 mov	 edx, DWORD PTR _callb$[esp]
+  000a7	b8 04 00 00 00	 mov	 eax, OFFSET FLAT:_MixChn+4
+  000ac	89 15 00 00 00
+	00		 mov	 DWORD PTR _CallBackFunc, edx
+$L42084:
+
+; 163  : 
+; 164  : 	for (voc = 0; voc < NUMCHN; voc++)
+; 165  : 	{
+; 166  : 		MixChn[voc].MasterVol = 64;
+
+  000b2	c6 40 fc 40	 mov	 BYTE PTR [eax-4], 64	; 00000040H
+
+; 167  : 		MixChn[voc].Active = FALSE;
+
+  000b6	89 18		 mov	 DWORD PTR [eax], ebx
+
+; 168  : 
+; 169  : 		MixChn[voc].SampleSize = 0;
+
+  000b8	89 58 04	 mov	 DWORD PTR [eax+4], ebx
+
+; 170  : 		MixChn[voc].SamplePos = 0;
+
+  000bb	89 58 08	 mov	 DWORD PTR [eax+8], ebx
+
+; 171  : 
+; 172  : 		MixChn[voc]._SampleSize = 0;
+
+  000be	89 58 18	 mov	 DWORD PTR [eax+24], ebx
+
+; 173  : 		MixChn[voc]._SamplePos = 0;
+
+  000c1	89 58 1c	 mov	 DWORD PTR [eax+28], ebx
+
+; 174  : 
+; 175  : 		MixChn[voc].Volume = 0;
+
+  000c4	88 58 0c	 mov	 BYTE PTR [eax+12], bl
+
+; 176  : 		MixChn[voc].Freq = 0;
+
+  000c7	89 58 10	 mov	 DWORD PTR [eax+16], ebx
+
+; 177  : 		MixChn[voc].PosIndex = 0;
+
+  000ca	89 58 14	 mov	 DWORD PTR [eax+20], ebx
+  000cd	83 c0 24	 add	 eax, 36			; 00000024H
+  000d0	3d 94 00 00 00	 cmp	 eax, OFFSET FLAT:_MixChn+148
+  000d5	7c db		 jl	 SHORT $L42084
+
+; 178  : 	}
+; 179  : 
+; 180  : 
+; 181  : 	MixChn[0].PanVolumeL = 0x40;
+; 182  : 	MixChn[0].PanVolumeR = 0x00;
+; 183  : 
+; 184  : 	MixChn[1].PanVolumeL = 0x40;
+; 185  : 	MixChn[1].PanVolumeR = 0x00;
+; 186  : 
+; 187  : 	MixChn[2].PanVolumeL = 0x40;
+; 188  : 	MixChn[2].PanVolumeR = 0x00;
+; 189  : 
+; 190  : 	MixChn[3].PanVolumeL = 0x40;
+; 191  : 	MixChn[3].PanVolumeR = 0x00;
+; 192  : 
+; 193  : 
+; 194  : //-------------------------------------------------------------------------
+; 195  : 	err = DOut_Open(MixFillBuffer, BUF_SIZE*BUF_MULT, BUF_NUM, User);
+
+  000d7	8b 44 24 0c	 mov	 eax, DWORD PTR _User$[esp]
+  000db	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _BUF_NUM
+  000e1	56		 push	 esi
+  000e2	50		 push	 eax
+  000e3	51		 push	 ecx
+  000e4	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _BUF_MULT
+  000ea	c6 05 01 00 00
+	00 40		 mov	 BYTE PTR _MixChn+1, 64	; 00000040H
+  000f1	88 1d 02 00 00
+	00		 mov	 BYTE PTR _MixChn+2, bl
+  000f7	8d 04 49	 lea	 eax, DWORD PTR [ecx+ecx*2]
+  000fa	c6 05 25 00 00
+	00 40		 mov	 BYTE PTR _MixChn+37, 64	; 00000040H
+  00101	c1 e0 04	 shl	 eax, 4
+  00104	03 c1		 add	 eax, ecx
+  00106	88 1d 26 00 00
+	00		 mov	 BYTE PTR _MixChn+38, bl
+  0010c	c6 05 49 00 00
+	00 40		 mov	 BYTE PTR _MixChn+73, 64	; 00000040H
+  00113	88 1d 4a 00 00
+	00		 mov	 BYTE PTR _MixChn+74, bl
+  00119	8d 14 c0	 lea	 edx, DWORD PTR [eax+eax*8]
+  0011c	c6 05 6d 00 00
+	00 40		 mov	 BYTE PTR _MixChn+109, 64 ; 00000040H
+  00123	d1 e2		 shl	 edx, 1
+  00125	52		 push	 edx
+  00126	68 00 00 00 00	 push	 OFFSET FLAT:?MixFillBuffer@@YAXXZ ; MixFillBuffer
+  0012b	88 1d 6e 00 00
+	00		 mov	 BYTE PTR _MixChn+110, bl
+  00131	e8 00 00 00 00	 call	 _DOut_Open
+  00136	8b f0		 mov	 esi, eax
+  00138	83 c4 10	 add	 esp, 16			; 00000010H
+
+; 196  : 
+; 197  : 	if (!err) InitializeCriticalSection(&csVGF1);
+
+  0013b	3b f3		 cmp	 esi, ebx
+  0013d	75 0b		 jne	 SHORT $L42087
+  0013f	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00144	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__InitializeCriticalSection@4
+$L42087:
+
+; 198  : 
+; 199  : 	return err;
+
+  0014a	8b c6		 mov	 eax, esi
+  0014c	5e		 pop	 esi
+  0014d	5b		 pop	 ebx
+
+; 200  : }
+
+  0014e	c3		 ret	 0
+_VGF1_Open ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_Start
+EXTRN	_DOut_Start:NEAR
+;	COMDAT _VGF1_Start
+_TEXT	SEGMENT
+_VGF1_Start PROC NEAR					; COMDAT
+
+; 206  : 		MixerRunning = TRUE;
+
+  00000	c7 05 00 00 00
+	00 01 00 00 00	 mov	 DWORD PTR _MixerRunning, 1
+
+; 207  : //		if (Started == FALSE) DOut_Start();
+; 208  : 		DOut_Start();
+
+  0000a	e8 00 00 00 00	 call	 _DOut_Start
+
+; 209  : 		Started = TRUE;
+
+  0000f	c7 05 00 00 00
+	00 01 00 00 00	 mov	 DWORD PTR _Started, 1
+
+; 210  : }
+
+  00019	c3		 ret	 0
+_VGF1_Start ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_Stop
+EXTRN	_DOut_Stop:NEAR
+;	COMDAT _VGF1_Stop
+_TEXT	SEGMENT
+_VGF1_Stop PROC NEAR					; COMDAT
+
+; 216  : 		MixerRunning = FALSE;
+
+  00000	c7 05 00 00 00
+	00 00 00 00 00	 mov	 DWORD PTR _MixerRunning, 0
+
+; 217  : 		DOut_Stop();
+
+  0000a	e9 00 00 00 00	 jmp	 _DOut_Stop
+_VGF1_Stop ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_Close
+EXTRN	_DOut_Close:NEAR
+EXTRN	__imp__DeleteCriticalSection@4:NEAR
+EXTRN	__imp__GlobalUnlock@4:NEAR
+;	COMDAT _VGF1_Close
+_TEXT	SEGMENT
+_VGF1_Close PROC NEAR					; COMDAT
+
+; 224  : 		MixerRunning = FALSE;
+
+  00000	c7 05 00 00 00
+	00 00 00 00 00	 mov	 DWORD PTR _MixerRunning, 0
+
+; 225  : 		DOut_Close();
+
+  0000a	e8 00 00 00 00	 call	 _DOut_Close
+
+; 226  : 
+; 227  : 		DeleteCriticalSection(&csVGF1);
+
+  0000f	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00014	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__DeleteCriticalSection@4
+
+; 228  : 
+; 229  : 		GlobalUnlock(hMixTotalMem);
+
+  0001a	a1 00 00 00 00	 mov	 eax, DWORD PTR _hMixTotalMem
+  0001f	50		 push	 eax
+  00020	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__GlobalUnlock@4
+
+; 230  : 		GlobalFree(hMixTotalMem);
+
+  00026	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _hMixTotalMem
+  0002c	51		 push	 ecx
+  0002d	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__GlobalFree@4
+
+; 231  : 		return 0;
+
+  00033	33 c0		 xor	 eax, eax
+
+; 232  : }
+
+  00035	c3		 ret	 0
+_VGF1_Close ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_Peek
+;	COMDAT _VGF1_Peek
+_TEXT	SEGMENT
+_addr$ = 8
+_VGF1_Peek PROC NEAR					; COMDAT
+
+; 240  : 		if (GF1Mem == NULL) return 0;
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _GF1Mem
+  00005	85 c0		 test	 eax, eax
+  00007	75 03		 jne	 SHORT $L42100
+  00009	32 c0		 xor	 al, al
+
+; 243  : }
+
+  0000b	c3		 ret	 0
+$L42100:
+
+; 241  : 		addr &= VDRAM_LEN-1;
+
+  0000c	8b 4c 24 04	 mov	 ecx, DWORD PTR _addr$[esp-4]
+  00010	81 e1 ff ff 03
+	00		 and	 ecx, 262143		; 0003ffffH
+
+; 242  : 		return GF1Mem[addr];
+
+  00016	8a 04 01	 mov	 al, BYTE PTR [ecx+eax]
+
+; 243  : }
+
+  00019	c3		 ret	 0
+_VGF1_Peek ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_Poke
+;	COMDAT _VGF1_Poke
+_TEXT	SEGMENT
+_addr$ = 8
+_val$ = 12
+_VGF1_Poke PROC NEAR					; COMDAT
+
+; 249  : 		if (GF1Mem == NULL) return;
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _GF1Mem
+  00005	85 c0		 test	 eax, eax
+  00007	74 11		 je	 SHORT $L42104
+
+; 250  : 		addr &= VDRAM_LEN-1;
+
+  00009	8b 4c 24 04	 mov	 ecx, DWORD PTR _addr$[esp-4]
+
+; 251  : 		GF1Mem[addr] = val;
+
+  0000d	8a 54 24 08	 mov	 dl, BYTE PTR _val$[esp-4]
+  00011	81 e1 ff ff 03
+	00		 and	 ecx, 262143		; 0003ffffH
+  00017	88 14 01	 mov	 BYTE PTR [ecx+eax], dl
+$L42104:
+
+; 252  : }
+
+  0001a	c3		 ret	 0
+_VGF1_Poke ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_PokeBlock
+;	COMDAT _VGF1_PokeBlock
+_TEXT	SEGMENT
+_Dst$ = 8
+_Src$ = 12
+_Size$ = 16
+_VGF1_PokeBlock PROC NEAR				; COMDAT
+
+; 258  : int	i;
+; 259  : 		for (i = 0; i < Size-1; i++)
+
+  00000	8b 44 24 0c	 mov	 eax, DWORD PTR _Size$[esp-4]
+  00004	53		 push	 ebx
+  00005	8b 5c 24 0c	 mov	 ebx, DWORD PTR _Src$[esp]
+  00009	55		 push	 ebp
+  0000a	56		 push	 esi
+  0000b	8b 74 24 10	 mov	 esi, DWORD PTR _Dst$[esp+8]
+  0000f	57		 push	 edi
+  00010	8d 68 ff	 lea	 ebp, DWORD PTR [eax-1]
+  00013	33 ff		 xor	 edi, edi
+  00015	85 ed		 test	 ebp, ebp
+  00017	7e 15		 jle	 SHORT $L42114
+$L42112:
+
+; 260  : 			VGF1_Poke(Dst++,Src[i]);
+
+  00019	8a 0c 1f	 mov	 cl, BYTE PTR [edi+ebx]
+  0001c	8b c6		 mov	 eax, esi
+  0001e	51		 push	 ecx
+  0001f	50		 push	 eax
+  00020	46		 inc	 esi
+  00021	e8 00 00 00 00	 call	 _VGF1_Poke
+  00026	83 c4 08	 add	 esp, 8
+  00029	47		 inc	 edi
+  0002a	3b fd		 cmp	 edi, ebp
+  0002c	7c eb		 jl	 SHORT $L42112
+$L42114:
+
+; 261  : 
+; 262  : 		VGF1_Poke(Dst++,(Src[Size-1] - Src[0]) / 2);
+
+  0002e	8b 54 24 1c	 mov	 edx, DWORD PTR _Size$[esp+12]
+  00032	8b ce		 mov	 ecx, esi
+  00034	46		 inc	 esi
+  00035	0f be 44 13 ff	 movsx	 eax, BYTE PTR [ebx+edx-1]
+  0003a	0f be 13	 movsx	 edx, BYTE PTR [ebx]
+  0003d	2b c2		 sub	 eax, edx
+  0003f	99		 cdq
+  00040	2b c2		 sub	 eax, edx
+  00042	d1 f8		 sar	 eax, 1
+  00044	50		 push	 eax
+  00045	51		 push	 ecx
+  00046	e8 00 00 00 00	 call	 _VGF1_Poke
+
+; 263  : 
+; 264  : 		VGF1_Poke(Dst++,Src[0]);
+
+  0004b	8a 03		 mov	 al, BYTE PTR [ebx]
+  0004d	50		 push	 eax
+  0004e	56		 push	 esi
+  0004f	e8 00 00 00 00	 call	 _VGF1_Poke
+
+; 265  : 		VGF1_Poke(Dst++,Src[1]);
+
+  00054	8a 4b 01	 mov	 cl, BYTE PTR [ebx+1]
+  00057	46		 inc	 esi
+  00058	51		 push	 ecx
+  00059	56		 push	 esi
+  0005a	e8 00 00 00 00	 call	 _VGF1_Poke
+  0005f	83 c4 18	 add	 esp, 24			; 00000018H
+  00062	5f		 pop	 edi
+  00063	5e		 pop	 esi
+  00064	5d		 pop	 ebp
+  00065	5b		 pop	 ebx
+
+; 266  : }
+
+  00066	c3		 ret	 0
+_VGF1_PokeBlock ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_PokeBlock16
+;	COMDAT _VGF1_PokeBlock16
+_TEXT	SEGMENT
+_Dst$ = 8
+_Src$ = 12
+_Size$ = 16
+_VGF1_PokeBlock16 PROC NEAR				; COMDAT
+
+; 272  : {
+
+  00000	53		 push	 ebx
+
+; 273  : int	i;
+; 274  : 		for (i = 0; i < Size; i++)
+
+  00001	8b 5c 24 10	 mov	 ebx, DWORD PTR _Size$[esp]
+  00005	85 db		 test	 ebx, ebx
+  00007	7e 25		 jle	 SHORT $L42123
+  00009	56		 push	 esi
+  0000a	8b 74 24 10	 mov	 esi, DWORD PTR _Src$[esp+4]
+  0000e	57		 push	 edi
+  0000f	8b 7c 24 10	 mov	 edi, DWORD PTR _Dst$[esp+8]
+$L42121:
+
+; 275  : 			VGF1_Poke(Dst++, (char)(Src[i]>>8) );
+
+  00013	66 8b 0e	 mov	 cx, WORD PTR [esi]
+  00016	8b c7		 mov	 eax, edi
+  00018	c1 f9 08	 sar	 ecx, 8
+  0001b	51		 push	 ecx
+  0001c	50		 push	 eax
+  0001d	47		 inc	 edi
+  0001e	e8 00 00 00 00	 call	 _VGF1_Poke
+  00023	83 c4 08	 add	 esp, 8
+  00026	83 c6 02	 add	 esi, 2
+  00029	4b		 dec	 ebx
+  0002a	75 e7		 jne	 SHORT $L42121
+  0002c	5f		 pop	 edi
+  0002d	5e		 pop	 esi
+$L42123:
+  0002e	5b		 pop	 ebx
+
+; 276  : }
+
+  0002f	c3		 ret	 0
+_VGF1_PokeBlock16 ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_PokeBlockD
+;	COMDAT _VGF1_PokeBlockD
+_TEXT	SEGMENT
+_Dst$ = 8
+_Src$ = 12
+_Size$ = 16
+_VGF1_PokeBlockD PROC NEAR				; COMDAT
+
+; 282  : {
+
+  00000	53		 push	 ebx
+
+; 283  : int	i;
+; 284  : 		for (i = 0; i < Size; i++)
+
+  00001	8b 5c 24 0c	 mov	 ebx, DWORD PTR _Src$[esp]
+  00005	55		 push	 ebp
+  00006	8b 6c 24 14	 mov	 ebp, DWORD PTR _Size$[esp+4]
+  0000a	56		 push	 esi
+  0000b	8b 74 24 10	 mov	 esi, DWORD PTR _Dst$[esp+8]
+  0000f	57		 push	 edi
+  00010	33 ff		 xor	 edi, edi
+  00012	85 ed		 test	 ebp, ebp
+  00014	7e 22		 jle	 SHORT $L42133
+$L42131:
+
+; 285  : 		{
+; 286  : 			VGF1_Poke(Dst++,Src[i]);
+
+  00016	8a 0c 1f	 mov	 cl, BYTE PTR [edi+ebx]
+  00019	8b c6		 mov	 eax, esi
+  0001b	51		 push	 ecx
+  0001c	50		 push	 eax
+  0001d	46		 inc	 esi
+  0001e	e8 00 00 00 00	 call	 _VGF1_Poke
+
+; 287  : 			VGF1_Poke(Dst++,Src[i]);
+
+  00023	8a 14 1f	 mov	 dl, BYTE PTR [edi+ebx]
+  00026	8b c6		 mov	 eax, esi
+  00028	52		 push	 edx
+  00029	50		 push	 eax
+  0002a	46		 inc	 esi
+  0002b	e8 00 00 00 00	 call	 _VGF1_Poke
+  00030	83 c4 10	 add	 esp, 16			; 00000010H
+  00033	47		 inc	 edi
+  00034	3b fd		 cmp	 edi, ebp
+  00036	7c de		 jl	 SHORT $L42131
+$L42133:
+
+; 288  : 		}
+; 289  : 
+; 290  : 		VGF1_Poke(Dst++,Src[0]);
+
+  00038	8a 03		 mov	 al, BYTE PTR [ebx]
+  0003a	50		 push	 eax
+  0003b	56		 push	 esi
+  0003c	e8 00 00 00 00	 call	 _VGF1_Poke
+
+; 291  : 		VGF1_Poke(Dst++,Src[0]);
+
+  00041	8a 0b		 mov	 cl, BYTE PTR [ebx]
+  00043	8d 46 01	 lea	 eax, DWORD PTR [esi+1]
+  00046	51		 push	 ecx
+  00047	50		 push	 eax
+  00048	e8 00 00 00 00	 call	 _VGF1_Poke
+  0004d	83 c4 10	 add	 esp, 16			; 00000010H
+  00050	5f		 pop	 edi
+  00051	5e		 pop	 esi
+  00052	5d		 pop	 ebp
+  00053	5b		 pop	 ebx
+
+; 292  : }
+
+  00054	c3		 ret	 0
+_VGF1_PokeBlockD ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_PokeBlockQ
+;	COMDAT _VGF1_PokeBlockQ
+_TEXT	SEGMENT
+_Dst$ = 8
+_Src$ = 12
+_Size$ = 16
+_VGF1_PokeBlockQ PROC NEAR				; COMDAT
+
+; 297  : {
+
+  00000	53		 push	 ebx
+
+; 298  : int	i;
+; 299  : 		for (i = 0; i < Size; i++)
+
+  00001	8b 5c 24 0c	 mov	 ebx, DWORD PTR _Src$[esp]
+  00005	55		 push	 ebp
+  00006	8b 6c 24 14	 mov	 ebp, DWORD PTR _Size$[esp+4]
+  0000a	56		 push	 esi
+  0000b	8b 74 24 10	 mov	 esi, DWORD PTR _Dst$[esp+8]
+  0000f	57		 push	 edi
+  00010	33 ff		 xor	 edi, edi
+  00012	85 ed		 test	 ebp, ebp
+  00014	7e 3c		 jle	 SHORT $L42142
+$L42140:
+
+; 300  : 		{
+; 301  : 			VGF1_Poke(Dst++,Src[i]);
+
+  00016	8a 0c 1f	 mov	 cl, BYTE PTR [edi+ebx]
+  00019	8b c6		 mov	 eax, esi
+  0001b	51		 push	 ecx
+  0001c	50		 push	 eax
+  0001d	46		 inc	 esi
+  0001e	e8 00 00 00 00	 call	 _VGF1_Poke
+
+; 302  : 			VGF1_Poke(Dst++,Src[i]);
+
+  00023	8a 14 1f	 mov	 dl, BYTE PTR [edi+ebx]
+  00026	8b c6		 mov	 eax, esi
+  00028	52		 push	 edx
+  00029	50		 push	 eax
+  0002a	46		 inc	 esi
+  0002b	e8 00 00 00 00	 call	 _VGF1_Poke
+
+; 303  : 			VGF1_Poke(Dst++,Src[i]);
+
+  00030	8a 0c 1f	 mov	 cl, BYTE PTR [edi+ebx]
+  00033	8b c6		 mov	 eax, esi
+  00035	51		 push	 ecx
+  00036	50		 push	 eax
+  00037	46		 inc	 esi
+  00038	e8 00 00 00 00	 call	 _VGF1_Poke
+
+; 304  : 			VGF1_Poke(Dst++,Src[i]);
+
+  0003d	8a 14 1f	 mov	 dl, BYTE PTR [edi+ebx]
+  00040	8b c6		 mov	 eax, esi
+  00042	52		 push	 edx
+  00043	50		 push	 eax
+  00044	46		 inc	 esi
+  00045	e8 00 00 00 00	 call	 _VGF1_Poke
+  0004a	83 c4 20	 add	 esp, 32			; 00000020H
+  0004d	47		 inc	 edi
+  0004e	3b fd		 cmp	 edi, ebp
+  00050	7c c4		 jl	 SHORT $L42140
+$L42142:
+
+; 305  : 		}
+; 306  : 
+; 307  : 		VGF1_Poke(Dst++,Src[0]);
+
+  00052	8a 0b		 mov	 cl, BYTE PTR [ebx]
+  00054	8b c6		 mov	 eax, esi
+  00056	51		 push	 ecx
+  00057	50		 push	 eax
+  00058	46		 inc	 esi
+  00059	e8 00 00 00 00	 call	 _VGF1_Poke
+
+; 308  : 		VGF1_Poke(Dst++,Src[0]);
+
+  0005e	8a 13		 mov	 dl, BYTE PTR [ebx]
+  00060	8b c6		 mov	 eax, esi
+  00062	52		 push	 edx
+  00063	50		 push	 eax
+  00064	46		 inc	 esi
+  00065	e8 00 00 00 00	 call	 _VGF1_Poke
+
+; 309  : 		VGF1_Poke(Dst++,Src[0]);
+
+  0006a	8a 03		 mov	 al, BYTE PTR [ebx]
+  0006c	50		 push	 eax
+  0006d	56		 push	 esi
+  0006e	e8 00 00 00 00	 call	 _VGF1_Poke
+
+; 310  : 		VGF1_Poke(Dst++,Src[0]);
+
+  00073	8a 0b		 mov	 cl, BYTE PTR [ebx]
+  00075	8d 46 01	 lea	 eax, DWORD PTR [esi+1]
+  00078	51		 push	 ecx
+  00079	50		 push	 eax
+  0007a	e8 00 00 00 00	 call	 _VGF1_Poke
+  0007f	83 c4 20	 add	 esp, 32			; 00000020H
+  00082	5f		 pop	 edi
+  00083	5e		 pop	 esi
+  00084	5d		 pop	 ebp
+  00085	5b		 pop	 ebx
+
+; 311  : }
+
+  00086	c3		 ret	 0
+_VGF1_PokeBlockQ ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_PokeBlockX
+;	COMDAT _VGF1_PokeBlockX
+_TEXT	SEGMENT
+_Dst$ = 8
+_Src$ = 12
+_Size$ = 16
+_XOR$ = 20
+_VGF1_PokeBlockX PROC NEAR				; COMDAT
+
+; 316  : {
+
+  00000	55		 push	 ebp
+
+; 317  : int	i;
+; 318  : 		for (i = 0; i < Size; i++)
+
+  00001	8b 6c 24 10	 mov	 ebp, DWORD PTR _Size$[esp]
+  00005	56		 push	 esi
+  00006	33 f6		 xor	 esi, esi
+  00008	85 ed		 test	 ebp, ebp
+  0000a	7e 27		 jle	 SHORT $L42152
+  0000c	53		 push	 ebx
+  0000d	8a 5c 24 1c	 mov	 bl, BYTE PTR _XOR$[esp+8]
+  00011	57		 push	 edi
+  00012	8b 7c 24 14	 mov	 edi, DWORD PTR _Dst$[esp+12]
+$L42150:
+
+; 319  : 			VGF1_Poke(Dst++, Src[i] + XOR);
+
+  00016	8b 4c 24 18	 mov	 ecx, DWORD PTR _Src$[esp+12]
+  0001a	8b c7		 mov	 eax, edi
+  0001c	47		 inc	 edi
+  0001d	8a 14 0e	 mov	 dl, BYTE PTR [esi+ecx]
+  00020	02 d3		 add	 dl, bl
+  00022	52		 push	 edx
+  00023	50		 push	 eax
+  00024	e8 00 00 00 00	 call	 _VGF1_Poke
+  00029	83 c4 08	 add	 esp, 8
+  0002c	46		 inc	 esi
+  0002d	3b f5		 cmp	 esi, ebp
+  0002f	7c e5		 jl	 SHORT $L42150
+  00031	5f		 pop	 edi
+  00032	5b		 pop	 ebx
+$L42152:
+  00033	5e		 pop	 esi
+  00034	5d		 pop	 ebp
+
+; 320  : }
+
+  00035	c3		 ret	 0
+_VGF1_PokeBlockX ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_SetFreq
+;	COMDAT _VGF1_SetFreq
+_TEXT	SEGMENT
+_voc$ = 8
+_freq$ = 12
+_VGF1_SetFreq PROC NEAR					; COMDAT
+
+; 327  : 		MixChn[voc].Freq = freq & 0xFFFF;
+
+  00000	8b 4c 24 04	 mov	 ecx, DWORD PTR _voc$[esp-4]
+  00004	8b 44 24 08	 mov	 eax, DWORD PTR _freq$[esp-4]
+  00008	25 ff ff 00 00	 and	 eax, 65535		; 0000ffffH
+  0000d	8d 0c c9	 lea	 ecx, DWORD PTR [ecx+ecx*8]
+
+; 328  : 		if (MixChn[voc].Freq < 2) MixChn[voc].Freq = 2;
+
+  00010	83 f8 02	 cmp	 eax, 2
+  00013	89 04 8d 14 00
+	00 00		 mov	 DWORD PTR _MixChn[ecx*4+20], eax
+  0001a	7d 0b		 jge	 SHORT $L42157
+  0001c	c7 04 8d 14 00
+	00 00 02 00 00
+	00		 mov	 DWORD PTR _MixChn[ecx*4+20], 2
+$L42157:
+
+; 329  : }
+
+  00027	c3		 ret	 0
+_VGF1_SetFreq ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_SetPeriod
+PUBLIC	_VGF1_StopVoice
+;	COMDAT _VGF1_SetPeriod
+_TEXT	SEGMENT
+_voc$ = 8
+_period$ = 12
+_VGF1_SetPeriod PROC NEAR				; COMDAT
+
+; 335  : 	if (!period) { VGF1_StopVoice(voc); return; }
+
+  00000	8b 4c 24 08	 mov	 ecx, DWORD PTR _period$[esp-4]
+  00004	85 c9		 test	 ecx, ecx
+  00006	75 0e		 jne	 SHORT $L42162
+  00008	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  0000c	50		 push	 eax
+  0000d	e8 00 00 00 00	 call	 _VGF1_StopVoice
+  00012	83 c4 04	 add	 esp, 4
+
+; 341  : }
+
+  00015	c3		 ret	 0
+$L42162:
+
+; 336  : 	
+; 337  : 	if (period < 0x40)  period = 0x40;
+
+  00016	83 f9 40	 cmp	 ecx, 64			; 00000040H
+  00019	7d 07		 jge	 SHORT $L42163
+  0001b	b9 40 00 00 00	 mov	 ecx, 64			; 00000040H
+
+; 338  : 	if (period > 0x6B00) period = 0x6B00;
+
+  00020	eb 0d		 jmp	 SHORT $L42164
+$L42163:
+  00022	81 f9 00 6b 00
+	00		 cmp	 ecx, 27392		; 00006b00H
+  00028	7e 05		 jle	 SHORT $L42164
+  0002a	b9 00 6b 00 00	 mov	 ecx, 27392		; 00006b00H
+$L42164:
+
+; 339  : 	
+; 340  : 	VGF1_SetFreq(voc, Period2Freq(period));
+
+  0002f	b8 0f 1f 36 00	 mov	 eax, 3546895		; 00361f0fH
+  00034	99		 cdq
+  00035	f7 f9		 idiv	 ecx
+  00037	8b 4c 24 04	 mov	 ecx, DWORD PTR _voc$[esp-4]
+  0003b	50		 push	 eax
+  0003c	51		 push	 ecx
+  0003d	e8 00 00 00 00	 call	 _VGF1_SetFreq
+  00042	83 c4 08	 add	 esp, 8
+
+; 341  : }
+
+  00045	c3		 ret	 0
+_VGF1_SetPeriod ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_SetVol
+;	COMDAT _VGF1_SetVol
+_TEXT	SEGMENT
+_voc$ = 8
+_vol$ = 12
+_VGF1_SetVol PROC NEAR					; COMDAT
+
+; 348  : 		if (vol < 0) vol = 0;
+
+  00000	8b 44 24 08	 mov	 eax, DWORD PTR _vol$[esp-4]
+  00004	85 c0		 test	 eax, eax
+  00006	7d 11		 jge	 SHORT $L42169
+
+; 350  : 		MixChn[voc].Volume = vol;
+
+  00008	8b 4c 24 04	 mov	 ecx, DWORD PTR _voc$[esp-4]
+  0000c	33 c0		 xor	 eax, eax
+  0000e	8d 0c c9	 lea	 ecx, DWORD PTR [ecx+ecx*8]
+  00011	88 04 8d 10 00
+	00 00		 mov	 BYTE PTR _MixChn[ecx*4+16], al
+
+; 351  : }
+
+  00018	c3		 ret	 0
+$L42169:
+
+; 349  : 		if (vol > MAXVOL) vol = MAXVOL;
+
+  00019	83 f8 40	 cmp	 eax, 64			; 00000040H
+  0001c	7e 05		 jle	 SHORT $L42170
+  0001e	b8 40 00 00 00	 mov	 eax, 64			; 00000040H
+$L42170:
+
+; 350  : 		MixChn[voc].Volume = vol;
+
+  00023	8b 4c 24 04	 mov	 ecx, DWORD PTR _voc$[esp-4]
+  00027	8d 0c c9	 lea	 ecx, DWORD PTR [ecx+ecx*8]
+  0002a	88 04 8d 10 00
+	00 00		 mov	 BYTE PTR _MixChn[ecx*4+16], al
+
+; 351  : }
+
+  00031	c3		 ret	 0
+_VGF1_SetVol ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_GetVol
+;	COMDAT _VGF1_GetVol
+_TEXT	SEGMENT
+_voc$ = 8
+_VGF1_GetVol PROC NEAR					; COMDAT
+
+; 358  : 		return MixChn[voc].Volume;
+
+  00000	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  00004	33 c9		 xor	 ecx, ecx
+  00006	8d 04 c0	 lea	 eax, DWORD PTR [eax+eax*8]
+  00009	8a 0c 85 10 00
+	00 00		 mov	 cl, BYTE PTR _MixChn[eax*4+16]
+  00010	8b c1		 mov	 eax, ecx
+
+; 359  : }
+
+  00012	c3		 ret	 0
+_VGF1_GetVol ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_SetVoiceL
+;	COMDAT _VGF1_SetVoiceL
+_TEXT	SEGMENT
+_voc$ = 8
+_VB$ = 12
+_VL$ = 16
+_VGF1_SetVoiceL PROC NEAR				; COMDAT
+
+; 367  : 		if (VB >= VDRAM_LEN) return;
+
+  00000	8b 4c 24 08	 mov	 ecx, DWORD PTR _VB$[esp-4]
+  00004	81 f9 00 00 04
+	00		 cmp	 ecx, 262144		; 00040000H
+  0000a	7d 1a		 jge	 SHORT $L42178
+
+; 368  : 
+; 369  : 		MixChn[voc]._SamplePos = VB;
+
+  0000c	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  00010	8d 04 c0	 lea	 eax, DWORD PTR [eax+eax*8]
+  00013	c1 e0 02	 shl	 eax, 2
+  00016	89 88 20 00 00
+	00		 mov	 DWORD PTR _MixChn[eax+32], ecx
+
+; 370  : 		MixChn[voc]._SampleSize = VL;
+
+  0001c	8b 4c 24 0c	 mov	 ecx, DWORD PTR _VL$[esp-4]
+  00020	89 88 1c 00 00
+	00		 mov	 DWORD PTR _MixChn[eax+28], ecx
+$L42178:
+
+; 371  : }
+
+  00026	c3		 ret	 0
+_VGF1_SetVoiceL ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_PlayVoice
+;	COMDAT _VGF1_PlayVoice
+_TEXT	SEGMENT
+_voc$ = 8
+_VGF1_PlayVoice PROC NEAR				; COMDAT
+
+; 378  : 		MixChn[voc].Active = TRUE;
+
+  00000	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  00004	8d 04 c0	 lea	 eax, DWORD PTR [eax+eax*8]
+  00007	c1 e0 02	 shl	 eax, 2
+  0000a	c7 80 04 00 00
+	00 01 00 00 00	 mov	 DWORD PTR _MixChn[eax+4], 1
+
+; 379  : 		MixChn[voc].PosIndex = 0;
+
+  00014	c7 80 18 00 00
+	00 00 00 00 00	 mov	 DWORD PTR _MixChn[eax+24], 0
+
+; 380  : 
+; 381  : 		MixChn[voc].SamplePos = MixChn[voc]._SamplePos;
+
+  0001e	8b 88 20 00 00
+	00		 mov	 ecx, DWORD PTR _MixChn[eax+32]
+  00024	89 88 0c 00 00
+	00		 mov	 DWORD PTR _MixChn[eax+12], ecx
+
+; 382  : 		MixChn[voc].SampleSize = MixChn[voc]._SampleSize;
+
+  0002a	8b 90 1c 00 00
+	00		 mov	 edx, DWORD PTR _MixChn[eax+28]
+  00030	89 90 08 00 00
+	00		 mov	 DWORD PTR _MixChn[eax+8], edx
+
+; 383  : 
+; 384  : }
+
+  00036	c3		 ret	 0
+_VGF1_PlayVoice ENDP
+_TEXT	ENDS
+;	COMDAT _VGF1_StopVoice
+_TEXT	SEGMENT
+_voc$ = 8
+_VGF1_StopVoice PROC NEAR				; COMDAT
+
+; 390  : 		MixChn[voc].Active = FALSE;
+
+  00000	8b 44 24 04	 mov	 eax, DWORD PTR _voc$[esp-4]
+  00004	8d 04 c0	 lea	 eax, DWORD PTR [eax+eax*8]
+  00007	c7 04 85 04 00
+	00 00 00 00 00
+	00		 mov	 DWORD PTR _MixChn[eax*4+4], 0
+
+; 391  : }
+
+  00012	c3		 ret	 0
+_VGF1_StopVoice ENDP
+_TEXT	ENDS
+EXTRN	_DOut_BufferCopy:NEAR
+EXTRN	__imp__timeGetTime@0:NEAR
+EXTRN	__imp__EnterCriticalSection@4:NEAR
+EXTRN	__imp__LeaveCriticalSection@4:NEAR
+EXTRN	__imp__Sleep@4:NEAR
+;	COMDAT ?MixFillBuffer@@YAXXZ
+_TEXT	SEGMENT
+_TotStress$ = -8
+_Stress$ = -4
+?MixFillBuffer@@YAXXZ PROC NEAR				; MixFillBuffer, COMDAT
+
+; 426  : int		i, chn, TotStress, Stress;
+; 427  : SWORD	*p;
+; 428  : 
+; 429  : 		if (MixerRunning == FALSE) return;
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _MixerRunning
+  00005	83 ec 08	 sub	 esp, 8
+  00008	55		 push	 ebp
+  00009	33 ed		 xor	 ebp, ebp
+  0000b	3b c5		 cmp	 eax, ebp
+  0000d	0f 84 00 01 00
+	00		 je	 $L42197
+
+; 430  : 
+; 431  : 		p = MixBuf;
+; 432  : 		TotStress = 0;
+; 433  : 
+; 434  : 		for (i = 0; i < BUF_MULT; i++)
+
+  00013	a1 00 00 00 00	 mov	 eax, DWORD PTR _BUF_MULT
+  00018	53		 push	 ebx
+  00019	8b 1d 00 00 00
+	00		 mov	 ebx, DWORD PTR _MixBuf
+  0001f	56		 push	 esi
+  00020	3b c5		 cmp	 eax, ebp
+  00022	57		 push	 edi
+  00023	89 6c 24 10	 mov	 DWORD PTR _TotStress$[esp+24], ebp
+  00027	7e 7b		 jle	 SHORT $L42206
+$L42204:
+
+; 435  : 		{
+; 436  : 			EnterCriticalSection(&csVGF1);
+
+  00029	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  0002e	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+
+; 437  : 			Stress = timeGetTime();
+
+  00034	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__timeGetTime@0
+  0003a	89 44 24 14	 mov	 DWORD PTR _Stress$[esp+24], eax
+
+; 438  : 
+; 439  : 			// Call External PlayRoutine
+; 440  : 			if (CallBackFunc) (*CallBackFunc)();
+
+  0003e	a1 00 00 00 00	 mov	 eax, DWORD PTR _CallBackFunc
+  00043	85 c0		 test	 eax, eax
+  00045	74 02		 je	 SHORT $L42207
+  00047	ff d0		 call	 eax
+$L42207:
+
+; 441  : 
+; 442  : 			// 1) clear BUFFER
+; 443  : 			ZeroMemory(p, MIXBUFLEN*2);
+
+  00049	b9 72 03 00 00	 mov	 ecx, 882		; 00000372H
+  0004e	33 c0		 xor	 eax, eax
+  00050	8b fb		 mov	 edi, ebx
+
+; 444  : 
+; 445  : 			// 2) Mix Channels
+; 446  : 			for (chn = 0; chn < NUMCHN; chn++) 
+
+  00052	33 f6		 xor	 esi, esi
+  00054	f3 ab		 rep stosd
+$L42209:
+
+; 447  : 				AddStereoNormal(chn, p, BUF_SIZE);
+
+  00056	68 72 03 00 00	 push	 882			; 00000372H
+  0005b	53		 push	 ebx
+  0005c	56		 push	 esi
+  0005d	e8 00 00 00 00	 call	 ?AddStereoNormal@@YAXHPAFJ@Z ; AddStereoNormal
+  00062	83 c4 0c	 add	 esp, 12			; 0000000cH
+  00065	46		 inc	 esi
+  00066	83 fe 04	 cmp	 esi, 4
+  00069	7c eb		 jl	 SHORT $L42209
+
+; 448  : 
+; 449  : 
+; 450  : 			p += (BUF_SIZE*2);	// 882 * BUF_NUM
+
+  0006b	81 c3 c8 0d 00
+	00		 add	 ebx, 3528		; 00000dc8H
+
+; 451  : 
+; 452  : 			Stress = timeGetTime() - Stress;
+
+  00071	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__timeGetTime@0
+
+; 453  : 			TotStress += Stress;
+
+  00077	8b 4c 24 14	 mov	 ecx, DWORD PTR _Stress$[esp+24]
+  0007b	8b 7c 24 10	 mov	 edi, DWORD PTR _TotStress$[esp+24]
+  0007f	2b c1		 sub	 eax, ecx
+
+; 454  : 			LeaveCriticalSection(&csVGF1);
+
+  00081	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00086	03 f8		 add	 edi, eax
+  00088	89 7c 24 14	 mov	 DWORD PTR _TotStress$[esp+28], edi
+  0008c	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+
+; 455  : 
+; 456  : 			Sleep(BUF_WAIT);
+
+  00092	6a 01		 push	 1
+  00094	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__Sleep@4
+  0009a	a1 00 00 00 00	 mov	 eax, DWORD PTR _BUF_MULT
+  0009f	45		 inc	 ebp
+  000a0	3b e8		 cmp	 ebp, eax
+  000a2	7c 85		 jl	 SHORT $L42204
+$L42206:
+
+; 457  : 
+; 458  : 		}
+; 459  : 
+; 460  : 
+; 461  : 
+; 462  : Stress = timeGetTime();
+
+  000a4	8b 35 00 00 00
+	00		 mov	 esi, DWORD PTR __imp__timeGetTime@0
+  000aa	ff d6		 call	 esi
+  000ac	8b f8		 mov	 edi, eax
+
+; 463  : 
+; 464  : 		if (Filter) FirMemory(MixBuf,   (MIXBUFLEN/2)*BUF_MULT );
+
+  000ae	a1 00 00 00 00	 mov	 eax, DWORD PTR _Filter
+  000b3	85 c0		 test	 eax, eax
+  000b5	74 23		 je	 SHORT $L42212
+  000b7	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _BUF_MULT
+  000bd	8d 04 49	 lea	 eax, DWORD PTR [ecx+ecx*2]
+  000c0	c1 e0 04	 shl	 eax, 4
+  000c3	03 c1		 add	 eax, ecx
+  000c5	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _MixBuf
+  000cb	8d 04 c0	 lea	 eax, DWORD PTR [eax+eax*8]
+  000ce	d1 e0		 shl	 eax, 1
+  000d0	50		 push	 eax
+  000d1	51		 push	 ecx
+  000d2	e8 00 00 00 00	 call	 ?FirMemory@@YAXPAFH@Z	; FirMemory
+  000d7	83 c4 08	 add	 esp, 8
+$L42212:
+
+; 465  : 
+; 466  : Stress = timeGetTime() - Stress;
+
+  000da	ff d6		 call	 esi
+  000dc	8b f0		 mov	 esi, eax
+
+; 467  : TotStress += Stress;
+; 468  : 
+; 469  : 		EnterCriticalSection(&csVGF1);
+
+  000de	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  000e3	2b f7		 sub	 esi, edi
+  000e5	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+  000eb	8b 54 24 10	 mov	 edx, DWORD PTR _TotStress$[esp+24]
+
+; 470  : MixerStress = TotStress;
+; 471  : 		LeaveCriticalSection(&csVGF1);
+
+  000ef	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  000f4	03 f2		 add	 esi, edx
+  000f6	89 35 00 00 00
+	00		 mov	 DWORD PTR _MixerStress, esi
+  000fc	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+
+; 472  : 
+; 473  : 		DOut_BufferCopy((void *)MixBuf);
+
+  00102	a1 00 00 00 00	 mov	 eax, DWORD PTR _MixBuf
+  00107	50		 push	 eax
+  00108	e8 00 00 00 00	 call	 _DOut_BufferCopy
+  0010d	83 c4 04	 add	 esp, 4
+  00110	5f		 pop	 edi
+  00111	5e		 pop	 esi
+  00112	5b		 pop	 ebx
+$L42197:
+  00113	5d		 pop	 ebp
+
+; 474  : }
+
+  00114	83 c4 08	 add	 esp, 8
+  00117	c3		 ret	 0
+?MixFillBuffer@@YAXXZ ENDP				; MixFillBuffer
+_TEXT	ENDS
+;	COMDAT ?FirMemory@@YAXPAFH@Z
+_TEXT	SEGMENT
+_d$ = 8
+_len$ = 12
+?FirMemory@@YAXPAFH@Z PROC NEAR				; FirMemory, COMDAT
+
+; 398  : int	i, j;
+; 399  : 
+; 400  : 	for (i = 1; i < len-1; i++)
+
+  00000	8b 44 24 08	 mov	 eax, DWORD PTR _len$[esp-4]
+  00004	48		 dec	 eax
+  00005	83 f8 01	 cmp	 eax, 1
+  00008	7e 6e		 jle	 SHORT $L42194
+  0000a	8b 4c 24 04	 mov	 ecx, DWORD PTR _d$[esp-4]
+  0000e	56		 push	 esi
+  0000f	57		 push	 edi
+  00010	83 c1 0a	 add	 ecx, 10			; 0000000aH
+  00013	8d 70 ff	 lea	 esi, DWORD PTR [eax-1]
+$L42192:
+
+; 401  : 	{
+; 402  : 		j = i*2;
+; 403  : 		d[j] = (d[j-2] / 4) + (d[j] / 2) + (d[j+2] / 4);
+
+  00016	0f bf 41 f6	 movsx	 eax, WORD PTR [ecx-10]
+  0001a	99		 cdq
+  0001b	83 e2 03	 and	 edx, 3
+  0001e	83 c1 04	 add	 ecx, 4
+  00021	03 c2		 add	 eax, edx
+  00023	8b f8		 mov	 edi, eax
+  00025	0f bf 41 fa	 movsx	 eax, WORD PTR [ecx-6]
+  00029	99		 cdq
+  0002a	83 e2 03	 and	 edx, 3
+  0002d	03 c2		 add	 eax, edx
+  0002f	c1 ff 02	 sar	 edi, 2
+  00032	c1 f8 02	 sar	 eax, 2
+  00035	03 f8		 add	 edi, eax
+  00037	0f bf 41 f6	 movsx	 eax, WORD PTR [ecx-10]
+  0003b	99		 cdq
+  0003c	2b c2		 sub	 eax, edx
+  0003e	d1 f8		 sar	 eax, 1
+  00040	03 f8		 add	 edi, eax
+  00042	66 89 79 f6	 mov	 WORD PTR [ecx-10], di
+
+; 404  : 		j++;
+; 405  : 		d[j] = (d[j-2] / 4) + (d[j] / 2) + (d[j+2] / 4);
+
+  00046	0f bf 41 f4	 movsx	 eax, WORD PTR [ecx-12]
+  0004a	99		 cdq
+  0004b	83 e2 03	 and	 edx, 3
+  0004e	03 c2		 add	 eax, edx
+  00050	8b f8		 mov	 edi, eax
+  00052	0f bf 41 fc	 movsx	 eax, WORD PTR [ecx-4]
+  00056	99		 cdq
+  00057	83 e2 03	 and	 edx, 3
+  0005a	03 c2		 add	 eax, edx
+  0005c	c1 ff 02	 sar	 edi, 2
+  0005f	c1 f8 02	 sar	 eax, 2
+  00062	03 f8		 add	 edi, eax
+  00064	0f bf 41 f8	 movsx	 eax, WORD PTR [ecx-8]
+  00068	99		 cdq
+  00069	2b c2		 sub	 eax, edx
+  0006b	d1 f8		 sar	 eax, 1
+  0006d	03 f8		 add	 edi, eax
+  0006f	4e		 dec	 esi
+  00070	66 89 79 f8	 mov	 WORD PTR [ecx-8], di
+  00074	75 a0		 jne	 SHORT $L42192
+  00076	5f		 pop	 edi
+  00077	5e		 pop	 esi
+$L42194:
+
+; 406  : 
+; 407  : 	}
+; 408  : 
+; 409  : /*
+; 410  : 	for (i = 2; i < len-2; i++)
+; 411  : 	{
+; 412  : 		j = i*2;
+; 413  : 		d[j] = (d[j-4] / 16) + (d[j-2] / 8) + (d[j] / 2) + (d[j+2] / 8) + (d[j+4] / 16);
+; 414  : 		j++;
+; 415  : 		d[j] = (d[j-4] / 16) + (d[j-2] / 8) + (d[j] / 2) + (d[j+2] / 8) + (d[j+4] / 16);
+; 416  : 
+; 417  : 	}
+; 418  : */
+; 419  : }
+
+  00078	c3		 ret	 0
+?FirMemory@@YAXPAFH@Z ENDP				; FirMemory
+_TEXT	ENDS
+PUBLIC	?MixStereoNormal@@YAJPACPAFJJJ11@Z		; MixStereoNormal
+;	COMDAT ?MixStereoNormal@@YAJPACPAFJJJ11@Z
+_TEXT	SEGMENT
+_src$ = 8
+_dst$ = 12
+_idx$ = 16
+_inc$ = 20
+_todo$ = 24
+_Vol_L$ = 28
+_Vol_R$ = 32
+_sample1$ = 16
+_sample2$ = 12
+_sample3$ = 28
+_sample4$ = 32
+_remain$ = -4
+?MixStereoNormal@@YAJPACPAFJJJ11@Z PROC NEAR		; MixStereoNormal, COMDAT
+
+; 483  : {
+
+  00000	51		 push	 ecx
+
+; 484  :     SBYTE  sample1, sample2, sample3, sample4;
+; 485  :     int    remain;
+; 486  : 
+; 487  : 	if ((src == NULL) || (dst == NULL) || 
+; 488  : 		(Vol_L == NULL) || (Vol_R == NULL)) return idx;
+
+  00001	8b 54 24 08	 mov	 edx, DWORD PTR _src$[esp]
+  00005	55		 push	 ebp
+  00006	85 d2		 test	 edx, edx
+  00008	57		 push	 edi
+  00009	0f 84 59 01 00
+	00		 je	 $L42230
+  0000f	8b 4c 24 14	 mov	 ecx, DWORD PTR _dst$[esp+8]
+  00013	85 c9		 test	 ecx, ecx
+  00015	0f 84 4d 01 00
+	00		 je	 $L42230
+  0001b	8b 6c 24 24	 mov	 ebp, DWORD PTR _Vol_L$[esp+8]
+  0001f	85 ed		 test	 ebp, ebp
+  00021	0f 84 41 01 00
+	00		 je	 $L42230
+  00027	8b 7c 24 28	 mov	 edi, DWORD PTR _Vol_R$[esp+8]
+  0002b	85 ff		 test	 edi, edi
+  0002d	0f 84 35 01 00
+	00		 je	 $L42230
+
+; 489  : 
+; 490  : 
+; 491  :     remain = todo & 3;
+
+  00033	8b 44 24 20	 mov	 eax, DWORD PTR _todo$[esp+8]
+  00037	53		 push	 ebx
+  00038	8b d8		 mov	 ebx, eax
+  0003a	56		 push	 esi
+
+; 492  :     
+; 493  :     for(todo>>=2; todo; todo--)
+
+  0003b	8b 74 24 24	 mov	 esi, DWORD PTR _inc$[esp+16]
+  0003f	83 e3 03	 and	 ebx, 3
+  00042	c1 f8 02	 sar	 eax, 2
+  00045	89 5c 24 10	 mov	 DWORD PTR _remain$[esp+20], ebx
+  00049	0f 84 13 01 00
+	00		 je	 $L42436
+  0004f	89 44 24 28	 mov	 DWORD PTR 24+[esp+16], eax
+  00053	8b 44 24 20	 mov	 eax, DWORD PTR _idx$[esp+16]
+  00057	eb 04		 jmp	 SHORT $L42231
+$L42437:
+
+; 489  : 
+; 490  : 
+; 491  :     remain = todo & 3;
+
+  00059	8b 54 24 18	 mov	 edx, DWORD PTR _src$[esp+16]
+$L42231:
+
+; 494  :     {
+; 495  :         sample1 = src[idx >> FRACBITS];	idx  += inc;
+
+  0005d	8b d8		 mov	 ebx, eax
+  0005f	03 c6		 add	 eax, esi
+  00061	c1 fb 0c	 sar	 ebx, 12			; 0000000cH
+
+; 496  :         sample2 = src[idx >> FRACBITS];	idx  += inc;
+; 497  :         sample3 = src[idx >> FRACBITS];	idx  += inc;
+; 498  :         sample4 = src[idx >> FRACBITS];	idx  += inc;
+; 499  :         
+; 500  :         *dst++ += Vol_L[sample1];
+
+  00064	83 c1 02	 add	 ecx, 2
+  00067	8a 1c 13	 mov	 bl, BYTE PTR [ebx+edx]
+
+; 501  :         *dst++ += Vol_R[sample1];
+
+  0006a	83 c1 02	 add	 ecx, 2
+  0006d	88 5c 24 20	 mov	 BYTE PTR _sample1$[esp+16], bl
+  00071	8b d8		 mov	 ebx, eax
+  00073	c1 fb 0c	 sar	 ebx, 12			; 0000000cH
+  00076	03 c6		 add	 eax, esi
+
+; 502  :         *dst++ += Vol_L[sample2];
+
+  00078	83 c1 02	 add	 ecx, 2
+  0007b	8a 1c 13	 mov	 bl, BYTE PTR [ebx+edx]
+
+; 503  :         *dst++ += Vol_R[sample2];
+
+  0007e	83 c1 02	 add	 ecx, 2
+  00081	88 5c 24 1c	 mov	 BYTE PTR _sample2$[esp+16], bl
+  00085	8b d8		 mov	 ebx, eax
+  00087	c1 fb 0c	 sar	 ebx, 12			; 0000000cH
+  0008a	03 c6		 add	 eax, esi
+
+; 504  :         *dst++ += Vol_L[sample3];
+
+  0008c	83 c1 02	 add	 ecx, 2
+  0008f	8a 1c 13	 mov	 bl, BYTE PTR [ebx+edx]
+
+; 505  :         *dst++ += Vol_R[sample3];
+
+  00092	83 c1 02	 add	 ecx, 2
+  00095	88 5c 24 2c	 mov	 BYTE PTR _sample3$[esp+16], bl
+  00099	8b d8		 mov	 ebx, eax
+  0009b	c1 fb 0c	 sar	 ebx, 12			; 0000000cH
+
+; 506  :         *dst++ += Vol_L[sample4];
+
+  0009e	83 c1 02	 add	 ecx, 2
+  000a1	03 c6		 add	 eax, esi
+  000a3	8a 14 13	 mov	 dl, BYTE PTR [ebx+edx]
+
+; 507  :         *dst++ += Vol_R[sample4];
+
+  000a6	83 c1 02	 add	 ecx, 2
+  000a9	88 54 24 30	 mov	 BYTE PTR _sample4$[esp+16], dl
+  000ad	0f be 54 24 20	 movsx	 edx, BYTE PTR _sample1$[esp+16]
+  000b2	d1 e2		 shl	 edx, 1
+  000b4	66 8b 1c 2a	 mov	 bx, WORD PTR [edx+ebp]
+  000b8	66 01 59 f0	 add	 WORD PTR [ecx-16], bx
+  000bc	66 8b 14 3a	 mov	 dx, WORD PTR [edx+edi]
+  000c0	66 01 51 f2	 add	 WORD PTR [ecx-14], dx
+  000c4	0f be 54 24 1c	 movsx	 edx, BYTE PTR _sample2$[esp+16]
+  000c9	d1 e2		 shl	 edx, 1
+  000cb	66 8b 1c 2a	 mov	 bx, WORD PTR [edx+ebp]
+  000cf	66 01 59 f4	 add	 WORD PTR [ecx-12], bx
+  000d3	66 8b 14 3a	 mov	 dx, WORD PTR [edx+edi]
+  000d7	66 01 51 f6	 add	 WORD PTR [ecx-10], dx
+  000db	0f be 54 24 2c	 movsx	 edx, BYTE PTR _sample3$[esp+16]
+  000e0	d1 e2		 shl	 edx, 1
+  000e2	66 8b 1c 2a	 mov	 bx, WORD PTR [edx+ebp]
+  000e6	66 01 59 f8	 add	 WORD PTR [ecx-8], bx
+  000ea	66 8b 14 3a	 mov	 dx, WORD PTR [edx+edi]
+  000ee	66 01 51 fa	 add	 WORD PTR [ecx-6], dx
+  000f2	0f be 54 24 30	 movsx	 edx, BYTE PTR _sample4$[esp+16]
+  000f7	d1 e2		 shl	 edx, 1
+  000f9	66 8b 1c 2a	 mov	 bx, WORD PTR [edx+ebp]
+  000fd	66 01 59 fc	 add	 WORD PTR [ecx-4], bx
+  00101	66 8b 14 3a	 mov	 dx, WORD PTR [edx+edi]
+  00105	66 01 51 fe	 add	 WORD PTR [ecx-2], dx
+  00109	8b 54 24 28	 mov	 edx, DWORD PTR 24+[esp+16]
+  0010d	4a		 dec	 edx
+  0010e	89 54 24 28	 mov	 DWORD PTR 24+[esp+16], edx
+  00112	0f 85 41 ff ff
+	ff		 jne	 $L42437
+
+; 492  :     
+; 493  :     for(todo>>=2; todo; todo--)
+
+  00118	8b 5c 24 10	 mov	 ebx, DWORD PTR _remain$[esp+20]
+$L42433:
+
+; 508  :     }
+; 509  : 
+; 510  : 
+; 511  :     while(remain--)
+
+  0011c	8b d3		 mov	 edx, ebx
+  0011e	4b		 dec	 ebx
+  0011f	85 d2		 test	 edx, edx
+  00121	74 39		 je	 SHORT $L42236
+  00123	43		 inc	 ebx
+  00124	89 5c 24 20	 mov	 DWORD PTR 16+[esp+16], ebx
+$L42235:
+
+; 512  :     {
+; 513  :         sample1 = src[idx >> FRACBITS];	idx += inc;
+
+  00128	8b 5c 24 18	 mov	 ebx, DWORD PTR _src$[esp+16]
+  0012c	8b d0		 mov	 edx, eax
+  0012e	c1 fa 0c	 sar	 edx, 12			; 0000000cH
+
+; 514  :         *dst++ += Vol_L[sample1];
+
+  00131	83 c1 02	 add	 ecx, 2
+  00134	03 c6		 add	 eax, esi
+  00136	8a 14 1a	 mov	 dl, BYTE PTR [edx+ebx]
+
+; 515  :         *dst++ += Vol_R[sample1];
+
+  00139	83 c1 02	 add	 ecx, 2
+  0013c	0f be d2	 movsx	 edx, dl
+  0013f	d1 e2		 shl	 edx, 1
+  00141	66 8b 1c 2a	 mov	 bx, WORD PTR [edx+ebp]
+  00145	66 01 59 fc	 add	 WORD PTR [ecx-4], bx
+  00149	66 8b 14 3a	 mov	 dx, WORD PTR [edx+edi]
+  0014d	66 01 51 fe	 add	 WORD PTR [ecx-2], dx
+  00151	8b 54 24 20	 mov	 edx, DWORD PTR 16+[esp+16]
+  00155	4a		 dec	 edx
+  00156	89 54 24 20	 mov	 DWORD PTR 16+[esp+16], edx
+  0015a	75 cc		 jne	 SHORT $L42235
+$L42236:
+  0015c	5e		 pop	 esi
+  0015d	5b		 pop	 ebx
+  0015e	5f		 pop	 edi
+  0015f	5d		 pop	 ebp
+
+; 516  :     }
+; 517  :     
+; 518  : 
+; 519  :     return idx;
+; 520  : }
+
+  00160	59		 pop	 ecx
+  00161	c3		 ret	 0
+$L42436:
+
+; 492  :     
+; 493  :     for(todo>>=2; todo; todo--)
+
+  00162	8b 44 24 20	 mov	 eax, DWORD PTR _idx$[esp+16]
+  00166	eb b4		 jmp	 SHORT $L42433
+$L42230:
+
+; 484  :     SBYTE  sample1, sample2, sample3, sample4;
+; 485  :     int    remain;
+; 486  : 
+; 487  : 	if ((src == NULL) || (dst == NULL) || 
+; 488  : 		(Vol_L == NULL) || (Vol_R == NULL)) return idx;
+
+  00168	8b 44 24 18	 mov	 eax, DWORD PTR _idx$[esp+8]
+  0016c	5f		 pop	 edi
+  0016d	5d		 pop	 ebp
+
+; 516  :     }
+; 517  :     
+; 518  : 
+; 519  :     return idx;
+; 520  : }
+
+  0016e	59		 pop	 ecx
+  0016f	c3		 ret	 0
+?MixStereoNormal@@YAJPACPAFJJJ11@Z ENDP			; MixStereoNormal
+_TEXT	ENDS
+;	COMDAT ?AddStereoNormal@@YAXHPAFJ@Z
+_TEXT	SEGMENT
+_voc$ = 8
+_dst$ = 12
+_todo$ = 16
+_pVolTab_L$ = -4
+_pVolTab_R$ = -8
+_inc$ = 8
+_vol_L$ = -16
+_vol_R$ = -12
+?AddStereoNormal@@YAXHPAFJ@Z PROC NEAR			; AddStereoNormal, COMDAT
+
+; 527  : {
+
+  00000	83 ec 10	 sub	 esp, 16			; 00000010H
+  00003	53		 push	 ebx
+  00004	55		 push	 ebp
+  00005	56		 push	 esi
+
+; 528  : SWORD 	*pVolTab_L, *pVolTab_R;
+; 529  : SLONG	inc, lim, vol_L, vol_R;
+; 530  : SLONG	samplesUntilEnd, stepsUntilEnd, mixNow;
+; 531  : 
+; 532  : MIXCHAN	*chan = &MixChn[voc];
+
+  00006	8b 74 24 20	 mov	 esi, DWORD PTR _voc$[esp+24]
+  0000a	57		 push	 edi
+  0000b	8d 34 f6	 lea	 esi, DWORD PTR [esi+esi*8]
+  0000e	c1 e6 02	 shl	 esi, 2
+
+; 533  : 
+; 534  : 
+; 535  : 	if ((chan->Active == FALSE)	|| (chan->SampleSize < 4) || (chan->Freq < 16) ) return;
+
+  00011	8b 86 04 00 00
+	00		 mov	 eax, DWORD PTR _MixChn[esi+4]
+  00017	85 c0		 test	 eax, eax
+  00019	0f 84 90 01 00
+	00		 je	 $L42446
+  0001f	8b be 08 00 00
+	00		 mov	 edi, DWORD PTR _MixChn[esi+8]
+  00025	83 ff 04	 cmp	 edi, 4
+  00028	0f 8c 81 01 00
+	00		 jl	 $L42446
+  0002e	83 be 14 00 00
+	00 10		 cmp	 DWORD PTR _MixChn[esi+20], 16 ; 00000010H
+  00035	0f 8c 74 01 00
+	00		 jl	 $L42446
+
+; 536  : 
+; 537  : 	vol_L = chan->Volume;
+; 538  : 	vol_R = chan->Volume;
+; 539  : 
+; 540  : 	vol_L = (vol_L * chan->PanVolumeL * chan->MasterVol) / 4096;
+; 541  : 	vol_R = (vol_R * chan->PanVolumeR * chan->MasterVol) / 4096;
+; 542  : 
+; 543  : 
+; 544  : 	
+; 545  : 	inc = ((MixChn[voc].Freq << FRACBITS) / MIXFREQ);
+; 546  : 
+; 547  : 	pVolTab_L = VolTab + (vol_L * 256);
+; 548  : 	pVolTab_R = VolTab + (vol_R * 256);
+; 549  : 	lim = chan->SampleSize << FRACBITS;
+; 550  : 
+; 551  : 	while(todo > 0)
+
+  0003b	33 db		 xor	 ebx, ebx
+  0003d	33 c0		 xor	 eax, eax
+  0003f	8a 9e 00 00 00
+	00		 mov	 bl, BYTE PTR _MixChn[esi]
+  00045	8a 86 01 00 00
+	00		 mov	 al, BYTE PTR _MixChn[esi+1]
+  0004b	0f af c3	 imul	 eax, ebx
+  0004e	33 c9		 xor	 ecx, ecx
+  00050	8a 8e 10 00 00
+	00		 mov	 cl, BYTE PTR _MixChn[esi+16]
+  00056	0f af c1	 imul	 eax, ecx
+  00059	99		 cdq
+  0005a	81 e2 ff 0f 00
+	00		 and	 edx, 4095		; 00000fffH
+  00060	03 c2		 add	 eax, edx
+  00062	8b e8		 mov	 ebp, eax
+  00064	33 c0		 xor	 eax, eax
+  00066	8a 86 02 00 00
+	00		 mov	 al, BYTE PTR _MixChn[esi+2]
+  0006c	0f af c3	 imul	 eax, ebx
+  0006f	0f af c1	 imul	 eax, ecx
+  00072	8b 8e 14 00 00
+	00		 mov	 ecx, DWORD PTR _MixChn[esi+20]
+  00078	99		 cdq
+  00079	81 e2 ff 0f 00
+	00		 and	 edx, 4095		; 00000fffH
+  0007f	03 c2		 add	 eax, edx
+  00081	8b d8		 mov	 ebx, eax
+  00083	b8 8f f1 8d 2f	 mov	 eax, 797831567		; 2f8df18fH
+  00088	c1 e1 0c	 shl	 ecx, 12			; 0000000cH
+  0008b	f7 e9		 imul	 ecx
+  0008d	c1 fa 0d	 sar	 edx, 13			; 0000000dH
+  00090	8b c2		 mov	 eax, edx
+  00092	c1 fd 0c	 sar	 ebp, 12			; 0000000cH
+  00095	c1 fb 0c	 sar	 ebx, 12			; 0000000cH
+  00098	c1 e8 1f	 shr	 eax, 31			; 0000001fH
+  0009b	89 6c 24 10	 mov	 DWORD PTR _vol_L$[esp+32], ebp
+  0009f	89 5c 24 14	 mov	 DWORD PTR _vol_R$[esp+32], ebx
+  000a3	03 d0		 add	 edx, eax
+  000a5	a1 00 00 00 00	 mov	 eax, DWORD PTR _VolTab
+  000aa	c1 e5 09	 shl	 ebp, 9
+  000ad	c1 e3 09	 shl	 ebx, 9
+  000b0	03 e8		 add	 ebp, eax
+  000b2	03 d8		 add	 ebx, eax
+  000b4	8b 44 24 2c	 mov	 eax, DWORD PTR _todo$[esp+28]
+  000b8	89 54 24 24	 mov	 DWORD PTR _inc$[esp+28], edx
+  000bc	c1 e7 0c	 shl	 edi, 12			; 0000000cH
+  000bf	85 c0		 test	 eax, eax
+  000c1	89 6c 24 1c	 mov	 DWORD PTR _pVolTab_L$[esp+32], ebp
+  000c5	89 5c 24 18	 mov	 DWORD PTR _pVolTab_R$[esp+32], ebx
+  000c9	0f 8e e0 00 00
+	00		 jle	 $L42446
+$L42255:
+
+; 552  : 	{
+; 553  : 		while(chan->PosIndex >= lim)
+
+  000cf	8b 86 18 00 00
+	00		 mov	 eax, DWORD PTR _MixChn[esi+24]
+  000d5	3b c7		 cmp	 eax, edi
+  000d7	7c 2b		 jl	 SHORT $L42259
+
+; 554  : 		{
+; 555  : 			chan->PosIndex -= lim;
+; 556  : 			chan->SamplePos = chan->_SamplePos;
+; 557  : 			chan->SampleSize = chan->_SampleSize;
+
+  000d9	8b 8e 1c 00 00
+	00		 mov	 ecx, DWORD PTR _MixChn[esi+28]
+  000df	8b ae 20 00 00
+	00		 mov	 ebp, DWORD PTR _MixChn[esi+32]
+
+; 558  : 			lim = chan->SampleSize << FRACBITS;
+
+  000e5	8b d1		 mov	 edx, ecx
+  000e7	c1 e2 0c	 shl	 edx, 12			; 0000000cH
+$L42258:
+  000ea	2b c7		 sub	 eax, edi
+  000ec	8b fa		 mov	 edi, edx
+  000ee	3b c7		 cmp	 eax, edi
+  000f0	89 86 18 00 00
+	00		 mov	 DWORD PTR _MixChn[esi+24], eax
+  000f6	89 ae 0c 00 00
+	00		 mov	 DWORD PTR _MixChn[esi+12], ebp
+  000fc	89 8e 08 00 00
+	00		 mov	 DWORD PTR _MixChn[esi+8], ecx
+  00102	7d e6		 jge	 SHORT $L42258
+$L42259:
+
+; 559  : 		}
+; 560  : 
+; 561  : 		if (chan->SampleSize < 4) return;
+
+  00104	83 be 08 00 00
+	00 04		 cmp	 DWORD PTR _MixChn[esi+8], 4
+  0010b	0f 8c 9e 00 00
+	00		 jl	 $L42446
+
+; 562  : 
+; 563  : 		
+; 564  : 
+; 565  : 
+; 566  : 		samplesUntilEnd = lim - chan->PosIndex;
+
+  00111	8b ae 18 00 00
+	00		 mov	 ebp, DWORD PTR _MixChn[esi+24]
+  00117	8b cf		 mov	 ecx, edi
+  00119	2b cd		 sub	 ecx, ebp
+
+; 567  : 
+; 568  : 
+; 569  : 
+; 570  : 		stepsUntilEnd = samplesUntilEnd / inc;		
+
+  0011b	8b c1		 mov	 eax, ecx
+  0011d	99		 cdq
+  0011e	f7 7c 24 24	 idiv	 DWORD PTR _inc$[esp+28]
+  00122	8b d8		 mov	 ebx, eax
+
+; 571  : 		if (samplesUntilEnd % inc) stepsUntilEnd++;
+
+  00124	8b c1		 mov	 eax, ecx
+  00126	8b 4c 24 24	 mov	 ecx, DWORD PTR _inc$[esp+28]
+  0012a	99		 cdq
+  0012b	f7 f9		 idiv	 ecx
+  0012d	85 d2		 test	 edx, edx
+  0012f	74 01		 je	 SHORT $L42261
+  00131	43		 inc	 ebx
+$L42261:
+
+; 572  : 
+; 573  : 
+; 574  : 		mixNow = (stepsUntilEnd > todo) ? todo : stepsUntilEnd;
+
+  00132	8b 44 24 2c	 mov	 eax, DWORD PTR _todo$[esp+28]
+  00136	3b d8		 cmp	 ebx, eax
+  00138	7e 02		 jle	 SHORT $L42443
+  0013a	8b d8		 mov	 ebx, eax
+$L42443:
+
+; 575  : 		todo -= mixNow;
+
+  0013c	8b 54 24 2c	 mov	 edx, DWORD PTR _todo$[esp+28]
+  00140	2b d3		 sub	 edx, ebx
+
+; 576  : 
+; 577  : 		if (mixNow <= 0) return;
+
+  00142	85 db		 test	 ebx, ebx
+  00144	89 54 24 2c	 mov	 DWORD PTR _todo$[esp+28], edx
+  00148	7e 65		 jle	 SHORT $L42446
+
+; 578  : 
+; 579  : 
+; 580  : 		if ((vol_L == 0) && (vol_R == 0)) chan->PosIndex += (mixNow * inc); else
+
+  0014a	8b 44 24 10	 mov	 eax, DWORD PTR _vol_L$[esp+32]
+  0014e	85 c0		 test	 eax, eax
+  00150	75 17		 jne	 SHORT $L42263
+  00152	8b 44 24 14	 mov	 eax, DWORD PTR _vol_R$[esp+32]
+  00156	85 c0		 test	 eax, eax
+  00158	75 0f		 jne	 SHORT $L42263
+  0015a	8b d3		 mov	 edx, ebx
+  0015c	0f af d1	 imul	 edx, ecx
+  0015f	03 d5		 add	 edx, ebp
+  00161	89 96 18 00 00
+	00		 mov	 DWORD PTR _MixChn[esi+24], edx
+  00167	eb 2f		 jmp	 SHORT $L42264
+$L42263:
+
+; 581  : 		{
+; 582  : 			chan->PosIndex = MixStereoNormal(	(SBYTE *) GF1Mem + MixChn[voc].SamplePos,
+; 583  : 												dst, 
+; 584  : 												chan->PosIndex, 
+; 585  : 												inc, 
+; 586  : 												mixNow, 
+; 587  : 												pVolTab_L, 
+; 588  : 												pVolTab_R);
+
+  00169	8b 44 24 18	 mov	 eax, DWORD PTR _pVolTab_R$[esp+32]
+  0016d	8b 54 24 1c	 mov	 edx, DWORD PTR _pVolTab_L$[esp+32]
+  00171	50		 push	 eax
+  00172	8b 44 24 2c	 mov	 eax, DWORD PTR _dst$[esp+32]
+  00176	52		 push	 edx
+  00177	53		 push	 ebx
+  00178	51		 push	 ecx
+  00179	8b 8e 0c 00 00
+	00		 mov	 ecx, DWORD PTR _MixChn[esi+12]
+  0017f	55		 push	 ebp
+  00180	8b 2d 00 00 00
+	00		 mov	 ebp, DWORD PTR _GF1Mem
+  00186	03 cd		 add	 ecx, ebp
+  00188	50		 push	 eax
+  00189	51		 push	 ecx
+  0018a	e8 00 00 00 00	 call	 ?MixStereoNormal@@YAJPACPAFJJJ11@Z ; MixStereoNormal
+  0018f	83 c4 1c	 add	 esp, 28			; 0000001cH
+  00192	89 86 18 00 00
+	00		 mov	 DWORD PTR _MixChn[esi+24], eax
+$L42264:
+
+; 589  : 		}
+; 590  : 
+; 591  : 
+; 592  : 
+; 593  : 		dst += (mixNow * 2);
+
+  00198	8b 54 24 28	 mov	 edx, DWORD PTR _dst$[esp+28]
+  0019c	8d 04 9a	 lea	 eax, DWORD PTR [edx+ebx*4]
+  0019f	89 44 24 28	 mov	 DWORD PTR _dst$[esp+28], eax
+  001a3	8b 44 24 2c	 mov	 eax, DWORD PTR _todo$[esp+28]
+  001a7	85 c0		 test	 eax, eax
+  001a9	0f 8f 20 ff ff
+	ff		 jg	 $L42255
+$L42446:
+  001af	5f		 pop	 edi
+  001b0	5e		 pop	 esi
+  001b1	5d		 pop	 ebp
+  001b2	5b		 pop	 ebx
+
+; 594  : 	}
+; 595  : 
+; 596  : }
+
+  001b3	83 c4 10	 add	 esp, 16			; 00000010H
+  001b6	c3		 ret	 0
+?AddStereoNormal@@YAXHPAFJ@Z ENDP			; AddStereoNormal
+_TEXT	ENDS
+PUBLIC	_VGF1_GetMixBuffer
+;	COMDAT _VGF1_GetMixBuffer
+_TEXT	SEGMENT
+_VGF1_GetMixBuffer PROC NEAR				; COMDAT
+
+; 667  : 	return (SWORD*)MixBuf;
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _MixBuf
+
+; 668  : }
+
+  00005	c3		 ret	 0
+_VGF1_GetMixBuffer ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_Reset
+;	COMDAT _VGF1_Reset
+_TEXT	SEGMENT
+_VGF1_Reset PROC NEAR					; COMDAT
+
+; 675  : int	voc;
+; 676  : 
+; 677  : 	EnterCriticalSection(&csVGF1);
+
+  00000	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00005	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+  0000b	b8 08 00 00 00	 mov	 eax, OFFSET FLAT:_MixChn+8
+  00010	33 c9		 xor	 ecx, ecx
+$L42274:
+
+; 678  : 	for (voc = 0; voc < NUMCHN; voc++)
+; 679  : 	{
+; 680  : 		MixChn[voc].Active = FALSE;
+
+  00012	89 48 fc	 mov	 DWORD PTR [eax-4], ecx
+
+; 681  : 
+; 682  : 		MixChn[voc].SampleSize = 0;
+
+  00015	89 08		 mov	 DWORD PTR [eax], ecx
+
+; 683  : 		MixChn[voc].SamplePos = 0;
+
+  00017	89 48 04	 mov	 DWORD PTR [eax+4], ecx
+
+; 684  : 		MixChn[voc].Volume = 0;
+
+  0001a	88 48 08	 mov	 BYTE PTR [eax+8], cl
+
+; 685  : 		MixChn[voc].Freq = 0;
+
+  0001d	89 48 0c	 mov	 DWORD PTR [eax+12], ecx
+
+; 686  : 		MixChn[voc].PosIndex = 0;
+
+  00020	89 48 10	 mov	 DWORD PTR [eax+16], ecx
+  00023	83 c0 24	 add	 eax, 36			; 00000024H
+  00026	3d 98 00 00 00	 cmp	 eax, OFFSET FLAT:_MixChn+152
+  0002b	7c e5		 jl	 SHORT $L42274
+
+; 687  : 	}
+; 688  : 
+; 689  : 	LeaveCriticalSection(&csVGF1);
+
+  0002d	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00032	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+
+; 690  : }
+
+  00038	c3		 ret	 0
+_VGF1_Reset ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_SetChanMasterVol
+;	COMDAT _VGF1_SetChanMasterVol
+_TEXT	SEGMENT
+_chan$ = 8
+_vol$ = 12
+_VGF1_SetChanMasterVol PROC NEAR			; COMDAT
+
+; 696  : {
+
+  00000	56		 push	 esi
+
+; 697  : 
+; 698  : 	if ((chan < 0) || (chan > 3)) return;
+
+  00001	8b 74 24 08	 mov	 esi, DWORD PTR _chan$[esp]
+  00005	85 f6		 test	 esi, esi
+  00007	7c 68		 jl	 SHORT $L42282
+  00009	83 fe 03	 cmp	 esi, 3
+  0000c	7f 63		 jg	 SHORT $L42282
+
+; 699  : 
+; 700  : 	EnterCriticalSection(&csVGF1);
+
+  0000e	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00013	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+
+; 701  : 	if (vol == -1)
+
+  00019	8b 44 24 0c	 mov	 eax, DWORD PTR _vol$[esp]
+  0001d	83 f8 ff	 cmp	 eax, -1
+  00020	75 28		 jne	 SHORT $L42283
+
+; 702  : 	{
+; 703  : 		MixChn[chan].MasterVol = (MixChn[chan].MasterVol) ? 0 : 64;
+
+  00022	8d 04 f6	 lea	 eax, DWORD PTR [esi+esi*8]
+
+; 709  : 	}
+; 710  : 	LeaveCriticalSection(&csVGF1);
+
+  00025	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  0002a	8a 0c 85 00 00
+	00 00		 mov	 cl, BYTE PTR _MixChn[eax*4]
+  00031	f6 d9		 neg	 cl
+  00033	1a c9		 sbb	 cl, cl
+  00035	80 e1 c0	 and	 cl, 192			; 000000c0H
+  00038	80 c1 40	 add	 cl, 64			; 00000040H
+  0003b	88 0c 85 00 00
+	00 00		 mov	 BYTE PTR _MixChn[eax*4], cl
+  00042	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+  00048	5e		 pop	 esi
+
+; 711  : }
+
+  00049	c3		 ret	 0
+$L42283:
+
+; 704  : 	}
+; 705  : 	else
+; 706  : 	{
+; 707  : 		vol = (vol<0) ? 0 : ((vol>64) ? 64 : vol);
+
+  0004a	85 c0		 test	 eax, eax
+  0004c	7d 04		 jge	 SHORT $L42461
+  0004e	33 c0		 xor	 eax, eax
+  00050	eb 0a		 jmp	 SHORT $L42459
+$L42461:
+  00052	83 f8 40	 cmp	 eax, 64			; 00000040H
+  00055	7e 05		 jle	 SHORT $L42459
+  00057	b8 40 00 00 00	 mov	 eax, 64			; 00000040H
+$L42459:
+
+; 708  : 		MixChn[chan].MasterVol = vol;
+
+  0005c	8d 14 f6	 lea	 edx, DWORD PTR [esi+esi*8]
+
+; 709  : 	}
+; 710  : 	LeaveCriticalSection(&csVGF1);
+
+  0005f	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00064	88 04 95 00 00
+	00 00		 mov	 BYTE PTR _MixChn[edx*4], al
+  0006b	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+$L42282:
+  00071	5e		 pop	 esi
+
+; 711  : }
+
+  00072	c3		 ret	 0
+_VGF1_SetChanMasterVol ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_GetChanMasterVol
+;	COMDAT _VGF1_GetChanMasterVol
+_TEXT	SEGMENT
+_chan$ = 8
+_VGF1_GetChanMasterVol PROC NEAR			; COMDAT
+
+; 717  : {
+
+  00000	56		 push	 esi
+
+; 718  : int	vol;
+; 719  : 	if ((chan < 0) || (chan > 3)) return 0;
+
+  00001	8b 74 24 08	 mov	 esi, DWORD PTR _chan$[esp]
+  00005	85 f6		 test	 esi, esi
+  00007	7c 2d		 jl	 SHORT $L42290
+  00009	83 fe 03	 cmp	 esi, 3
+  0000c	7f 28		 jg	 SHORT $L42290
+
+; 720  : 
+; 721  : 	EnterCriticalSection(&csVGF1);
+
+  0000e	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00013	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+
+; 722  : 	vol = MixChn[chan].MasterVol;
+
+  00019	8d 04 f6	 lea	 eax, DWORD PTR [esi+esi*8]
+  0001c	33 c9		 xor	 ecx, ecx
+
+; 723  : 	LeaveCriticalSection(&csVGF1);
+
+  0001e	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00023	8a 0c 85 00 00
+	00 00		 mov	 cl, BYTE PTR _MixChn[eax*4]
+  0002a	8b f1		 mov	 esi, ecx
+  0002c	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+
+; 724  : 
+; 725  : 	return vol;
+
+  00032	8b c6		 mov	 eax, esi
+  00034	5e		 pop	 esi
+
+; 726  : }
+
+  00035	c3		 ret	 0
+$L42290:
+
+; 718  : int	vol;
+; 719  : 	if ((chan < 0) || (chan > 3)) return 0;
+
+  00036	33 c0		 xor	 eax, eax
+  00038	5e		 pop	 esi
+
+; 726  : }
+
+  00039	c3		 ret	 0
+_VGF1_GetChanMasterVol ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_GetMixStress
+;	COMDAT _VGF1_GetMixStress
+_TEXT	SEGMENT
+_VGF1_GetMixStress PROC NEAR				; COMDAT
+
+; 732  : {
+
+  00000	56		 push	 esi
+
+; 733  : int	val;
+; 734  : 
+; 735  : 	EnterCriticalSection(&csVGF1);
+
+  00001	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00006	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+
+; 736  : 	val = MixerStress;
+
+  0000c	8b 35 00 00 00
+	00		 mov	 esi, DWORD PTR _MixerStress
+
+; 737  : 	LeaveCriticalSection(&csVGF1);
+
+  00012	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00017	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+
+; 738  : 	return val;
+
+  0001d	8b c6		 mov	 eax, esi
+  0001f	5e		 pop	 esi
+
+; 739  : }
+
+  00020	c3		 ret	 0
+_VGF1_GetMixStress ENDP
+_TEXT	ENDS
+PUBLIC	_VGF1_GetActiveChannels
+;	COMDAT _VGF1_GetActiveChannels
+_TEXT	SEGMENT
+_VGF1_GetActiveChannels PROC NEAR			; COMDAT
+
+; 744  : {
+
+  00000	56		 push	 esi
+
+; 745  : int	val = 0;
+; 746  : int	i;
+; 747  : 
+; 748  : 	EnterCriticalSection(&csVGF1);
+
+  00001	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00006	33 f6		 xor	 esi, esi
+  00008	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__EnterCriticalSection@4
+  0000e	b8 00 00 00 00	 mov	 eax, OFFSET FLAT:_MixChn
+  00013	b9 01 00 00 00	 mov	 ecx, 1
+$L42300:
+
+; 750  : 		if ((MixChn[i].Active == TRUE)
+; 751  : 		&& (MixChn[i].MasterVol>0)) val++;
+
+  00018	39 48 04	 cmp	 DWORD PTR [eax+4], ecx
+  0001b	75 06		 jne	 SHORT $L42301
+  0001d	80 38 00	 cmp	 BYTE PTR [eax], 0
+  00020	76 01		 jbe	 SHORT $L42301
+  00022	46		 inc	 esi
+$L42301:
+
+; 749  : 	for (i = 0; i < NUMCHN; i++)
+
+  00023	83 c0 24	 add	 eax, 36			; 00000024H
+  00026	3d 90 00 00 00	 cmp	 eax, OFFSET FLAT:_MixChn+144
+  0002b	7c eb		 jl	 SHORT $L42300
+
+; 752  : 	LeaveCriticalSection(&csVGF1);
+
+  0002d	68 00 00 00 00	 push	 OFFSET FLAT:_csVGF1
+  00032	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__LeaveCriticalSection@4
+
+; 753  : 	return val;
+
+  00038	8b c6		 mov	 eax, esi
+  0003a	5e		 pop	 esi
+
+; 754  : }
+
+  0003b	c3		 ret	 0
+_VGF1_GetActiveChannels ENDP
+_TEXT	ENDS
+END

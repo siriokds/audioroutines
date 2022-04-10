@@ -1,0 +1,467 @@
+#include <stdio.h>
+#include <malloc.h>
+#include <string.h>
+
+#include "Mod2Chp.h"
+
+static short freqtab[12*3] =
+{
+	 856,808,762,720,678,640,604,570,538,508,480,453
+	,428,404,381,360,339,320,302,285,269,254,240,226
+	,214,202,190,180,170,160,151,143,135,127,120,113
+};
+
+
+struct TModuleHeader		ModuleHeader;
+struct TSampleDescriptor	SampleDescriptor[32];
+
+UBYTE	*PackedPatternData, *SrcSampleData, *DstSampleData;
+ULONG	PackedPatternLen, UnPackedPatternLen;
+UBYTE	Positions[128];		// Position data
+ULONG	SampleDataPos, SampleDataSize;
+UBYTE	*lpMod;
+FILE	*fp;
+SLONG	ModSize = 0, Readed = 0, Writed = 0;
+
+/*---------------------------------------------------------------*/
+// Prototypes
+
+void	initHeader(void);
+void	GetSampleINFO(void);
+void	GetOrderDATA(void);
+void	GetPatternDATA(void);
+/*---------------------------------------------------------------*/
+
+
+/*---------------------------------------------------------------*/
+void	initHeader(void)
+/*---------------------------------------------------------------*/
+{
+int i;
+
+		strcpy(ModuleHeader.ID, HEADER_ID);
+
+		ModuleHeader.Version = HEADER_VER;
+
+		ModuleHeader.Restart = 0;
+		
+		ModuleHeader.NumOfPat = 0;
+
+		ModuleHeader.lptrSampleData = sizeof(struct TModuleHeader);
+
+		ModuleHeader.Unused1 = 
+		ModuleHeader.Unused2 = 
+		ModuleHeader.Unused1 = 0;
+
+		ModuleHeader.NumOfPos = 0;
+
+		for (i = 0; i < HEADER_POSNUM; i++)	Positions[i] = 0;
+	
+
+
+		for (i = 0; i < 32; i++)
+		{
+			SampleDescriptor[i].SampleSize = 0;	// 2
+			SampleDescriptor[i].Finetune = 0;	// 1
+			SampleDescriptor[i].Volume = 0;		// 1
+			SampleDescriptor[i].LoopStart = 0;	// 2
+			SampleDescriptor[i].LoopSize = 0;	// 2
+		}
+}
+
+
+/*---------------------------------------------------------------*/
+void	writeAll(FILE *fp)
+/*---------------------------------------------------------------*/
+{
+int	size;
+
+
+		size = sizeof(struct TModuleHeader);
+		fwrite( &ModuleHeader, size, 1,	fp);
+		printf("Header:\t\t\t%04Xh\n",size);
+		Writed += size;
+
+
+		fwrite(Positions, 1, ModuleHeader.NumOfPos, fp);
+		printf("Positions:\t\t%04Xh (Unpacked: 0080h - %d%%)\n"
+			,ModuleHeader.NumOfPos
+			,(ModuleHeader.NumOfPos * 100) / 0x80
+			);
+		Writed += ModuleHeader.NumOfPos;
+
+
+		size = sizeof(struct TSampleDescriptor);
+		fwrite( &SampleDescriptor[1], size, ModuleHeader.NumOfSmp,	fp);
+		printf("SampleDescriptor:\t%04Xh (Unpacked: 03A2h - %d%%)\n"
+			,(size * ModuleHeader.NumOfSmp)
+			,((size * ModuleHeader.NumOfSmp) * 100) / 0x3A2
+			);
+
+		Writed += (size * ModuleHeader.NumOfSmp);
+
+
+		fwrite( PackedPatternData, 1, PackedPatternLen,	fp);
+		printf("PackedPatternLen:\t%04Xh (Unpacked: %04Xh - %d%%)\n"
+			,PackedPatternLen
+			,UnPackedPatternLen
+			,((PackedPatternLen * 100) / UnPackedPatternLen)
+			);
+		Writed += PackedPatternLen;
+
+
+		fwrite(DstSampleData, 1, 4 + SampleDataSize, fp);
+		printf("SampleDataSize:\t\t%04Xh\n",4 + SampleDataSize);
+		Writed += (4 + SampleDataSize);
+
+}
+
+
+
+
+/*---------------------------------------------------------------*/
+void	GetSampleINFO(void)
+/*---------------------------------------------------------------*/
+{
+int		i,k;
+UBYTE	*mp;
+
+	mp = lpMod + 20;
+
+	SampleDataSize = 0;
+	ModuleHeader.NumOfSmp = 0;
+
+	for (i = 1; i < 32; i++)
+	{
+		// skip first 22 bytes (samplename)
+		SampleDescriptor[i].SampleSize = SWAP_WORD(mp,22);	// 2
+
+		if (!SampleDescriptor[i].SampleSize) goto NoVSmpl;
+		ModuleHeader.NumOfSmp = i-1;
+
+		k = mp[24]; if (k > 7) k = k - 16;
+		SampleDescriptor[i].Finetune = k;					// 1
+		SampleDescriptor[i].Volume = mp[25];				// 1
+		SampleDescriptor[i].LoopStart = SWAP_WORD(mp,26);	// 2
+		SampleDescriptor[i].LoopSize = SWAP_WORD(mp,28);	// 2
+NoVSmpl:
+		mp += (22 + 2 + 1 + 1 + 2 + 2);
+		SampleDataSize += (SampleDescriptor[i].SampleSize * 2);
+	}
+
+	ModuleHeader.lptrSampleData += (8 * ModuleHeader.NumOfSmp);
+}
+
+
+
+/*---------------------------------------------------------------*/
+void	GetOrderDATA(void)
+/*---------------------------------------------------------------*/
+{
+int		i,k;
+UBYTE	*mp;
+
+	mp = lpMod;
+
+	ModuleHeader.NumOfPos = mp[950];
+	ModuleHeader.Restart = mp[951];
+	ModuleHeader.NumOfPat = 0;
+
+	for (i = 0; i < HEADER_POSNUM; i++)
+	{
+		k = mp[952+i];
+		Positions[i] = k;
+		if (k > ModuleHeader.NumOfPat) 
+			ModuleHeader.NumOfPat = k;
+	}
+
+	ModuleHeader.NumOfPat ++;
+
+	ModuleHeader.lptrSampleData += ModuleHeader.NumOfPos;
+}
+
+
+
+/*---------------------------------------------------------------*/
+UBYTE	OffsetPeriodTable(UWORD	PeriodVal)
+/*---------------------------------------------------------------*/
+{
+int		j;
+UBYTE	NNum = 0;
+
+	for (j = 0; j < 36; j++)
+		if (freqtab[j] == PeriodVal) 
+				{ NNum = (j+1) & 31; break; }
+
+		return NNum;
+}
+
+
+
+/*---------------------------------------------------------------*/
+UBYTE*	GetCHNPatternDATA(UBYTE *mp, UBYTE *dp)
+/*---------------------------------------------------------------*/
+{
+int		row;
+UBYTE	CSampleNum,CNoteNum,CEfxNum,CEfxData,RepVal;
+UBYTE	SampleNum,NoteNum,EfxNum,EfxData;
+UWORD	Period;
+
+	CSampleNum = CNoteNum = CEfxNum = CEfxData = RepVal = 0;
+
+	for (row = 0; row < 64; row++)
+	{
+		SampleNum = ((mp[0] & 0xF0) | (mp[2] >> 4)) & 31;
+		EfxNum = mp[2] & 0x0F;
+		EfxData = mp[3];
+		Period = (((mp[0] & 0x0F) >> 8) | mp[1]) & 0x0FFF;
+		NoteNum = OffsetPeriodTable(Period);
+		mp += (4*4);
+		UnPackedPatternLen += 4;
+
+		if (row == 0) goto WriteData;
+
+		if (	(SampleNum == CSampleNum)
+			&&	(NoteNum == CNoteNum) 
+			&&	(EfxNum == CEfxNum) 
+			&&	(EfxData == CEfxData) 
+			)	{ RepVal++; continue; }
+
+WriteData:
+		if (RepVal)
+		{
+			*dp++ = 0xC0 | (RepVal & 0x3F);
+			PackedPatternLen++;
+			RepVal = 0;
+		}
+
+		CSampleNum = SampleNum;
+		CNoteNum = NoteNum;
+		CEfxNum = EfxNum;
+		CEfxData = EfxData;
+
+		dp[0] = ((SampleNum << 1) | (NoteNum >> 4)) & 0x3F;
+		dp[1] = (NoteNum << 4) | EfxNum;
+		dp[2] = EfxData;
+		dp += 3;
+		PackedPatternLen += 3;
+	}
+
+	if (RepVal)
+	{
+		*dp++ = 0xC0 | (RepVal & 0x3F);
+		PackedPatternLen++;
+		RepVal = 0;
+	}
+
+	return dp;
+}
+
+/*---------------------------------------------------------------*/
+void	GetPatternDATA(void)
+/*---------------------------------------------------------------*/
+{
+int		pat;
+UBYTE	*mp,*dp;
+
+		mp = lpMod + 1084; 		// PTK ptr of pattern data
+		dp = PackedPatternData; // ChP ptr of packed pattern data
+
+		for (pat = 0; pat < ModuleHeader.NumOfPat; pat++)
+		{
+			dp = GetCHNPatternDATA(mp+ 0, dp);	// Pack Chn 0
+			dp = GetCHNPatternDATA(mp+ 4, dp);	// Pack Chn 1
+			dp = GetCHNPatternDATA(mp+ 8, dp);	// Pack Chn 2
+			dp = GetCHNPatternDATA(mp+12, dp);	// Pack Chn 3
+			mp += (64 * 4 * 4);	// Size of a pattern
+		}
+
+		SrcSampleData = mp;
+		ModuleHeader.lptrSampleData += PackedPatternLen;
+}
+
+
+
+
+
+
+
+static short ADPCMtab[16] =
+{
+//	-128,-64,-32,-16,-8,-4,-2,-1,0,1,2,4,8,16,32,64
+	-127,-63,-31,-15,-7,-3,-1,0,1,3,7,15,31,63,127,0
+};
+
+/*---------------------------------------------------------------*/
+int		pakGetADPCMval(SBYTE v)
+/*---------------------------------------------------------------*/
+{
+int	i;
+int	minval, minindex;
+
+	minindex  = 0;
+	minval = v - ADPCMtab[minindex];
+	
+	for (i = 1; i < 16; i++)
+		if ((v - ADPCMtab[0]) < minval) 
+		{
+			minval = v - ADPCMtab[i];
+			minindex = i;
+		}
+	
+	return minindex;
+}
+
+/*---------------------------------------------------------------*/
+void	packSampleDATA(SBYTE *ldp, SBYTE *lsp, int lSize)
+/*---------------------------------------------------------------*/
+{
+SBYTE	lastVal, actVal1, actVal2, actVal;
+int		i;
+
+		*ldp++ = *lsp++;
+		*ldp++ = LastVal = *lsp++;
+		lSize--;
+
+		for (i = 0; i < lSize; i++)
+		{
+			actVal = *lsp++;
+			actVal1 = pakGetADPCMval(actVal - LastVal);
+			LastVal = actVal;
+
+			actVal = *lsp++;
+			actVal2 = pakGetADPCMval(actVal - LastVal);
+			LastVal = actVal;
+			
+			actVal = (actVal1 << 4) & 0xF0;
+			actVal |= actVal1 & 0x0F;
+			
+			*ldp++ = actVal;
+			lsp += 2;
+		}
+
+}
+
+/*---------------------------------------------------------------*/
+void	pakGetSampleDATA(void)
+/*---------------------------------------------------------------*/
+{
+int	i, size;
+SBYTE	*sp = SrcSampleData;
+SBYTE	*dp = DstSampleData + 4;
+
+	SampleDataSize = 0;
+	for (i = 1; i < 32; i++)
+	{
+		if (SampleDescriptor[i].SampleSize)
+		{
+			size = SampleDescriptor[i].SampleSize + 1;
+
+			SampleDataSize += size;
+
+			packSampleDATA(dp, sp, size);
+
+			sp += (SampleDescriptor[i].SampleSize * 2);
+			dp += size;
+			SampleDescriptor[i].SampleSize = size;
+		}
+	}
+	*((ULONG*)DstSampleData) = SampleDataSize;
+	printf("\n");
+}
+
+/*---------------------------------------------------------------*/
+void	GetSampleDATA(void)
+/*---------------------------------------------------------------*/
+{
+UBYTE	*mp = DstSampleData + 4;
+
+		*((ULONG*)DstSampleData) = SampleDataSize;
+		memcpy(mp,SrcSampleData,SampleDataSize);
+}
+
+
+
+/*---------------------------------------------------------------*/
+void	Banner(void)
+/*---------------------------------------------------------------*/
+{
+		printf("\nMOD2CHP Module Converter! (ChP! v1.1)\n");
+		printf("Copyright(C) 1998 - SiRiO / KoGA DeSiGN\n");
+		printf("usage: MOD2CHP <MODname> <CHPname>\n\n");
+}
+
+/*---------------------------------------------------------------*/
+int		main(int argc, char *argv[])
+/*---------------------------------------------------------------*/
+{
+ULONG	MK_ID;
+
+
+		Banner();
+
+		if (argc != 3) return 1;
+		if (!strcmp(argv[1],argv[2])) return 1;
+
+		fp = fopen(argv[1],"rb"); if (fp == NULL) return 2;
+
+		fseek(fp, 0, SEEK_END);	
+		ModSize = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
+
+		if (ModSize == 0) {	fclose(fp);	return 3; }
+
+		lpMod = (UBYTE *)malloc(ModSize);
+		if (lpMod == NULL) { fclose(fp); return 4; }
+
+		Readed = fread(lpMod, 1, ModSize, fp);
+		fclose(fp);
+
+		if (Readed != ModSize) { free(lpMod); return 5;	}
+		
+		// Check for "M.K." string (4chans mod)
+		MK_ID = * ((ULONG*)(lpMod + 0x438));
+		if (MK_ID != 0x2E4B2E4D) { free(lpMod); return 6; }
+
+		printf("Processing M.K. module...\n\n",ModSize);
+		
+		initHeader();
+//----------------------
+		GetOrderDATA();
+		GetSampleINFO();
+//----------------------
+		PackedPatternData = 
+			(UBYTE *)malloc( ModuleHeader.NumOfPat * ((4 * 64) * 3) );
+		if (PackedPatternData == NULL) { free(lpMod); return 4; }
+		memset(PackedPatternData,0,ModuleHeader.NumOfPat * ((4 * 64) * 3));
+
+		GetPatternDATA();
+//----------------------
+		DstSampleData = (UBYTE *)malloc(4 + SampleDataSize);
+		if (DstSampleData == NULL) 
+		{ 
+			free(PackedPatternData); 
+			free(lpMod); 
+			return 4; 
+		}
+		memset(DstSampleData, 0, 4 + SampleDataSize);
+
+		GetSampleDATA();
+//----------------------
+		fp = fopen(argv[2],"wb"); if (fp == NULL) return 2;
+		writeAll(fp);
+//----------------------
+
+		printf("ChP! Module size:\t%d  (Original: %d - %3d%%)\n\n"
+			,Writed,ModSize,(Writed*100)/ModSize);
+
+
+		fclose(fp);
+
+		free(DstSampleData); 
+		free(PackedPatternData); 
+		free(lpMod);
+
+		return 0;
+}
+

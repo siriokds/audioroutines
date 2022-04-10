@@ -1,0 +1,95 @@
+******************************************************************
+ChP! Module Format v1.1
+******************************************************************
+
+-------------------------------------------------------------------
+Pos		Len       	What
+-------------------------------------------------------------------
+0000h		5		"ChP!",0
+0005h		1		Version (v1.3 == 0x13)
+0006h  	        1		NoiseTracker restart byte
+0007h		1		NumOfPat
+0008h		4		Pointer to SampleDataHeader (SmplData ptr)
+000Ch		1		Unused1
+000Dh		1		Unused2
+000Eh		1		NumOfSmp
+000Fh		1		NumOfPos
+0010h		NumOfPos	Positions
+
+10h+
+NumOfPos	8 * NumOfSmp	Sample descriptors
+
+10h+
+NumOfPos+
+(8 * NumOfSmp)	????		PatternData
+
+(SmplData ptr)	4		SampleDataHeader (Data Size)
+????		????		SmplData
+
+***************************************
+* SAMPLE DESCRIPTOR                   *
+* the following is repeated 31 times  *
+* with 8 bytes description for 1 smp  *
+*****************************************************
+0h		2		Sample Size / 2     *
+2h		1		Finetune (-8 -> +7) *
+3h		1		Volume (0 - 40h)    *
+4h		2		Loop Start / 2      *
+6h		2		Loop Size / 2	    *
+*****************************************************
+
+
+
+
+------------------------------------------------------------
+PATTERN DATA
+------------------------------------------------------------
+For every pattern the packed data are stored in this manner:
+
+PAT0 - CHN0 (PACKED DATA)
+PAT0 - CHN1 (PACKED DATA)
+PAT0 - CHN2 (PACKED DATA)
+PAT0 - CHN3 (PACKED DATA)
+PAT1 - CHN0 (PACKED DATA)
+PAT1 - CHN1 (PACKED DATA)
+PAT1 - CHN2 (PACKED DATA)
+PAT1 - CHN3 (PACKED DATA)
+
+...so is more simple to depack!!!
+
+-------------------------------------
+
+
+relative note number (PTK) = 2bytes:
+
+C-1 to B-1 : 856,808,762,720,678,640,604,570,538,508,480,453
+C-2 to B-2 : 428,404,381,360,339,320,302,285,269,254,240,226
+C-3 to B-3 : 214,202,190,180,170,160,151,143,135,127,120,113
+
+becomes (ChP!) = 5bits:
+
+C-1 to B-1 : 01,02,03,04,05,06,07,08,09,0a,0b,0c
+C-2 to B-2 : 0d,0e,0f,10,11,12,13,14,15,16,17,18
+C-3 to B-3 : 19,1a,1b,1c,1d,1e,1f,20,21,22,23,24
+---------------------------------
+UnPacked Note are 3bytes long.
+---------------------------------
+0000-0000  0000-0000  0000-0000
+|\     /\     / \  /   \      /
+| note.  sampl   Fx     Fx Arg
+| numbr  numbr  (4)      (8)
+|  (6)   (5)
+|
+description bit set to 0 in this case.
+---------------------------------
+
+if ((byte[0] & 0x80) == 0x80)
+{
+   RepVal = byte[0] & 0x3F;
+
+   Meaning previous block (3 bytes)
+   will be repeated <RepVal> TIMES 
+   in the same Voice !!!
+}
+
+------------------------------------------------------------

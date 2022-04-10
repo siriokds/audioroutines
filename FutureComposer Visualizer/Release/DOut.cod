@@ -1,0 +1,1385 @@
+	TITLE	D:\Progetti\VisualC\Prova09cdx\DOut.cpp
+	.386P
+include listing.inc
+if @Version gt 510
+.model FLAT
+else
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+_DATA	SEGMENT DWORD USE32 PUBLIC 'DATA'
+_DATA	ENDS
+CONST	SEGMENT DWORD USE32 PUBLIC 'CONST'
+CONST	ENDS
+_BSS	SEGMENT PARA USE32 PUBLIC 'BSS'
+_BSS	ENDS
+_TLS	SEGMENT DWORD USE32 PUBLIC 'TLS'
+_TLS	ENDS
+;	COMDAT ??_C@_02NGAF@wb?$AA@
+_DATA	SEGMENT DWORD USE32 PUBLIC 'DATA'
+_DATA	ENDS
+;	COMDAT ??_C@_0L@BLNA@F?3?2OUT?4RAW?$AA@
+_DATA	SEGMENT DWORD USE32 PUBLIC 'DATA'
+_DATA	ENDS
+;	COMDAT ??8@YAHABU_GUID@@0@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?ThreadProcDS@@YGKPAX@Z
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT ?DOut_DSClose@@YAXXZ
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _DOut_Open
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _DOut_Start
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _DOut_Stop
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _DOut_Close
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _DOut_BufferCopy
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _DOut_GetBufferN
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _DOut_GetBufferWritePos
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+;	COMDAT _DOut_GetBufferPlayPos
+_TEXT	SEGMENT PARA USE32 PUBLIC 'CODE'
+_TEXT	ENDS
+FLAT	GROUP _DATA, CONST, _BSS
+	ASSUME	CS: FLAT, DS: FLAT, SS: FLAT
+endif
+_BSS	SEGMENT
+_DiskWriter$S32052 DD 01H DUP (?)
+_lpDSOUND$S32054 DD 01H DUP (?)
+_lpdsNotify$S32058 DD 01H DUP (?)
+_LastError$S32076 DD 01H DUP (?)
+_BSS	ENDS
+PUBLIC	_DOut_GetBufferWritePos
+PUBLIC	?ThreadProcDS@@YGKPAX@Z				; ThreadProcDS
+EXTRN	__imp__EnterCriticalSection@4:NEAR
+EXTRN	__imp__LeaveCriticalSection@4:NEAR
+EXTRN	__imp__WaitForSingleObject@8:NEAR
+_BSS	SEGMENT
+_nBufferNum$S32063 DD 01H DUP (?)
+_nBuffer$S32064 DD 01H DUP (?)
+_UserFunction$S32066 DD 01H DUP (?)
+_bUserQuit$S32068 DD 01H DUP (?)
+_hEvent$S32069 DD 01H DUP (?)
+_ThreadCS$S32070 DB 018H DUP (?)
+_BSS	ENDS
+;	COMDAT ?ThreadProcDS@@YGKPAX@Z
+_TEXT	SEGMENT
+?ThreadProcDS@@YGKPAX@Z PROC NEAR			; ThreadProcDS, COMDAT
+
+; 55   :   while(bUserQuit == FALSE)
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _bUserQuit$S32068
+  00005	55		 push	 ebp
+  00006	33 ed		 xor	 ebp, ebp
+  00008	3b c5		 cmp	 eax, ebp
+  0000a	75 75		 jne	 SHORT $L32083
+  0000c	57		 push	 edi
+  0000d	8b 3d 00 00 00
+	00		 mov	 edi, DWORD PTR __imp__WaitForSingleObject@8
+  00013	56		 push	 esi
+  00014	8b 35 00 00 00
+	00		 mov	 esi, DWORD PTR __imp__EnterCriticalSection@4
+  0001a	53		 push	 ebx
+  0001b	8b 1d 00 00 00
+	00		 mov	 ebx, DWORD PTR __imp__LeaveCriticalSection@4
+$L32082:
+
+; 56   :   {
+; 57   : 	if ( WaitForSingleObject(hEvent,500) != WAIT_TIMEOUT )
+
+  00021	a1 00 00 00 00	 mov	 eax, DWORD PTR _hEvent$S32069
+  00026	68 f4 01 00 00	 push	 500			; 000001f4H
+  0002b	50		 push	 eax
+  0002c	ff d7		 call	 edi
+  0002e	3d 02 01 00 00	 cmp	 eax, 258		; 00000102H
+  00033	74 41		 je	 SHORT $L32086
+
+; 58   : 	{
+; 59   : 		if (nBuffer == DOut_GetBufferWritePos())
+
+  00035	e8 00 00 00 00	 call	 _DOut_GetBufferWritePos
+  0003a	39 05 00 00 00
+	00		 cmp	 DWORD PTR _nBuffer$S32064, eax
+  00040	75 34		 jne	 SHORT $L32086
+
+; 60   :         {
+; 61   : 		  EnterCriticalSection(&ThreadCS);
+
+  00042	68 00 00 00 00	 push	 OFFSET FLAT:_ThreadCS$S32070
+  00047	ff d6		 call	 esi
+
+; 62   : 		  if (UserFunction != NULL) (*UserFunction)();
+
+  00049	a1 00 00 00 00	 mov	 eax, DWORD PTR _UserFunction$S32066
+  0004e	3b c5		 cmp	 eax, ebp
+  00050	74 02		 je	 SHORT $L32087
+  00052	ff d0		 call	 eax
+$L32087:
+
+; 63   : 		  if (++nBuffer >= nBufferNum) nBuffer = 0;
+
+  00054	a1 00 00 00 00	 mov	 eax, DWORD PTR _nBuffer$S32064
+  00059	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _nBufferNum$S32063
+  0005f	40		 inc	 eax
+  00060	3b c1		 cmp	 eax, ecx
+  00062	a3 00 00 00 00	 mov	 DWORD PTR _nBuffer$S32064, eax
+  00067	7c 06		 jl	 SHORT $L32088
+  00069	89 2d 00 00 00
+	00		 mov	 DWORD PTR _nBuffer$S32064, ebp
+$L32088:
+
+; 64   : 		  LeaveCriticalSection(&ThreadCS);
+
+  0006f	68 00 00 00 00	 push	 OFFSET FLAT:_ThreadCS$S32070
+  00074	ff d3		 call	 ebx
+$L32086:
+  00076	39 2d 00 00 00
+	00		 cmp	 DWORD PTR _bUserQuit$S32068, ebp
+  0007c	74 a3		 je	 SHORT $L32082
+  0007e	5b		 pop	 ebx
+  0007f	5e		 pop	 esi
+  00080	5f		 pop	 edi
+$L32083:
+
+; 65   :     	}
+; 66   : 	}
+; 67   :   }
+; 68   :   return 0;
+
+  00081	33 c0		 xor	 eax, eax
+
+; 69   : }
+
+  00083	5d		 pop	 ebp
+  00084	c2 04 00	 ret	 4
+?ThreadProcDS@@YGKPAX@Z ENDP				; ThreadProcDS
+_TEXT	ENDS
+PUBLIC	?DOut_DSClose@@YAXXZ				; DOut_DSClose
+;	COMDAT ?DOut_DSClose@@YAXXZ
+_TEXT	SEGMENT
+?DOut_DSClose@@YAXXZ PROC NEAR				; DOut_DSClose, COMDAT
+
+; 77   : 	if (lpdsNotify)	lpdsNotify->Release();
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsNotify$S32058
+  00005	85 c0		 test	 eax, eax
+  00007	74 06		 je	 SHORT $L32092
+  00009	8b 08		 mov	 ecx, DWORD PTR [eax]
+  0000b	50		 push	 eax
+  0000c	ff 51 08	 call	 DWORD PTR [ecx+8]
+$L32092:
+
+; 78   : 	if (lpDSOUND)	lpDSOUND->Release();
+
+  0000f	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpDSOUND$S32054
+  00014	85 c0		 test	 eax, eax
+  00016	74 06		 je	 SHORT $L32093
+  00018	8b 10		 mov	 edx, DWORD PTR [eax]
+  0001a	50		 push	 eax
+  0001b	ff 52 08	 call	 DWORD PTR [edx+8]
+$L32093:
+
+; 79   : }
+
+  0001e	c3		 ret	 0
+?DOut_DSClose@@YAXXZ ENDP				; DOut_DSClose
+_TEXT	ENDS
+PUBLIC	??_C@_02NGAF@wb?$AA@				; `string'
+PUBLIC	??_C@_0L@BLNA@F?3?2OUT?4RAW?$AA@		; `string'
+PUBLIC	_DOut_Open
+EXTRN	_fopen:NEAR
+EXTRN	__imp__CreateEventA@16:NEAR
+EXTRN	__imp__CreateThread@24:NEAR
+EXTRN	__imp__SetThreadPriority@8:NEAR
+EXTRN	__imp__InitializeCriticalSection@4:NEAR
+EXTRN	_DirectSoundCreate@12:NEAR
+EXTRN	_IID_IDirectSoundNotify:BYTE
+_BSS	SEGMENT
+_hr$S32053 DD	01H DUP (?)
+_dsBufferDescr$S32055 DB 014H DUP (?)
+_lpdsPrimary$S32056 DD 01H DUP (?)
+_lpdsBuffer$S32057 DD 01H DUP (?)
+_wfxPrimaryFORM$S32059 DB 012H DUP (?)
+	ALIGN	4
+
+_wfxBufferFORM$S32060 DB 012H DUP (?)
+	ALIGN	8
+
+_dsbPosNotify$S32061 DQ 010H DUP (?)
+_nBufferLen$S32062 DD 01H DUP (?)
+_bUserStop$S32067 DD 01H DUP (?)
+_ThreadHandle$S32071 DD 01H DUP (?)
+_ThreadID$S32072 DD 01H DUP (?)
+_Opened$S32075 DD 01H DUP (?)
+_fp$S32077 DD	01H DUP (?)
+_BSS	ENDS
+;	COMDAT ??_C@_02NGAF@wb?$AA@
+; File D:\Progetti\VisualC\Prova09cdx\DOut.cpp
+_DATA	SEGMENT
+??_C@_02NGAF@wb?$AA@ DB 'wb', 00H			; `string'
+_DATA	ENDS
+;	COMDAT ??_C@_0L@BLNA@F?3?2OUT?4RAW?$AA@
+_DATA	SEGMENT
+??_C@_0L@BLNA@F?3?2OUT?4RAW?$AA@ DB 'F:\OUT.RAW', 00H	; `string'
+_DATA	ENDS
+;	COMDAT _DOut_Open
+_TEXT	SEGMENT
+_UserF$ = 8
+_BufferLen$ = 12
+_BufferNum$ = 16
+_User$ = 20
+_DOut_Open PROC NEAR					; COMDAT
+
+; 89   : {
+
+  00000	53		 push	 ebx
+  00001	55		 push	 ebp
+  00002	56		 push	 esi
+
+; 90   : 	Opened = false;
+
+  00003	33 ed		 xor	 ebp, ebp
+  00005	57		 push	 edi
+
+; 91   : 
+; 92   : 	lpdsNotify = 0;
+; 93   : 	lpDSOUND = 0;
+; 94   : 	LastError = 0;
+; 95   : 
+; 96   : 	nBuffer = 0;
+; 97   : 	bUserStop = TRUE;
+; 98   : 	bUserQuit = FALSE;
+; 99   : 
+; 100  : 	//----------------------------------------------------------------
+; 101  : 	// DirectSound Object create and set
+; 102  : 	//----------------------------------------------------------------
+; 103  : 
+; 104  : 	if FAILED(DirectSoundCreate(NULL,&lpDSOUND,NULL)) 
+
+  00006	55		 push	 ebp
+  00007	bb 01 00 00 00	 mov	 ebx, 1
+  0000c	68 00 00 00 00	 push	 OFFSET FLAT:_lpDSOUND$S32054
+  00011	55		 push	 ebp
+  00012	89 2d 00 00 00
+	00		 mov	 DWORD PTR _Opened$S32075, ebp
+  00018	89 2d 00 00 00
+	00		 mov	 DWORD PTR _lpdsNotify$S32058, ebp
+  0001e	89 2d 00 00 00
+	00		 mov	 DWORD PTR _lpDSOUND$S32054, ebp
+  00024	89 2d 00 00 00
+	00		 mov	 DWORD PTR _LastError$S32076, ebp
+  0002a	89 2d 00 00 00
+	00		 mov	 DWORD PTR _nBuffer$S32064, ebp
+  00030	89 1d 00 00 00
+	00		 mov	 DWORD PTR _bUserStop$S32067, ebx
+  00036	89 2d 00 00 00
+	00		 mov	 DWORD PTR _bUserQuit$S32068, ebp
+  0003c	e8 00 00 00 00	 call	 _DirectSoundCreate@12
+  00041	85 c0		 test	 eax, eax
+  00043	7d 0a		 jge	 SHORT $L32101
+
+; 105  : 		return DOUT_ERR_DS_OBJCREATE;
+
+  00045	b8 64 00 00 00	 mov	 eax, 100		; 00000064H
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  0004a	5f		 pop	 edi
+  0004b	5e		 pop	 esi
+  0004c	5d		 pop	 ebp
+  0004d	5b		 pop	 ebx
+  0004e	c3		 ret	 0
+$L32101:
+
+; 106  : 
+; 107  : 
+; 108  : 	if FAILED(lpDSOUND->SetCooperativeLevel(
+; 109  : 				(HWND)User, DSSCL_PRIORITY))
+
+  0004f	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpDSOUND$S32054
+  00054	8b 54 24 20	 mov	 edx, DWORD PTR _User$[esp+12]
+  00058	6a 02		 push	 2
+  0005a	52		 push	 edx
+  0005b	8b 08		 mov	 ecx, DWORD PTR [eax]
+  0005d	50		 push	 eax
+  0005e	ff 51 18	 call	 DWORD PTR [ecx+24]
+  00061	85 c0		 test	 eax, eax
+  00063	7d 14		 jge	 SHORT $L32104
+
+; 110  : 	{
+; 111  : 		DOut_DSClose();
+
+  00065	e8 00 00 00 00	 call	 ?DOut_DSClose@@YAXXZ	; DOut_DSClose
+
+; 112  : 		return (LastError = DOUT_ERR_DS_SETCOOPLEVEL);
+
+  0006a	b8 65 00 00 00	 mov	 eax, 101		; 00000065H
+  0006f	a3 00 00 00 00	 mov	 DWORD PTR _LastError$S32076, eax
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  00074	5f		 pop	 edi
+  00075	5e		 pop	 esi
+  00076	5d		 pop	 ebp
+  00077	5b		 pop	 ebx
+  00078	c3		 ret	 0
+$L32104:
+
+; 113  : 	}
+; 114  : 
+; 115  : 
+; 116  : 	//----------------------------------------------------------------
+; 117  : 	// Assign ext variables
+; 118  : 	//----------------------------------------------------------------
+; 119  : 
+; 120  : 	UserFunction = UserF;
+
+  00079	8b 44 24 14	 mov	 eax, DWORD PTR _UserF$[esp+12]
+
+; 121  : 
+; 122  : 	BufferLen -= (BufferLen % (44100 / 50));
+
+  0007d	8b 4c 24 18	 mov	 ecx, DWORD PTR _BufferLen$[esp+12]
+  00081	a3 00 00 00 00	 mov	 DWORD PTR _UserFunction$S32066, eax
+  00086	8b c1		 mov	 eax, ecx
+  00088	99		 cdq
+  00089	be 72 03 00 00	 mov	 esi, 882		; 00000372H
+  0008e	f7 fe		 idiv	 esi
+  00090	2b ca		 sub	 ecx, edx
+
+; 123  : 
+; 124  : 	if (BufferLen < DOUT_MIN_BUFSIZE) BufferLen = DOUT_MIN_BUFSIZE;
+
+  00092	81 f9 e4 06 00
+	00		 cmp	 ecx, 1764		; 000006e4H
+  00098	7d 05		 jge	 SHORT $L32105
+  0009a	b9 e4 06 00 00	 mov	 ecx, 1764		; 000006e4H
+$L32105:
+
+; 125  : 	if (BufferNum < DOUT_MIN_BUFFER)  BufferNum = DOUT_MIN_BUFFER;
+
+  0009f	8b 44 24 1c	 mov	 eax, DWORD PTR _BufferNum$[esp+12]
+  000a3	83 f8 02	 cmp	 eax, 2
+  000a6	7d 05		 jge	 SHORT $L32106
+  000a8	b8 02 00 00 00	 mov	 eax, 2
+$L32106:
+
+; 126  : 	if (BufferNum > DOUT_MAX_BUFFER)  BufferNum = DOUT_MAX_BUFFER;
+
+  000ad	83 f8 10	 cmp	 eax, 16			; 00000010H
+  000b0	7e 05		 jle	 SHORT $L32107
+  000b2	b8 10 00 00 00	 mov	 eax, 16			; 00000010H
+$L32107:
+
+; 127  : 	nBufferLen = BufferLen;
+; 128  : 	nBufferNum = BufferNum;
+
+  000b7	a3 00 00 00 00	 mov	 DWORD PTR _nBufferNum$S32063, eax
+
+; 129  : 
+; 130  : 
+; 131  : 	//----------------------------------------------------------------
+; 132  : 	// Primary Buffer
+; 133  : 	//----------------------------------------------------------------
+; 134  : 
+; 135  : 	ZeroMemory(&wfxPrimaryFORM, sizeof(WAVEFORMATEX));
+
+  000bc	33 c0		 xor	 eax, eax
+
+; 136  : 
+; 137  : 	wfxPrimaryFORM.wFormatTag = WAVE_FORMAT_PCM;
+; 138  : 	wfxPrimaryFORM.nSamplesPerSec = 44100;
+; 139  : 	wfxPrimaryFORM.wBitsPerSample = 16;
+; 140  : 	wfxPrimaryFORM.nChannels = 2;
+; 141  : 
+; 142  : 	wfxPrimaryFORM.nAvgBytesPerSec = 
+; 143  : 							(wfxPrimaryFORM.nSamplesPerSec) * 
+; 144  : 							(wfxPrimaryFORM.wBitsPerSample >> 3) *
+; 145  : 							(wfxPrimaryFORM.nChannels);
+
+  000be	ba 10 b1 02 00	 mov	 edx, 176400		; 0002b110H
+  000c3	a3 08 00 00 00	 mov	 DWORD PTR _wfxPrimaryFORM$S32059+8, eax
+  000c8	89 15 08 00 00
+	00		 mov	 DWORD PTR _wfxPrimaryFORM$S32059+8, edx
+
+; 146  : 	
+; 147  : 	wfxPrimaryFORM.nBlockAlign = (WORD)
+; 148  :     	((wfxPrimaryFORM.wBitsPerSample *
+; 149  : 		  wfxPrimaryFORM.nChannels) >> 3);
+; 150  : 
+; 151  : 
+; 152  : 	CopyMemory(&wfxBufferFORM,&wfxPrimaryFORM,sizeof(WAVEFORMATEX));
+
+  000ce	89 15 08 00 00
+	00		 mov	 DWORD PTR _wfxBufferFORM$S32060+8, edx
+
+; 153  : 
+; 154  : 	//----------------------------------------------------------------
+; 155  : 
+; 156  : 	ZeroMemory(&dsBufferDescr, sizeof(DSBUFFERDESC));
+
+  000d4	33 d2		 xor	 edx, edx
+  000d6	89 0d 00 00 00
+	00		 mov	 DWORD PTR _nBufferLen$S32062, ecx
+  000dc	b9 44 ac 00 00	 mov	 ecx, 44100		; 0000ac44H
+  000e1	89 15 00 00 00
+	00		 mov	 DWORD PTR _dsBufferDescr$S32055, edx
+  000e7	a3 00 00 00 00	 mov	 DWORD PTR _wfxPrimaryFORM$S32059, eax
+  000ec	a3 04 00 00 00	 mov	 DWORD PTR _wfxPrimaryFORM$S32059+4, eax
+  000f1	a3 0c 00 00 00	 mov	 DWORD PTR _wfxPrimaryFORM$S32059+12, eax
+  000f6	66 a3 10 00 00
+	00		 mov	 WORD PTR _wfxPrimaryFORM$S32059+16, ax
+  000fc	66 89 1d 00 00
+	00 00		 mov	 WORD PTR _wfxPrimaryFORM$S32059, bx
+  00103	89 0d 04 00 00
+	00		 mov	 DWORD PTR _wfxPrimaryFORM$S32059+4, ecx
+  00109	66 c7 05 0e 00
+	00 00 10 00	 mov	 WORD PTR _wfxPrimaryFORM$S32059+14, 16 ; 00000010H
+  00112	66 c7 05 02 00
+	00 00 02 00	 mov	 WORD PTR _wfxPrimaryFORM$S32059+2, 2
+  0011b	8b 35 00 00 00
+	00		 mov	 esi, DWORD PTR _wfxPrimaryFORM$S32059
+  00121	66 c7 05 0c 00
+	00 00 04 00	 mov	 WORD PTR _wfxPrimaryFORM$S32059+12, 4
+  0012a	89 0d 04 00 00
+	00		 mov	 DWORD PTR _wfxBufferFORM$S32060+4, ecx
+  00130	8b 0d 0c 00 00
+	00		 mov	 ecx, DWORD PTR _wfxPrimaryFORM$S32059+12
+  00136	66 a3 10 00 00
+	00		 mov	 WORD PTR _wfxBufferFORM$S32060+16, ax
+
+; 157  : 
+; 158  : 	dsBufferDescr.dwSize = sizeof(DSBUFFERDESC);
+; 159  : 
+; 160  : 	dsBufferDescr.dwFlags = DSBCAPS_PRIMARYBUFFER;
+; 161  : 
+; 162  : 
+; 163  : 
+; 164  : 	if FAILED(lpDSOUND->CreateSoundBuffer(
+; 165  : 		&dsBufferDescr, &lpdsPrimary, NULL)) 
+
+  0013c	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpDSOUND$S32054
+  00141	89 15 04 00 00
+	00		 mov	 DWORD PTR _dsBufferDescr$S32055+4, edx
+  00147	55		 push	 ebp
+  00148	89 15 08 00 00
+	00		 mov	 DWORD PTR _dsBufferDescr$S32055+8, edx
+  0014e	89 35 00 00 00
+	00		 mov	 DWORD PTR _wfxBufferFORM$S32060, esi
+  00154	89 0d 0c 00 00
+	00		 mov	 DWORD PTR _wfxBufferFORM$S32060+12, ecx
+  0015a	8b 08		 mov	 ecx, DWORD PTR [eax]
+  0015c	68 00 00 00 00	 push	 OFFSET FLAT:_lpdsPrimary$S32056
+  00161	89 15 0c 00 00
+	00		 mov	 DWORD PTR _dsBufferDescr$S32055+12, edx
+  00167	be 14 00 00 00	 mov	 esi, 20			; 00000014H
+  0016c	68 00 00 00 00	 push	 OFFSET FLAT:_dsBufferDescr$S32055
+  00171	50		 push	 eax
+  00172	89 15 10 00 00
+	00		 mov	 DWORD PTR _dsBufferDescr$S32055+16, edx
+  00178	89 35 00 00 00
+	00		 mov	 DWORD PTR _dsBufferDescr$S32055, esi
+  0017e	89 1d 04 00 00
+	00		 mov	 DWORD PTR _dsBufferDescr$S32055+4, ebx
+  00184	ff 51 0c	 call	 DWORD PTR [ecx+12]
+  00187	85 c0		 test	 eax, eax
+  00189	7d 14		 jge	 SHORT $L32114
+
+; 166  : 	{
+; 167  : 		DOut_DSClose();
+
+  0018b	e8 00 00 00 00	 call	 ?DOut_DSClose@@YAXXZ	; DOut_DSClose
+
+; 168  : 		return (LastError = DOUT_ERR_DS_PRIBUF_CREATE);
+
+  00190	b8 6e 00 00 00	 mov	 eax, 110		; 0000006eH
+  00195	a3 00 00 00 00	 mov	 DWORD PTR _LastError$S32076, eax
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  0019a	5f		 pop	 edi
+  0019b	5e		 pop	 esi
+  0019c	5d		 pop	 ebp
+  0019d	5b		 pop	 ebx
+  0019e	c3		 ret	 0
+$L32114:
+
+; 169  : 	}
+; 170  : 
+; 171  : 
+; 172  : 
+; 173  : 	hr = lpdsPrimary->SetFormat(&wfxPrimaryFORM); 
+
+  0019f	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsPrimary$S32056
+  001a4	68 00 00 00 00	 push	 OFFSET FLAT:_wfxPrimaryFORM$S32059
+  001a9	50		 push	 eax
+  001aa	8b 10		 mov	 edx, DWORD PTR [eax]
+  001ac	ff 52 38	 call	 DWORD PTR [edx+56]
+
+; 174  : 
+; 175  :     if ((hr != DS_OK) && (hr != DSERR_BADFORMAT))
+
+  001af	3b c5		 cmp	 eax, ebp
+  001b1	a3 00 00 00 00	 mov	 DWORD PTR _hr$S32053, eax
+  001b6	74 1b		 je	 SHORT $L32119
+  001b8	3d 64 00 78 88	 cmp	 eax, -2005401500	; 88780064H
+  001bd	74 14		 je	 SHORT $L32119
+
+; 176  :     {
+; 177  : 		DOut_DSClose();
+
+  001bf	e8 00 00 00 00	 call	 ?DOut_DSClose@@YAXXZ	; DOut_DSClose
+
+; 178  :         return (LastError = DOUT_ERR_DS_PRIBUF_SETFORMAT);
+
+  001c4	b8 6f 00 00 00	 mov	 eax, 111		; 0000006fH
+  001c9	a3 00 00 00 00	 mov	 DWORD PTR _LastError$S32076, eax
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  001ce	5f		 pop	 edi
+  001cf	5e		 pop	 esi
+  001d0	5d		 pop	 ebp
+  001d1	5b		 pop	 ebx
+  001d2	c3		 ret	 0
+$L32119:
+
+; 179  :     }
+; 180  : 
+; 181  : 
+; 182  : 	//----------------------------------------------------------------
+; 183  : 	// Secondary Buffer
+; 184  : 	//----------------------------------------------------------------
+; 185  : 
+; 186  : 	ZeroMemory(&dsBufferDescr, sizeof(DSBUFFERDESC));
+; 187  : 
+; 188  : 	dsBufferDescr.dwSize = sizeof(DSBUFFERDESC);
+; 189  : 
+; 190  :     dsBufferDescr.dwFlags = DSBCAPS_GETCURRENTPOSITION2
+; 191  : 				            | DSBCAPS_GLOBALFOCUS
+; 192  : 							| DSBCAPS_CTRLPOSITIONNOTIFY;
+; 193  : 
+; 194  :     dsBufferDescr.dwBufferBytes = 	nBufferNum *
+; 195  :     								nBufferLen * 
+; 196  : 									DOUT_SAMPLESIZE;
+
+  001d3	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _nBufferNum$S32063
+  001d9	33 c0		 xor	 eax, eax
+  001db	0f af 0d 00 00
+	00 00		 imul	 ecx, DWORD PTR _nBufferLen$S32062
+  001e2	a3 00 00 00 00	 mov	 DWORD PTR _dsBufferDescr$S32055, eax
+
+; 197  :                                     
+; 198  :     dsBufferDescr.lpwfxFormat = &wfxBufferFORM;
+; 199  : 
+; 200  : 
+; 201  : 
+; 202  : 	if FAILED(lpDSOUND->CreateSoundBuffer(
+; 203  : 		&dsBufferDescr, &lpdsBuffer, NULL))
+
+  001e7	55		 push	 ebp
+  001e8	a3 04 00 00 00	 mov	 DWORD PTR _dsBufferDescr$S32055+4, eax
+  001ed	68 00 00 00 00	 push	 OFFSET FLAT:_lpdsBuffer$S32057
+  001f2	a3 08 00 00 00	 mov	 DWORD PTR _dsBufferDescr$S32055+8, eax
+  001f7	68 00 00 00 00	 push	 OFFSET FLAT:_dsBufferDescr$S32055
+  001fc	a3 0c 00 00 00	 mov	 DWORD PTR _dsBufferDescr$S32055+12, eax
+  00201	89 35 00 00 00
+	00		 mov	 DWORD PTR _dsBufferDescr$S32055, esi
+  00207	a3 10 00 00 00	 mov	 DWORD PTR _dsBufferDescr$S32055+16, eax
+  0020c	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpDSOUND$S32054
+  00211	c1 e1 02	 shl	 ecx, 2
+  00214	8b 10		 mov	 edx, DWORD PTR [eax]
+  00216	50		 push	 eax
+  00217	c7 05 04 00 00
+	00 00 81 01 00	 mov	 DWORD PTR _dsBufferDescr$S32055+4, 98560 ; 00018100H
+  00221	89 0d 08 00 00
+	00		 mov	 DWORD PTR _dsBufferDescr$S32055+8, ecx
+  00227	c7 05 10 00 00
+	00 00 00 00 00	 mov	 DWORD PTR _dsBufferDescr$S32055+16, OFFSET FLAT:_wfxBufferFORM$S32060
+  00231	ff 52 0c	 call	 DWORD PTR [edx+12]
+  00234	85 c0		 test	 eax, eax
+  00236	7d 14		 jge	 SHORT $L32124
+
+; 204  : 	{
+; 205  : 		DOut_DSClose();
+
+  00238	e8 00 00 00 00	 call	 ?DOut_DSClose@@YAXXZ	; DOut_DSClose
+
+; 206  : 		return (LastError = DOUT_ERR_DS_SECBUF_CREATE);
+
+  0023d	b8 78 00 00 00	 mov	 eax, 120		; 00000078H
+  00242	a3 00 00 00 00	 mov	 DWORD PTR _LastError$S32076, eax
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  00247	5f		 pop	 edi
+  00248	5e		 pop	 esi
+  00249	5d		 pop	 ebp
+  0024a	5b		 pop	 ebx
+  0024b	c3		 ret	 0
+$L32124:
+
+; 207  : 	}
+; 208  : 
+; 209  : 	//----------------------------------------------------------------
+; 210  : 
+; 211  : 	if ((hEvent = CreateEvent(NULL,FALSE,FALSE,NULL)) == NULL)
+
+  0024c	55		 push	 ebp
+  0024d	55		 push	 ebp
+  0024e	55		 push	 ebp
+  0024f	55		 push	 ebp
+  00250	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__CreateEventA@16
+  00256	3b c5		 cmp	 eax, ebp
+  00258	a3 00 00 00 00	 mov	 DWORD PTR _hEvent$S32069, eax
+  0025d	75 14		 jne	 SHORT $L32125
+
+; 212  : 	{
+; 213  : 		DOut_DSClose();
+
+  0025f	e8 00 00 00 00	 call	 ?DOut_DSClose@@YAXXZ	; DOut_DSClose
+
+; 214  : 		return (LastError = DOUT_ERR_DS_SECBUF_EVENTCREATE);
+
+  00264	b8 79 00 00 00	 mov	 eax, 121		; 00000079H
+  00269	a3 00 00 00 00	 mov	 DWORD PTR _LastError$S32076, eax
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  0026e	5f		 pop	 edi
+  0026f	5e		 pop	 esi
+  00270	5d		 pop	 ebp
+  00271	5b		 pop	 ebx
+  00272	c3		 ret	 0
+$L32125:
+
+; 215  : 	}
+; 216  : 
+; 217  : 
+; 218  : 	for (int i = 0; i < nBufferNum; i++)
+
+  00273	8b 3d 00 00 00
+	00		 mov	 edi, DWORD PTR _nBufferNum$S32063
+  00279	3b fd		 cmp	 edi, ebp
+  0027b	7e 26		 jle	 SHORT $L32129
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  0027d	8b 15 00 00 00
+	00		 mov	 edx, DWORD PTR _nBufferLen$S32062
+  00283	b9 04 00 00 00	 mov	 ecx, OFFSET FLAT:_dsbPosNotify$S32061+4
+  00288	8d 34 95 00 00
+	00 00		 lea	 esi, DWORD PTR [edx*4]
+  0028f	8b d6		 mov	 edx, esi
+$L32127:
+  00291	8d 6a ff	 lea	 ebp, DWORD PTR [edx-1]
+  00294	03 d6		 add	 edx, esi
+  00296	89 69 fc	 mov	 DWORD PTR [ecx-4], ebp
+  00299	89 01		 mov	 DWORD PTR [ecx], eax
+  0029b	83 c1 08	 add	 ecx, 8
+  0029e	4f		 dec	 edi
+  0029f	75 f0		 jne	 SHORT $L32127
+
+; 215  : 	}
+; 216  : 
+; 217  : 
+; 218  : 	for (int i = 0; i < nBufferNum; i++)
+
+  002a1	33 ed		 xor	 ebp, ebp
+$L32129:
+
+; 219  : 	{
+; 220  : 		dsbPosNotify[i].dwOffset = 
+; 221  : 			((i+1) * nBufferLen * DOUT_SAMPLESIZE) - 1;
+; 222  : 		dsbPosNotify[i].hEventNotify = hEvent;
+; 223  : 	}
+; 224  : 
+; 225  : 
+; 226  : 
+; 227  : 
+; 228  :     if FAILED(IDirectSoundBuffer_QueryInterface(
+; 229  : 			lpdsBuffer,IID_IDirectSoundNotify,(VOID **)&lpdsNotify))
+
+  002a3	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  002a8	68 00 00 00 00	 push	 OFFSET FLAT:_lpdsNotify$S32058
+  002ad	68 00 00 00 00	 push	 OFFSET FLAT:_IID_IDirectSoundNotify
+  002b2	50		 push	 eax
+  002b3	8b 08		 mov	 ecx, DWORD PTR [eax]
+  002b5	ff 11		 call	 DWORD PTR [ecx]
+  002b7	85 c0		 test	 eax, eax
+  002b9	7d 14		 jge	 SHORT $L32133
+
+; 230  : 	{
+; 231  : 		DOut_DSClose();
+
+  002bb	e8 00 00 00 00	 call	 ?DOut_DSClose@@YAXXZ	; DOut_DSClose
+
+; 232  : 		return (LastError = DOUT_ERR_DS_SECBUF_EVENTQUERY);
+
+  002c0	b8 7a 00 00 00	 mov	 eax, 122		; 0000007aH
+  002c5	a3 00 00 00 00	 mov	 DWORD PTR _LastError$S32076, eax
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  002ca	5f		 pop	 edi
+  002cb	5e		 pop	 esi
+  002cc	5d		 pop	 ebp
+  002cd	5b		 pop	 ebx
+  002ce	c3		 ret	 0
+$L32133:
+
+; 233  : 	}
+; 234  : 
+; 235  : 
+; 236  : 
+; 237  : 
+; 238  : 	if FAILED(lpdsNotify->SetNotificationPositions(
+; 239  : 			nBufferNum, dsbPosNotify))
+
+  002cf	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsNotify$S32058
+  002d4	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _nBufferNum$S32063
+  002da	68 00 00 00 00	 push	 OFFSET FLAT:_dsbPosNotify$S32061
+  002df	51		 push	 ecx
+  002e0	8b 10		 mov	 edx, DWORD PTR [eax]
+  002e2	50		 push	 eax
+  002e3	ff 52 0c	 call	 DWORD PTR [edx+12]
+  002e6	85 c0		 test	 eax, eax
+  002e8	7d 14		 jge	 SHORT $L32135
+
+; 240  : 	{
+; 241  : 		DOut_DSClose();
+
+  002ea	e8 00 00 00 00	 call	 ?DOut_DSClose@@YAXXZ	; DOut_DSClose
+
+; 242  : 		return (LastError = DOUT_ERR_DS_SECBUF_EVENTSET);
+
+  002ef	b8 7b 00 00 00	 mov	 eax, 123		; 0000007bH
+  002f4	a3 00 00 00 00	 mov	 DWORD PTR _LastError$S32076, eax
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  002f9	5f		 pop	 edi
+  002fa	5e		 pop	 esi
+  002fb	5d		 pop	 ebp
+  002fc	5b		 pop	 ebx
+  002fd	c3		 ret	 0
+$L32135:
+
+; 243  : 	}
+; 244  : 
+; 245  : 
+; 246  : 
+; 247  : 	//----------------------------------------------------------------
+; 248  : 	// Create MainThread
+; 249  : 	//----------------------------------------------------------------
+; 250  : 
+; 251  : 	if ((ThreadHandle = CreateThread(NULL, 0, 
+; 252  : 		ThreadProcDS, NULL, CREATE_SUSPENDED, &ThreadID)) == NULL)
+
+  002fe	68 00 00 00 00	 push	 OFFSET FLAT:_ThreadID$S32072
+  00303	6a 04		 push	 4
+  00305	55		 push	 ebp
+  00306	68 00 00 00 00	 push	 OFFSET FLAT:?ThreadProcDS@@YGKPAX@Z ; ThreadProcDS
+  0030b	55		 push	 ebp
+  0030c	55		 push	 ebp
+  0030d	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__CreateThread@24
+  00313	3b c5		 cmp	 eax, ebp
+  00315	a3 00 00 00 00	 mov	 DWORD PTR _ThreadHandle$S32071, eax
+  0031a	75 14		 jne	 SHORT $L32136
+
+; 253  : 	{
+; 254  : 		DOut_DSClose();
+
+  0031c	e8 00 00 00 00	 call	 ?DOut_DSClose@@YAXXZ	; DOut_DSClose
+
+; 255  : 		return (LastError = DOUT_ERR_MAINTHREAD_CREATE);
+
+  00321	b8 82 00 00 00	 mov	 eax, 130		; 00000082H
+  00326	a3 00 00 00 00	 mov	 DWORD PTR _LastError$S32076, eax
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  0032b	5f		 pop	 edi
+  0032c	5e		 pop	 esi
+  0032d	5d		 pop	 ebp
+  0032e	5b		 pop	 ebx
+  0032f	c3		 ret	 0
+$L32136:
+
+; 256  : 	}
+; 257  : 
+; 258  : 
+; 259  : 
+; 260  : 	if (!SetThreadPriority(ThreadHandle,THREAD_PRIORITY_TIME_CRITICAL))
+
+  00330	6a 0f		 push	 15			; 0000000fH
+  00332	50		 push	 eax
+  00333	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__SetThreadPriority@8
+  00339	85 c0		 test	 eax, eax
+  0033b	75 0a		 jne	 SHORT $L32137
+
+; 261  : 	{
+; 262  : 		(LastError = DOUT_ERR_MAINTHREAD_SETPRIORITY);
+
+  0033d	c7 05 00 00 00
+	00 83 00 00 00	 mov	 DWORD PTR _LastError$S32076, 131 ; 00000083H
+$L32137:
+
+; 263  : 	}
+; 264  : 
+; 265  : 	//----------------------------------------------------------------
+; 266  : 
+; 267  : 	InitializeCriticalSection(&ThreadCS);
+
+  00347	68 00 00 00 00	 push	 OFFSET FLAT:_ThreadCS$S32070
+  0034c	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__InitializeCriticalSection@4
+
+; 268  : 	Opened = true;
+; 269  : 
+; 270  : 	if (DiskWriter) fp = fopen("F:\\OUT.RAW","wb");
+
+  00352	a1 00 00 00 00	 mov	 eax, DWORD PTR _DiskWriter$S32052
+  00357	89 1d 00 00 00
+	00		 mov	 DWORD PTR _Opened$S32075, ebx
+  0035d	3b c5		 cmp	 eax, ebp
+  0035f	74 17		 je	 SHORT $L32138
+  00361	68 00 00 00 00	 push	 OFFSET FLAT:??_C@_02NGAF@wb?$AA@ ; `string'
+  00366	68 00 00 00 00	 push	 OFFSET FLAT:??_C@_0L@BLNA@F?3?2OUT?4RAW?$AA@ ; `string'
+  0036b	e8 00 00 00 00	 call	 _fopen
+  00370	83 c4 08	 add	 esp, 8
+  00373	a3 00 00 00 00	 mov	 DWORD PTR _fp$S32077, eax
+$L32138:
+
+; 271  : 	return DOUT_ERR_OK;
+; 272  : }
+
+  00378	5f		 pop	 edi
+  00379	5e		 pop	 esi
+  0037a	5d		 pop	 ebp
+  0037b	33 c0		 xor	 eax, eax
+  0037d	5b		 pop	 ebx
+  0037e	c3		 ret	 0
+_DOut_Open ENDP
+_TEXT	ENDS
+PUBLIC	_DOut_Start
+EXTRN	__imp__ResumeThread@4:NEAR
+;	COMDAT _DOut_Start
+_TEXT	SEGMENT
+_DOut_Start PROC NEAR					; COMDAT
+
+; 280  : 	if (Opened == false) return 1;
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _Opened$S32075
+  00005	57		 push	 edi
+  00006	33 ff		 xor	 edi, edi
+  00008	3b c7		 cmp	 eax, edi
+  0000a	75 07		 jne	 SHORT $L32143
+  0000c	b8 01 00 00 00	 mov	 eax, 1
+
+; 309  : 
+; 310  : }
+
+  00011	5f		 pop	 edi
+  00012	c3		 ret	 0
+$L32143:
+
+; 281  : 
+; 282  : //	bUserQuit = TRUE;
+; 283  : 
+; 284  : 	nBuffer = 0;
+; 285  : 
+; 286  : 	for (int i = 0; i < nBufferNum; i++)
+
+  00013	a1 00 00 00 00	 mov	 eax, DWORD PTR _nBufferNum$S32063
+  00018	56		 push	 esi
+  00019	33 f6		 xor	 esi, esi
+  0001b	3b c7		 cmp	 eax, edi
+  0001d	89 3d 00 00 00
+	00		 mov	 DWORD PTR _nBuffer$S32064, edi
+  00023	7e 33		 jle	 SHORT $L32147
+  00025	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _UserFunction$S32066
+$L32145:
+
+; 287  : 	{
+; 288  : 		if (UserFunction != NULL) (*UserFunction)();
+
+  0002b	3b cf		 cmp	 ecx, edi
+  0002d	74 0d		 je	 SHORT $L32148
+  0002f	ff d1		 call	 ecx
+  00031	a1 00 00 00 00	 mov	 eax, DWORD PTR _nBufferNum$S32063
+  00036	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _UserFunction$S32066
+$L32148:
+
+; 289  : 		if (++nBuffer >= nBufferNum) nBuffer = 0;
+
+  0003c	8b 15 00 00 00
+	00		 mov	 edx, DWORD PTR _nBuffer$S32064
+  00042	42		 inc	 edx
+  00043	3b d0		 cmp	 edx, eax
+  00045	89 15 00 00 00
+	00		 mov	 DWORD PTR _nBuffer$S32064, edx
+  0004b	7c 06		 jl	 SHORT $L32146
+  0004d	89 3d 00 00 00
+	00		 mov	 DWORD PTR _nBuffer$S32064, edi
+$L32146:
+
+; 281  : 
+; 282  : //	bUserQuit = TRUE;
+; 283  : 
+; 284  : 	nBuffer = 0;
+; 285  : 
+; 286  : 	for (int i = 0; i < nBufferNum; i++)
+
+  00053	46		 inc	 esi
+  00054	3b f0		 cmp	 esi, eax
+  00056	7c d3		 jl	 SHORT $L32145
+$L32147:
+
+; 290  : 	}
+; 291  : 
+; 292  : 
+; 293  : /*
+; 294  : DWORD	playpos;
+; 295  : 
+; 296  :     lpdsBuffer->GetCurrentPosition(&playpos,NULL);
+; 297  : 	playpos /= nBufferLen;
+; 298  : 	playpos *= nBufferLen;
+; 299  : 	lpdsBuffer->SetCurrentPosition(playpos);
+; 300  : */
+; 301  : 	
+; 302  : 	lpdsBuffer->SetCurrentPosition(0);
+
+  00058	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  0005d	57		 push	 edi
+  0005e	50		 push	 eax
+  0005f	8b 08		 mov	 ecx, DWORD PTR [eax]
+  00061	ff 51 34	 call	 DWORD PTR [ecx+52]
+
+; 303  : 	
+; 304  : 	bUserStop = FALSE;
+; 305  : 	ResumeThread(ThreadHandle);
+
+  00064	8b 15 00 00 00
+	00		 mov	 edx, DWORD PTR _ThreadHandle$S32071
+  0006a	89 3d 00 00 00
+	00		 mov	 DWORD PTR _bUserStop$S32067, edi
+  00070	52		 push	 edx
+  00071	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__ResumeThread@4
+
+; 306  : 	lpdsBuffer->Play(0, 0, DSBPLAY_LOOPING);
+
+  00077	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  0007c	6a 01		 push	 1
+  0007e	57		 push	 edi
+  0007f	57		 push	 edi
+  00080	8b 08		 mov	 ecx, DWORD PTR [eax]
+  00082	50		 push	 eax
+  00083	ff 51 30	 call	 DWORD PTR [ecx+48]
+  00086	5e		 pop	 esi
+
+; 307  : 
+; 308  : 	return 0;
+
+  00087	33 c0		 xor	 eax, eax
+
+; 309  : 
+; 310  : }
+
+  00089	5f		 pop	 edi
+  0008a	c3		 ret	 0
+_DOut_Start ENDP
+_TEXT	ENDS
+PUBLIC	_DOut_Stop
+EXTRN	__imp__SuspendThread@4:NEAR
+;	COMDAT _DOut_Stop
+_TEXT	SEGMENT
+_DOut_Stop PROC NEAR					; COMDAT
+
+; 316  : 	bUserStop = TRUE;
+; 317  : 	lpdsBuffer->Stop();
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  00005	c7 05 00 00 00
+	00 01 00 00 00	 mov	 DWORD PTR _bUserStop$S32067, 1
+  0000f	50		 push	 eax
+  00010	8b 08		 mov	 ecx, DWORD PTR [eax]
+  00012	ff 51 48	 call	 DWORD PTR [ecx+72]
+
+; 318  : 	SuspendThread(ThreadHandle);
+
+  00015	8b 15 00 00 00
+	00		 mov	 edx, DWORD PTR _ThreadHandle$S32071
+  0001b	52		 push	 edx
+  0001c	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__SuspendThread@4
+
+; 319  : }
+
+  00022	c3		 ret	 0
+_DOut_Stop ENDP
+_TEXT	ENDS
+PUBLIC	_DOut_Close
+EXTRN	_fclose:NEAR
+EXTRN	__imp__DeleteCriticalSection@4:NEAR
+EXTRN	__imp__CloseHandle@4:NEAR
+;	COMDAT _DOut_Close
+_TEXT	SEGMENT
+_DOut_Close PROC NEAR					; COMDAT
+
+; 326  : 	if (Opened == false) return;
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _Opened$S32075
+  00005	85 c0		 test	 eax, eax
+  00007	74 71		 je	 SHORT $L32153
+
+; 327  : 
+; 328  : 	if (DiskWriter) fclose(fp);
+
+  00009	a1 00 00 00 00	 mov	 eax, DWORD PTR _DiskWriter$S32052
+  0000e	85 c0		 test	 eax, eax
+  00010	74 0e		 je	 SHORT $L32155
+  00012	a1 00 00 00 00	 mov	 eax, DWORD PTR _fp$S32077
+  00017	50		 push	 eax
+  00018	e8 00 00 00 00	 call	 _fclose
+  0001d	83 c4 04	 add	 esp, 4
+$L32155:
+
+; 329  : 
+; 330  : 	lpdsBuffer->Stop();
+
+  00020	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  00025	50		 push	 eax
+  00026	8b 08		 mov	 ecx, DWORD PTR [eax]
+  00028	ff 51 48	 call	 DWORD PTR [ecx+72]
+
+; 331  : 
+; 332  : 	bUserQuit = TRUE;
+; 333  : 	if (bUserStop == TRUE) ResumeThread(ThreadHandle);
+
+  0002b	8b 0d 00 00 00
+	00		 mov	 ecx, DWORD PTR _bUserStop$S32067
+  00031	b8 01 00 00 00	 mov	 eax, 1
+  00036	3b c8		 cmp	 ecx, eax
+  00038	a3 00 00 00 00	 mov	 DWORD PTR _bUserQuit$S32068, eax
+  0003d	75 0d		 jne	 SHORT $L32156
+  0003f	8b 15 00 00 00
+	00		 mov	 edx, DWORD PTR _ThreadHandle$S32071
+  00045	52		 push	 edx
+  00046	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__ResumeThread@4
+$L32156:
+
+; 334  : 
+; 335  : 	WaitForSingleObject(ThreadHandle,INFINITE);
+
+  0004c	a1 00 00 00 00	 mov	 eax, DWORD PTR _ThreadHandle$S32071
+  00051	6a ff		 push	 -1
+  00053	50		 push	 eax
+  00054	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__WaitForSingleObject@8
+
+; 336  : 
+; 337  : 	if (hEvent != NULL) CloseHandle(hEvent);
+
+  0005a	a1 00 00 00 00	 mov	 eax, DWORD PTR _hEvent$S32069
+  0005f	85 c0		 test	 eax, eax
+  00061	74 07		 je	 SHORT $L32157
+  00063	50		 push	 eax
+  00064	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__CloseHandle@4
+$L32157:
+
+; 338  : 
+; 339  : 	DeleteCriticalSection(&ThreadCS);
+
+  0006a	68 00 00 00 00	 push	 OFFSET FLAT:_ThreadCS$S32070
+  0006f	ff 15 00 00 00
+	00		 call	 DWORD PTR __imp__DeleteCriticalSection@4
+
+; 340  : 
+; 341  : 	DOut_DSClose();
+
+  00075	e9 00 00 00 00	 jmp	 ?DOut_DSClose@@YAXXZ	; DOut_DSClose
+$L32153:
+
+; 342  : }
+
+  0007a	c3		 ret	 0
+_DOut_Close ENDP
+_TEXT	ENDS
+PUBLIC	_DOut_BufferCopy
+EXTRN	_fwrite:NEAR
+;	COMDAT _DOut_BufferCopy
+_TEXT	SEGMENT
+_src$ = 8
+_lpWrite1$ = -8
+_dwLen1$ = -4
+_DOut_BufferCopy PROC NEAR				; COMDAT
+
+; 349  : {
+
+  00000	83 ec 08	 sub	 esp, 8
+
+; 350  : HRESULT	hr;
+; 351  : void*	lpWrite1;
+; 352  : DWORD	dwLen1;
+; 353  : int		size;
+; 354  : 
+; 355  : //	if (bUserStop == TRUE) return;
+; 356  : 
+; 357  : 
+; 358  : 	size   = nBufferLen * DOUT_SAMPLESIZE;
+
+  00003	a1 00 00 00 00	 mov	 eax, DWORD PTR _nBufferLen$S32062
+
+; 359  : 
+; 360  : 	hr = lpdsBuffer->Lock(
+; 361  : 		(nBuffer * size), size,
+; 362  : 		&lpWrite1,&dwLen1,NULL,0,0);
+
+  00008	8d 54 24 04	 lea	 edx, DWORD PTR _dwLen1$[esp+8]
+  0000c	53		 push	 ebx
+  0000d	55		 push	 ebp
+  0000e	56		 push	 esi
+  0000f	57		 push	 edi
+  00010	6a 00		 push	 0
+  00012	6a 00		 push	 0
+  00014	6a 00		 push	 0
+  00016	52		 push	 edx
+  00017	8d 54 24 20	 lea	 edx, DWORD PTR _lpWrite1$[esp+40]
+  0001b	8d 1c 85 00 00
+	00 00		 lea	 ebx, DWORD PTR [eax*4]
+  00022	52		 push	 edx
+  00023	8b d3		 mov	 edx, ebx
+  00025	0f af 15 00 00
+	00 00		 imul	 edx, DWORD PTR _nBuffer$S32064
+  0002c	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  00031	53		 push	 ebx
+  00032	52		 push	 edx
+  00033	50		 push	 eax
+  00034	8b 08		 mov	 ecx, DWORD PTR [eax]
+  00036	ff 51 2c	 call	 DWORD PTR [ecx+44]
+
+; 363  : 
+; 364  :     // If we got DSERR_BUFFERLOST, restore and retry lock.
+; 365  : 	if (hr == DSERR_BUFFERLOST)
+
+  00039	3d 96 00 78 88	 cmp	 eax, -2005401450	; 88780096H
+  0003e	75 31		 jne	 SHORT $L32169
+
+; 366  :     {
+; 367  :     	lpdsBuffer->Restore();
+
+  00040	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  00045	50		 push	 eax
+  00046	8b 08		 mov	 ecx, DWORD PTR [eax]
+  00048	ff 51 50	 call	 DWORD PTR [ecx+80]
+
+; 368  : 		hr = lpdsBuffer->Lock(
+; 369  : 			(nBuffer*size), size
+; 370  : 			,&lpWrite1,&dwLen1,NULL,0,0);
+
+  0004b	6a 00		 push	 0
+  0004d	6a 00		 push	 0
+  0004f	8d 4c 24 1c	 lea	 ecx, DWORD PTR _dwLen1$[esp+32]
+  00053	6a 00		 push	 0
+  00055	51		 push	 ecx
+  00056	8d 4c 24 20	 lea	 ecx, DWORD PTR _lpWrite1$[esp+40]
+  0005a	51		 push	 ecx
+  0005b	8b cb		 mov	 ecx, ebx
+  0005d	0f af 0d 00 00
+	00 00		 imul	 ecx, DWORD PTR _nBuffer$S32064
+  00064	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  00069	53		 push	 ebx
+  0006a	51		 push	 ecx
+  0006b	50		 push	 eax
+  0006c	8b 10		 mov	 edx, DWORD PTR [eax]
+  0006e	ff 52 2c	 call	 DWORD PTR [edx+44]
+$L32169:
+
+; 371  :     }
+; 372  : 
+; 373  :     if (hr == DS_OK) CopyMemory(lpWrite1,src,size);
+
+  00071	8b 6c 24 1c	 mov	 ebp, DWORD PTR _src$[esp+20]
+  00075	85 c0		 test	 eax, eax
+  00077	75 16		 jne	 SHORT $L32170
+  00079	8b 7c 24 10	 mov	 edi, DWORD PTR _lpWrite1$[esp+24]
+  0007d	8b cb		 mov	 ecx, ebx
+  0007f	8b d1		 mov	 edx, ecx
+  00081	8b f5		 mov	 esi, ebp
+  00083	c1 e9 02	 shr	 ecx, 2
+  00086	f3 a5		 rep movsd
+  00088	8b ca		 mov	 ecx, edx
+  0008a	83 e1 03	 and	 ecx, 3
+  0008d	f3 a4		 rep movsb
+$L32170:
+
+; 374  : 
+; 375  : 	lpdsBuffer->Unlock(lpWrite1,dwLen1,NULL,0);
+
+  0008f	8b 54 24 14	 mov	 edx, DWORD PTR _dwLen1$[esp+24]
+  00093	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  00098	6a 00		 push	 0
+  0009a	6a 00		 push	 0
+  0009c	8b 08		 mov	 ecx, DWORD PTR [eax]
+  0009e	52		 push	 edx
+  0009f	8b 54 24 1c	 mov	 edx, DWORD PTR _lpWrite1$[esp+36]
+  000a3	52		 push	 edx
+  000a4	50		 push	 eax
+  000a5	ff 51 4c	 call	 DWORD PTR [ecx+76]
+
+; 376  : 
+; 377  : 	if (DiskWriter) fwrite(src,1,size,fp);
+
+  000a8	a1 00 00 00 00	 mov	 eax, DWORD PTR _DiskWriter$S32052
+  000ad	85 c0		 test	 eax, eax
+  000af	74 12		 je	 SHORT $L32171
+  000b1	a1 00 00 00 00	 mov	 eax, DWORD PTR _fp$S32077
+  000b6	50		 push	 eax
+  000b7	53		 push	 ebx
+  000b8	6a 01		 push	 1
+  000ba	55		 push	 ebp
+  000bb	e8 00 00 00 00	 call	 _fwrite
+  000c0	83 c4 10	 add	 esp, 16			; 00000010H
+$L32171:
+
+; 378  : }
+
+  000c3	5f		 pop	 edi
+  000c4	5e		 pop	 esi
+  000c5	5d		 pop	 ebp
+  000c6	5b		 pop	 ebx
+  000c7	83 c4 08	 add	 esp, 8
+  000ca	c3		 ret	 0
+_DOut_BufferCopy ENDP
+_TEXT	ENDS
+PUBLIC	_DOut_GetBufferN
+;	COMDAT _DOut_GetBufferN
+_TEXT	SEGMENT
+_DOut_GetBufferN PROC NEAR				; COMDAT
+
+; 385  : 		return nBuffer;
+
+  00000	a1 00 00 00 00	 mov	 eax, DWORD PTR _nBuffer$S32064
+
+; 386  : }
+
+  00005	c3		 ret	 0
+_DOut_GetBufferN ENDP
+_TEXT	ENDS
+;	COMDAT _DOut_GetBufferWritePos
+_TEXT	SEGMENT
+_writepos$ = -4
+_DOut_GetBufferWritePos PROC NEAR			; COMDAT
+
+; 391  : {
+
+  00000	51		 push	 ecx
+
+; 392  : DWORD	writepos;
+; 393  : 
+; 394  :     lpdsBuffer->GetCurrentPosition(NULL,&writepos);
+
+  00001	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  00006	8d 54 24 00	 lea	 edx, DWORD PTR _writepos$[esp+4]
+  0000a	52		 push	 edx
+  0000b	6a 00		 push	 0
+  0000d	8b 08		 mov	 ecx, DWORD PTR [eax]
+  0000f	50		 push	 eax
+  00010	ff 51 10	 call	 DWORD PTR [ecx+16]
+
+; 395  :     return ((writepos / DOUT_SAMPLESIZE / nBufferLen) - 1) % nBufferNum;
+
+  00013	8b 44 24 00	 mov	 eax, DWORD PTR _writepos$[esp+4]
+  00017	33 d2		 xor	 edx, edx
+  00019	c1 e8 02	 shr	 eax, 2
+  0001c	f7 35 00 00 00
+	00		 div	 DWORD PTR _nBufferLen$S32062
+  00022	33 d2		 xor	 edx, edx
+  00024	48		 dec	 eax
+  00025	f7 35 00 00 00
+	00		 div	 DWORD PTR _nBufferNum$S32063
+  0002b	8b c2		 mov	 eax, edx
+
+; 396  : }
+
+  0002d	59		 pop	 ecx
+  0002e	c3		 ret	 0
+_DOut_GetBufferWritePos ENDP
+_TEXT	ENDS
+PUBLIC	_DOut_GetBufferPlayPos
+;	COMDAT _DOut_GetBufferPlayPos
+_TEXT	SEGMENT
+_playpos$ = -4
+_DOut_GetBufferPlayPos PROC NEAR			; COMDAT
+
+; 401  : {
+
+  00000	51		 push	 ecx
+
+; 402  : DWORD	playpos;
+; 403  : 
+; 404  :     lpdsBuffer->GetCurrentPosition(&playpos,NULL);
+
+  00001	a1 00 00 00 00	 mov	 eax, DWORD PTR _lpdsBuffer$S32057
+  00006	8d 54 24 00	 lea	 edx, DWORD PTR _playpos$[esp+4]
+  0000a	6a 00		 push	 0
+  0000c	52		 push	 edx
+  0000d	8b 08		 mov	 ecx, DWORD PTR [eax]
+  0000f	50		 push	 eax
+  00010	ff 51 10	 call	 DWORD PTR [ecx+16]
+
+; 405  :     return ((playpos / DOUT_SAMPLESIZE / nBufferLen) - 1) % nBufferNum;
+
+  00013	8b 44 24 00	 mov	 eax, DWORD PTR _playpos$[esp+4]
+  00017	33 d2		 xor	 edx, edx
+  00019	c1 e8 02	 shr	 eax, 2
+  0001c	f7 35 00 00 00
+	00		 div	 DWORD PTR _nBufferLen$S32062
+  00022	33 d2		 xor	 edx, edx
+  00024	48		 dec	 eax
+  00025	f7 35 00 00 00
+	00		 div	 DWORD PTR _nBufferNum$S32063
+  0002b	8b c2		 mov	 eax, edx
+
+; 406  : }
+
+  0002d	59		 pop	 ecx
+  0002e	c3		 ret	 0
+_DOut_GetBufferPlayPos ENDP
+_TEXT	ENDS
+END

@@ -1,0 +1,718 @@
+     1                                  ; SAMPLE PRECISION:	32:32
+     2                                  ; MIXER  PRECISION:	32bit with LINEAR INTERPOLATION
+     3                                  
+     4                                  ;============
+     5                                  SECTION .bss
+     6                                  ;============
+     7                                  
+     8                                  ;********** V O L U M E ************
+     9                                  ; X of 128
+    10                                  
+    11                                  ;PAU_MASTERVOL	equ 128
+    12                                  
+    13                                  ;************* P A N ***************
+    14                                  ; Left		Right
+    15                                  ; 000h <------> 0FFh
+    16                                  
+    17                                  PAU_PAN1	equ 0D0h
+    18                                  PAU_PAN2	equ 040h
+    19                                  PAU_PAN3	equ 050h
+    20                                  PAU_PAN4	equ 0C0h
+    21                                  
+    22                                  ;***********************************
+    23                                  
+    24                                  
+    25                                  PAU_MIXFREQ	equ 44100
+    26                                  PAU_NUMCHN	equ 4					; 4 Channels
+    27                                  PAU_MAXVOL	equ 64
+    28                                  
+    29                                  PAU_CLOCK	equ 3546895 ; PAL (NTSC = 3579545)	; Paula Master Clock
+    30                                  PAU_BUFFLEN	equ 882
+    31                                  
+    32                                  PAU_MSAMPLESIZ	equ 8					; MIX: 32bit,Stereo = 8bytes x Sample
+    33                                  PAU_MBUFFSIZ	equ (PAU_BUFFLEN*PAU_MSAMPLESIZ)
+    34                                  
+    35                                  PAU_SAMPLESIZ	equ 4					; OUT: 16bit,Stereo = 4bytes x Sample
+    36                                  PAU_BUFFSIZ	equ (PAU_BUFFLEN*PAU_SAMPLESIZ)
+    37                                  
+    38                                  
+    39                                  
+    40                                  
+    41                                  struc KMixChn
+    42 00000000 <res 00000004>          	.Active		resd 1
+    43 00000004 <res 00000004>          	.VoiceN		resd 1
+    44                                  	
+    45 00000008 <res 00000004>          	.VolL		resd 1
+    46 0000000C <res 00000004>          	.VolR		resd 1
+    47 00000010 <res 00000004>          	.Volume		resd 1
+    48 00000014 <res 00000004>          	.Pan		resd 1
+    49                                  
+    50 00000018 <res 00000004>          	.SamplePos	resd 1
+    51 0000001C <res 00000004>          	.SampleLen	resd 1
+    52 00000020 <res 00000004>          	.SamplePos_i	resd 1
+    53 00000024 <res 00000004>          	.SampleLen_i	resd 1
+    54                                  
+    55 00000028 <res 00000004>          	.Freq		resd 1
+    56 0000002C <res 00000004>          	.PosIndex_I	resd 1
+    57 00000030 <res 00000004>          	.PosIndex_F	resd 1
+    58 00000034 <res 00000004>          	.PosIncr_I	resd 1
+    59                                  	
+    60 00000038 <res 00000004>          	.PosIncr_F	resd 1
+    61 0000003C <res 00000004>          	.PosLimit	resd 1	
+    62                                  
+    63                                  	.size
+    64                                  endstruc
+    65                                  
+    66                                  
+    67 00000000 <res 00000004>          Opened		resd 1
+    68 00000004 <res 00000004>          Playing		resd 1
+    69 00000008 <res 00000004>          Callback	resd 1
+    70 0000000C <res 00000004>          MixPtr		resd 1
+    71 00000010 <res 00000004>          MasterVol	resd 1
+    72                                  
+    73 00000014 <res 00000100>          MixChn		resb (PAU_NUMCHN * KMixChn.size)
+    74 00000114 <res 00000010>          nullDATA	resb 16
+    75 00000124 <res 00000001>-         align 16, resb 1
+    76 00000124 <rept>             
+    77 00000130 <res 000089D0>          MixBuf		resb (PAU_BUFFSIZ*10)	; 8820
+    78                                  align 16, resb 1
+    79 00008B00 <res 00001B90>          TmpBuf		resb PAU_MBUFFSIZ
+    80 0000A690 <res 00000004>          ActiveVoice	resd 1
+    81                                  allSize		equ $-Opened
+    82                                  
+    83                                  
+    84                                  
+    85                                  extern	_DOut_Open@8
+    86                                  extern	_DOut_Start@0
+    87                                  extern	_DOut_Close@0
+    88                                  extern	_DOut_BufferCopy@4
+    89                                  
+    90                                  global	_paulaOpen@8
+    91                                  global	_paulaMasterVol@4
+    92                                  global	_paulaStart@0
+    93                                  global	_paulaClose@0
+    94                                  global	_paulaReset@0
+    95                                  
+    96                                  global	_paulaSelectVoice@4
+    97                                  global	_paulaSetPeriod@4
+    98                                  global	_paulaSetVolume@4
+    99                                  global	_paulaSetSamplePos@4
+   100                                  global	_paulaSetSampleLen@4
+   101                                  global	_paulaSetVoice@4
+   102                                  ;global	_paulaDMACON@4
+   103                                  
+   104                                  
+   105                                  ;============
+   106                                  SECTION .code
+   107                                  ;============
+   108                                  
+   109                                  
+   110 00000000 D00000004000000050-     _chMix_Pan	dd PAU_PAN1, PAU_PAN2, PAU_PAN3, PAU_PAN4
+   111 00000009 000000C0000000     
+   112                                  
+   113                                  
+   114                                  align 4
+   115                                  ;----------------------------------
+   116                                  _paulaOpen@8:
+   117                                  ;----------------------------------
+   118 00000010 55                      	push	ebp
+   119 00000011 89E5                    	mov	ebp,esp
+   120 00000013 60                      	pushad
+   121                                  	
+   122 00000014 E86F000000              	call	_paulaReset@0
+   123                                  
+   124 00000019 8B4508                  	mov	eax,[ebp+8]		; Play Routine
+   125 0000001C A3[08000000]            	mov	[Callback],eax
+   126                                  
+   127 00000021 8B450C                  	mov	eax,[ebp+12]		; HWnd
+   128 00000024 50                      	push	eax
+   129 00000025 8D05[44030000]          	lea	eax,[_paulaCallback]
+   130 0000002B 50                      	push	eax
+   131 0000002C E8(00000000)            	call	_DOut_Open@8
+   132 00000031 09C0                    	or	eax,eax
+   133 00000033 7506                    	jnz	.exit
+   134                                  
+   135 00000035 40                      	inc	eax	
+   136 00000036 A3[00000000]            	mov	[Opened],eax
+   137                                  
+   138                                  .exit:
+   139 0000003B 61                      	popad
+   140 0000003C 5D                      	pop	ebp
+   141 0000003D C20800                  	ret	8h
+   142                                  
+   143                                  
+   144                                  align 4
+   145                                  ;----------------------------------
+   146                                  _paulaMasterVol@4:
+   147                                  ;----------------------------------
+   148 00000040 55                      	push	ebp
+   149 00000041 89E5                    	mov	ebp,esp
+   150 00000043 60                      	pushad
+   151                                  	
+   152 00000044 8B4508                  	mov	eax,[ebp+8]
+   153 00000047 A3[10000000]            	mov	[MasterVol],eax
+   154                                  	
+   155 0000004C 61                      	popad
+   156 0000004D 5D                      	pop	ebp
+   157 0000004E C20400                  	ret	4h
+   158                                  
+   159                                  
+   160 00000051 90<rept>                align 4
+   161                                  ;----------------------------------
+   162                                  _paulaStart@0:
+   163                                  ;----------------------------------
+   164 00000054 31C0                    	xor	eax,eax
+   165 00000056 3905[00000000]          	cmp	[Opened],eax
+   166 0000005C 7501                    	jnz	.okrun
+   167 0000005E C3                      	ret
+   168                                  .okrun:
+   169 0000005F 60                      	pushad
+   170                                  
+   171 00000060 40                      	inc	eax
+   172 00000061 A3[04000000]            	mov	[Playing],eax
+   173 00000066 E8(00000000)            	call	_DOut_Start@0
+   174                                  	
+   175 0000006B 61                      	popad
+   176 0000006C C3                      	ret
+   177                                  
+   178                                  
+   179 0000006D 90<rept>                align 4
+   180                                  ;----------------------------------
+   181                                  _paulaClose@0:
+   182                                  ;----------------------------------
+   183 00000070 31C0                    	xor	eax,eax
+   184 00000072 3905[00000000]          	cmp	[Opened],eax
+   185 00000078 7501                    	jnz	.okrun
+   186 0000007A C3                      	ret
+   187                                  .okrun:
+   188 0000007B 60                      	pushad
+   189                                  
+   190 0000007C A3[04000000]            	mov	[Playing],eax
+   191 00000081 E8(00000000)            	call	_DOut_Close@0
+   192                                  
+   193 00000086 61                      	popad
+   194 00000087 C3                      	ret
+   195                                  
+   196                                  
+   197                                  
+   198                                  align 4
+   199                                  ;----------------------------------
+   200                                  _paulaReset@0:
+   201                                  ;----------------------------------
+   202 00000088 60                      	pushad
+   203                                  
+   204                                  ; init voice
+   205 00000089 8D3D[00000000]          	lea	edi,[Opened]
+   206 0000008F B994A60000              	mov	ecx,allSize
+   207 00000094 31C0                    	xor	eax,eax
+   208 00000096 FC                      	cld
+   209 00000097 F3AA                    	rep	stosb
+   210                                  
+   211 00000099 8D35[00000000]          	lea	esi,[_chMix_Pan]
+   212 0000009F 8D3D[14000000]          	lea	edi,[MixChn]
+   213 000000A5 8D05[14010000]          	lea	eax,[nullDATA]
+   214 000000AB 66B90004                	mov	cx,0400h
+   215                                  .inich:	
+   216 000000AF 884F04                  	mov	[edi + KMixChn.VoiceN],cl
+   217 000000B2 894718                  	mov	[edi + KMixChn.SamplePos],eax
+   218 000000B5 894720                  	mov	[edi + KMixChn.SamplePos_i],eax
+   219 000000B8 8B1E                    	mov	ebx,[esi]
+   220 000000BA 895F14                  	mov	[edi + KMixChn.Pan],ebx
+   221                                  	
+   222 000000BD 81C604000000            	add	esi,4
+   223 000000C3 81C740000000            	add	edi,KMixChn.size
+   224 000000C9 FEC1                    	inc	cl
+   225 000000CB 38E9                    	cmp	cl,ch
+   226 000000CD 7CE0                    	jl	.inich
+   227                                  	
+   228 000000CF 61                      	popad
+   229 000000D0 C3                      	ret
+   230                                  
+   231                                  
+   232                                  
+   233 000000D1 90<rept>                align 4
+   234                                  ; in: eax = chnNum, out: ebx = chnPtr
+   235                                  ;----------------------------------
+   236                                  _SetChnAddr:
+   237                                  ;----------------------------------
+   238 000000D4 50                      	push	eax
+   239 000000D5 51                      	push	ecx
+   240                                  	
+   241 000000D6 A1[90A60000]            	mov	eax,[ActiveVoice]	
+   242 000000DB 2503000000              	and	eax,3
+   243 000000E0 B940000000              	mov	ecx,KMixChn.size
+   244 000000E5 F7E1                    	mul	ecx
+   245 000000E7 8D1D[14000000]          	lea	ebx,[MixChn]
+   246 000000ED 01C3                    	add	ebx,eax
+   247                                  	
+   248 000000EF 59                      	pop	ecx
+   249 000000F0 58                      	pop	eax
+   250 000000F1 C3                      	ret
+   251                                  
+   252                                  
+   253 000000F2 90<rept>                align 4
+   254                                  ;----------------------------------
+   255                                  _paulaSelectVoice@4:
+   256                                  ;----------------------------------
+   257 000000F4 55                      	push	ebp
+   258 000000F5 89E5                    	mov	ebp,esp
+   259 000000F7 50                      	push	eax
+   260                                  
+   261 000000F8 8B4508                  	mov	eax,[ebp+8]
+   262 000000FB 2403                    	and	al,3
+   263 000000FD A2[90A60000]            	mov	byte [ActiveVoice],al
+   264                                  
+   265 00000102 58                      	pop	eax
+   266 00000103 5D                      	pop	ebp
+   267 00000104 C20400                  	ret	4h
+   268                                  
+   269 00000107 90                      align 4
+   270                                  ;----------------------------------
+   271                                  _paulaSetPeriod@4:
+   272                                  ;----------------------------------
+   273 00000108 55                      	push	ebp
+   274 00000109 89E5                    	mov	ebp,esp
+   275 0000010B 60                      	pushad
+   276                                  
+   277                                  	
+   278 0000010C E8C3FFFFFF              	call	_SetChnAddr	
+   279 00000111 31C9                    	xor	ecx,ecx
+   280                                  
+   281 00000113 8B4508                  	mov	eax,[ebp+8]		; Get Period
+   282 00000116 25FFFF0000              	and	eax,0000FFFFh
+   283 0000011B 7507                    	jnz	.noZ
+   284                                  	
+   285 0000011D 890B                    	mov	[ebx + KMixChn.Active],ecx
+   286 0000011F E92A000000              	jmp	.exit
+   287                                  .noZ:
+   288 00000124 66BE4000                	mov	si,0040h
+   289 00000128 6639F0                  	cmp	ax,si
+   290 0000012B 7D03                    	jge	.noadjL
+   291 0000012D 6689F0                  	mov	ax,si
+   292                                  .noadjL:
+   293 00000130 66BE006B                	mov	si,6B00h
+   294 00000134 6639F0                  	cmp	ax,si
+   295 00000137 7E03                    	jle	.noadjU
+   296 00000139 6689F0                  	mov	ax,si
+   297                                  .noadjU:
+   298 0000013C 09C0                    	or	eax,eax
+   299 0000013E 740E                    	jz	.exit
+   300                                  	
+   301 00000140 89C1                    	mov	ecx,eax
+   302 00000142 B80F1F3600              	mov	eax,PAU_CLOCK
+   303 00000147 31D2                    	xor	edx,edx
+   304 00000149 F7F9                    	idiv	ecx
+   305                                  
+   306 0000014B 894328                  	mov	[ebx + KMixChn.Freq],eax
+   307                                  .exit:
+   308 0000014E 61                      	popad
+   309 0000014F 5D                      	pop	ebp
+   310 00000150 C20400                  	ret	4h
+   311                                  	
+   312                                  	
+   313                                  
+   314 00000153 90                      align 4
+   315                                  ;----------------------------------
+   316                                  _paulaSetVolume@4:
+   317                                  ;----------------------------------
+   318 00000154 55                      	push	ebp
+   319 00000155 89E5                    	mov	ebp,esp
+   320 00000157 60                      	pushad
+   321                                  
+   322 00000158 E877FFFFFF              	call	_SetChnAddr	
+   323                                  
+   324 0000015D 0FB64508                	movzx	eax,byte [ebp+8]	; Get Volume
+   325                                  	
+   326 00000161 B13F                    	mov	cl,PAU_MAXVOL-1
+   327 00000163 38C8                    	cmp	al,cl
+   328 00000165 7602                    	jbe	.noadjU
+   329 00000167 88C8                    	mov	al,cl
+   330                                  .noadjU:
+   331 00000169 894310                  	mov	[ebx + KMixChn.Volume],eax
+   332                                  
+   333 0000016C 61                      	popad
+   334 0000016D 5D                      	pop	ebp
+   335 0000016E C20400                  	ret	4h
+   336                                  
+   337                                  
+   338                                  
+   339                                  
+   340 00000171 90<rept>                align 4
+   341                                  ;----------------------------------
+   342                                  _paulaSetSamplePos@4:
+   343                                  ;----------------------------------
+   344 00000174 55                      	push	ebp
+   345 00000175 89E5                    	mov	ebp,esp
+   346 00000177 60                      	pushad
+   347                                  	
+   348 00000178 E857FFFFFF              	call	_SetChnAddr	
+   349                                  
+   350 0000017D 8B4508                  	mov	eax,[ebp+8]			; Get Sample Address
+   351                                  
+   352 00000180 09C0                    	or	eax,eax
+   353 00000182 7403                    	jz	.exit
+   354 00000184 894318                  	mov	[ebx + KMixChn.SamplePos],eax
+   355                                  .exit:	
+   356 00000187 61                      	popad
+   357 00000188 5D                      	pop	ebp
+   358 00000189 C20400                  	ret	4h
+   359                                  
+   360                                  	
+   361                                  align 4
+   362                                  ;----------------------------------
+   363                                  _paulaSetSampleLen@4:
+   364                                  ;----------------------------------
+   365 0000018C 55                      	push	ebp
+   366 0000018D 89E5                    	mov	ebp,esp
+   367 0000018F 60                      	pushad
+   368                                  
+   369 00000190 E83FFFFFFF              	call	_SetChnAddr	
+   370 00000195 31C9                    	xor	ecx,ecx
+   371                                  
+   372 00000197 8B4508                  	mov	eax,[ebp+8]		; Get Len
+   373                                  ;	add	eax,eax
+   374 0000019A 89431C                  	mov	[ebx + KMixChn.SampleLen],eax
+   375                                  .exit:
+   376 0000019D 61                      	popad
+   377 0000019E 5D                      	pop	ebp
+   378 0000019F C20400                  	ret	4h
+   379                                  	
+   380                                  
+   381                                  
+   382                                  
+   383 000001A2 90<rept>                align 4
+   384                                  ;----------------------------------
+   385                                  _paulaSetVoice@4:
+   386                                  ;----------------------------------
+   387 000001A4 55                      	push	ebp
+   388 000001A5 89E5                    	mov	ebp,esp
+   389 000001A7 60                      	pushad
+   390                                  
+   391 000001A8 E827FFFFFF              	call	_SetChnAddr	
+   392                                  
+   393 000001AD 31C9                    	xor	ecx,ecx
+   394 000001AF 8B4508                  	mov	eax,[ebp+8]		; Get ON/OFF
+   395 000001B2 09C0                    	or	eax,eax
+   396 000001B4 7507                    	jnz	.PlayVoice
+   397                                  .StopVoice:
+   398 000001B6 890B                    	mov	[ebx + KMixChn.Active],ecx
+   399 000001B8 E920000000              	jmp	.exit
+   400                                  .PlayVoice:
+   401 000001BD 894B2C                  	mov	[ebx + KMixChn.PosIndex_I],ecx
+   402 000001C0 894B30                  	mov	[ebx + KMixChn.PosIndex_F],ecx
+   403                                  
+   404 000001C3 41                      	inc	ecx
+   405                                  
+   406 000001C4 8B4318                  	mov	eax,[ebx + KMixChn.SamplePos]
+   407 000001C7 894320                  	mov	[ebx + KMixChn.SamplePos_i],eax
+   408                                  
+   409 000001CA 8B431C                  	mov	eax,[ebx + KMixChn.SampleLen]
+   410 000001CD 3D04000000              	cmp	eax,4
+   411 000001D2 7304                    	jae	short .noStopV
+   412                                  	
+   413 000001D4 31C9                    	xor	ecx,ecx
+   414 000001D6 31C0                    	xor	eax,eax
+   415                                  .noStopV:
+   416 000001D8 894324                  	mov	[ebx + KMixChn.SampleLen_i],eax
+   417 000001DB 890B                    	mov	[ebx + KMixChn.Active],ecx
+   418                                  .exit:
+   419 000001DD 61                      	popad
+   420 000001DE 5D                      	pop	ebp
+   421 000001DF C20400                  	ret	4h
+   422                                  
+   423                                  
+   424                                  
+   425                                  
+   426                                  
+   427                                  
+   428                                  
+   429                                  
+   430                                  
+   431                                  
+   432 000001E2 90<rept>                align 4
+   433                                  ;---------------------------------------
+   434                                  ; in: ebp = chnPtr
+   435                                  _asmMix16StereoNormal:
+   436                                  ;---------------------------------------
+   437 000001E4 60                      	pushad
+   438 000001E5 E906000000              	jmp	.ChkActive
+   439                                  .Deactivate:
+   440 000001EA C6450000                	mov	byte [ebp + KMixChn.Active],0
+   441                                  .ExitMix:
+   442 000001EE 61                      	popad
+   443 000001EF C3                      	ret
+   444                                  .ChkActive:	
+   445 000001F0 31C0                    	xor	eax,eax
+   446 000001F2 384500                  	cmp	[ebp + KMixChn.Active],al
+   447 000001F5 74F7                    	jz	.ExitMix
+   448 000001F7 394510                  	cmp	[ebp + KMixChn.Volume],eax
+   449 000001FA 74F2                    	jz	.ExitMix
+   450 000001FC 394524                  	cmp	[ebp + KMixChn.SampleLen_i],eax
+   451 000001FF 74ED                    	jz	.ExitMix
+   452 00000201 394528                  	cmp	[ebp + KMixChn.Freq],eax
+   453 00000204 74E8                    	jz	.ExitMix
+   454                                  	
+   455                                  ;------- Source & Destination ----
+   456                                  
+   457 00000206 8B7520                  	mov	esi,[ebp + KMixChn.SamplePos_i]
+   458 00000209 8D3D[008B0000]          	lea	edi,[TmpBuf]
+   459                                  
+   460                                  ;----------- Get Position Increment ---
+   461                                  
+   462 0000020F B944AC0000              	mov	ecx,PAU_MIXFREQ
+   463 00000214 8B4528                  	mov	eax,[ebp + KMixChn.Freq]
+   464 00000217 31D2                    	xor	edx,edx
+   465 00000219 F7F1                    	div	ecx
+   466 0000021B 894534                  	mov	[ebp + KMixChn.PosIncr_I],eax
+   467 0000021E 31C0                    	xor	eax,eax
+   468 00000220 F7F1                    	div	ecx
+   469 00000222 894538                  	mov	[ebp + KMixChn.PosIncr_F],eax
+   470                                  	
+   471                                  ;----------- Get Volume ---
+   472                                  
+   473 00000225 8B4D10                  	mov	ecx,[ebp + KMixChn.Volume]
+   474                                  
+   475 00000228 A1[10000000]            	mov	eax,[MasterVol]
+   476 0000022D F7E9                    	imul	ecx
+   477 0000022F 89C3                    	mov	ebx,eax
+   478                                  
+   479 00000231 8B4D14                  	mov	ecx,[ebp + KMixChn.Pan]
+   480 00000234 F7E9                    	imul	ecx
+   481 00000236 C1E002                  	shl	eax,2
+   482 00000239 894508                  	mov	[ebp + KMixChn.VolL],eax
+   483                                  
+   484 0000023C 89D8                    	mov	eax,ebx
+   485 0000023E 8B4D14                  	mov	ecx,[ebp + KMixChn.Pan]
+   486 00000241 80F1FF                  	xor	cl,0FFh
+   487 00000244 F7E9                    	imul	ecx
+   488 00000246 C1E002                  	shl	eax,2
+   489 00000249 89450C                  	mov	[ebp + KMixChn.VolR],eax
+   490                                  
+   491                                  ;----------- Number of samples ---
+   492                                  
+   493 0000024C B972030000              	mov	ecx,PAU_BUFFLEN
+   494                                  
+   495                                  
+   496                                  ;----------- Get Sample Values ---
+   497                                  
+   498 00000251 8B4524                  	mov	eax,[ebp + KMixChn.SampleLen_i]
+   499 00000254 3D03000000              	cmp	eax,3
+   500 00000259 7C8F                    	jl	.Deactivate
+   501 0000025B 89453C                  	mov	[ebp + KMixChn.PosLimit],eax
+   502                                  
+   503 0000025E E929000000              	jmp	.ChkLup
+   504                                  .Gate1:
+   505 00000263 E982FFFFFF              	jmp	.Deactivate
+   506 00000268 90<rept>                	align	16
+   507                                  .Looped:
+   508 00000270 8B453C                  	mov	eax,[ebp + KMixChn.PosLimit]
+   509 00000273 8B5D18                  	mov	ebx,[ebp + KMixChn.SamplePos]
+   510 00000276 29452C                  	sub	[ebp + KMixChn.PosIndex_I],eax
+   511 00000279 895D20                  	mov	[ebp + KMixChn.SamplePos_i],ebx
+   512                                  
+   513 0000027C 8B451C                  	mov	eax,[ebp + KMixChn.SampleLen]
+   514 0000027F 3D03000000              	cmp	eax,3
+   515 00000284 7CDD                    	jl	.Gate1
+   516                                  
+   517 00000286 894524                  	mov	[ebp + KMixChn.SampleLen_i],eax
+   518 00000289 89453C                  	mov	[ebp + KMixChn.PosLimit],eax
+   519                                  
+   520                                  .ChkLup:
+   521 0000028C 8B5D2C                  	mov	ebx,[ebp + KMixChn.PosIndex_I]
+   522                                  	
+   523 0000028F 3B5D3C                  	cmp	ebx,[ebp + KMixChn.PosLimit]
+   524 00000292 7DDC                    	jge	.Looped
+   525                                  
+   526 00000294 51                      	push	ecx
+   527                                  
+   528                                  
+   529                                  ; * Linear Interpolation *
+   530                                  ;	mov	ecx,[ebp + KMixChn.PosIndex_F]		; 1
+   531                                  ;	movsx	edx,byte [esi+ebx]			; -
+   532                                  ;	movsx	eax,byte [esi+ebx+1]			; 2
+   533                                  ;	shr	ecx,18					; -
+   534                                  ;	sub	eax,edx					; 3
+   535                                  ;	imul	eax,ecx					; 13
+   536                                  ;	sar	eax,16					; 14
+   537                                  ;	add	edx,eax					; 15
+   538                                  ;	mov	eax,edx					; 16
+   539                                  
+   540                                  ; * No Interpolation *
+   541 00000295 0FBE041E                	movsx	eax,byte [esi+ebx]			; -
+   542 00000299 89C2                    	mov	edx,eax
+   543                                  
+   544                                  
+   545                                  
+   546                                  
+   547                                  
+   548 0000029B 0FAF5508                	imul	edx,[ebp + KMixChn.VolL]		; 26
+   549 0000029F 0117                    	add	[edi],edx				; 27
+   550                                  
+   551 000002A1 0FAF450C                	imul	eax,[ebp + KMixChn.VolR]		; 37
+   552 000002A5 014704                  	add	[edi+(PAU_MSAMPLESIZ/2)],eax		; 38
+   553                                  
+   554                                  
+   555                                  
+   556 000002A8 8B4D30                  	mov	ecx,[ebp + KMixChn.PosIndex_F]		; 39
+   557 000002AB 8B452C                  	mov	eax,[ebp + KMixChn.PosIndex_I]		; -
+   558 000002AE 034D38                  	add	ecx,[ebp + KMixChn.PosIncr_F]		; 40
+   559 000002B1 134534                  	adc	eax,[ebp + KMixChn.PosIncr_I]		; -
+   560 000002B4 894D30                  	mov	[ebp + KMixChn.PosIndex_F],ecx		; 41
+   561 000002B7 89452C                  	mov	[ebp + KMixChn.PosIndex_I],eax		; -
+   562                                  
+   563 000002BA 81C708000000            	add	edi,PAU_MSAMPLESIZ			; 42
+   564                                  
+   565 000002C0 59                      	pop	ecx					; 43
+   566 000002C1 49                      	dec	ecx					; 44
+   567 000002C2 75C8                    	jnz	.ChkLup					; -
+   568                                  	
+   569 000002C4 61                      	popad
+   570 000002C5 C3                      	ret
+   571                                  	
+   572                                  
+   573                                  
+   574 000002C6 90<rept>                align 4
+   575                                  ;-----------------------------------------------------------------------
+   576                                  _MixBuffer:
+   577                                  ;-----------------------------------------------------------------------
+   578 000002C8 60                      	pushad
+   579                                  	
+   580                                  	; 1) Clear Buffer
+   581 000002C9 8D3D[008B0000]          	lea	edi,[TmpBuf]
+   582 000002CF B9E4060000              	mov	ecx,PAU_MBUFFSIZ/4
+   583 000002D4 31C0                    	xor	eax,eax
+   584 000002D6 FC                      	cld
+   585 000002D7 F3AB                    	rep	stosd
+   586                                  
+   587                                  	; 2) Call PlayRoutine
+   588 000002D9 A1[08000000]            	mov	eax,[Callback]
+   589 000002DE 09C0                    	or	eax,eax
+   590 000002E0 7404                    	jz	.NoCall
+   591 000002E2 60                      	pushad
+   592 000002E3 FFD0                    	call	eax
+   593 000002E5 61                      	popad
+   594                                  .NoCall:
+   595                                  
+   596 000002E6 8D2D[14000000]          	lea	ebp,[MixChn]
+   597 000002EC 31C9                    	xor	ecx,ecx
+   598 000002EE B104                    	mov	cl,4
+   599                                  .mixchns:	
+   600                                  	
+   601 000002F0 E8EFFEFFFF              	call	_asmMix16StereoNormal
+   602 000002F5 81C540000000            	add	ebp,KMixChn.size
+   603                                  	
+   604 000002FB E2F3                    	loop	.mixchns
+   605                                  
+   606                                  
+   607 000002FD 61                      	popad
+   608 000002FE C3                      	ret
+   609                                  	
+   610                                  
+   611 000002FF 90                      align 4
+   612                                  ;-----------------------------------------------------------------------
+   613                                  _Conv32to16:
+   614                                  ;-----------------------------------------------------------------------
+   615 00000300 60                      	pushad
+   616                                  	
+   617 00000301 8D35[008B0000]          	lea	esi,[TmpBuf]
+   618 00000307 8B3D[0C000000]          	mov	edi,[MixPtr]
+   619                                  	
+   620 0000030D 31C0                    	xor	eax,eax
+   621 0000030F 66B8FF7F                	mov	ax,32767
+   622 00000313 89C3                    	mov	ebx,eax
+   623 00000315 89C5                    	mov	ebp,eax
+   624 00000317 F7DD                    	neg	ebp
+   625                                  
+   626 00000319 B972030000              	mov	ecx,PAU_BUFFLEN
+   627 0000031E 01C9                    	add	ecx,ecx
+   628                                  .C32to16:
+   629 00000320 8B06                    	mov	eax,[esi]
+   630 00000322 C1F810                  	sar	eax,16
+   631                                  	
+   632 00000325 39D8                    	cmp	eax,ebx
+   633 00000327 7E02                    	jle	.njUPL
+   634 00000329 89D8                    	mov	eax,ebx
+   635 0000032B 39E8                    .njUPL:	cmp	eax,ebp
+   636 0000032D 7D02                    	jge	.njDNL
+   637 0000032F 89E8                    	mov	eax,ebp
+   638                                  .njDNL:
+   639 00000331 668907                  	mov	[edi],ax
+   640                                  	
+   641 00000334 81C604000000            	add	esi,PAU_MSAMPLESIZ/2
+   642 0000033A 81C702000000            	add	edi,PAU_SAMPLESIZ/2
+   643 00000340 E2DE                    	loop	.C32to16
+   644                                  
+   645 00000342 61                      	popad
+   646 00000343 C3                      	ret
+   647                                  
+   648                                  
+   649                                  
+   650                                  ;-----------------------------------------------------------------------
+   651                                  ;_FirMemory:
+   652                                  ;-----------------------------------------------------------------------
+   653                                  ;	pushad
+   654                                  ;	lea	edi,[TmpBuf]
+   655                                  ;	add	edi,PAU_MSAMPLESIZ
+   656                                  ;	mov	si,2
+   657                                  ;.firs:
+   658                                  ;	push	edi
+   659                                  ;	mov	ecx,PAU_BUFFLEN-1
+   660                                  ;.fir1:
+   661                                  ;	mov	edx, [edi-PAU_MSAMPLESIZ]
+   662                                  ;	mov	eax, [edi]
+   663                                  ;	mov	ebx, [edi+PAU_MSAMPLESIZ]
+   664                                  ;	sar	edx,2
+   665                                  ;	sar	eax,1
+   666                                  ;	sar	ebx,2
+   667                                  ;	add	eax,edx
+   668                                  ;	add	eax,ebx
+   669                                  ;	mov	[edi],eax
+   670                                  ;	add	edi,PAU_MSAMPLESIZ
+   671                                  ;	loop	.fir1
+   672                                  ;	pop	edi
+   673                                  ;	add	edi,PAU_MSAMPLESIZ/2
+   674                                  ;	dec	si
+   675                                  ;	jnz	.firs
+   676                                  ;	popad
+   677                                  ;	ret
+   678                                  
+   679                                  
+   680                                  
+   681                                  align 4
+   682                                  ;-----------------------------------------------------------------------
+   683                                  _paulaCallback:
+   684                                  ;-----------------------------------------------------------------------
+   685 00000344 803D[00000000]00        	cmp	byte [Opened],0
+   686 0000034B 7501                    	jnz	.okrun
+   687 0000034D C3                      	ret
+   688                                  .okrun:
+   689 0000034E 60                      	pushad
+   690                                  
+   691 0000034F 8D05[30010000]          	lea	eax,[MixBuf]
+   692 00000355 A3[0C000000]            	mov	[MixPtr],eax
+   693                                  	
+   694 0000035A B90A000000              	mov	ecx,10
+   695                                  .MixAll10:
+   696                                  
+   697 0000035F E864FFFFFF              	call	_MixBuffer
+   698                                  
+   699                                  ;	call	_FirMemory
+   700                                  
+   701 00000364 E897FFFFFF              	call	_Conv32to16
+   702                                  	
+   703 00000369 8105[0C000000]C80D-     	add	dword [MixPtr],PAU_BUFFSIZ
+   704 00000371 0000               
+   705 00000373 E2EA                    	loop	.MixAll10
+   706                                  
+   707                                  
+   708                                  
+   709 00000375 8D05[30010000]          	lea	eax,[MixBuf]
+   710 0000037B 50                      	push	eax
+   711 0000037C E8(00000000)            	call	_DOut_BufferCopy@4
+   712                                  		
+   713 00000381 61                      	popad		
+   714 00000382 C3                      	ret
+   715                                  
+   716                                  
+   717                                  
+   718                                  

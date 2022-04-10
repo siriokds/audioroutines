@@ -1,0 +1,1118 @@
+     1                                  ;============
+     2                                  SECTION .bss
+     3                                  ;============
+     4                                  
+     5                                  
+     6                                  struc	instr
+     7 00000000 <res 00000004>          	.Start		resd 1
+     8 00000004 <res 00000004>          	.Len		resd 1
+     9 00000008 <res 00000004>          	.LoopSta	resd 1
+    10 0000000C <res 00000004>          	.LoopLen	resd 1
+    11 00000010 <res 00000004>          	.Volume		resd 1
+    12 00000014 <res 00000004>          	.C2Spd		resd 1
+    13 00000018 <res 00000008>          	.Filler		resd 2
+    14                                  	.size
+    15                                  endstruc
+    16                                  
+    17                                  
+    18                                  struc	chan
+    19 00000000 <res 00000004>          	.VoiceN		resd 1
+    20 00000004 <res 00000004>          	.ON		resd 1
+    21 00000008 <res 00000004>          	.Volume		resd 1
+    22 0000000C <res 00000004>          	.Period		resd 1
+    23 00000010 <res 00000004>          	.freq		resd 1
+    24                                  
+    25 00000014 <res 00000004>          	.current	resd 1
+    26                                  
+    27 00000018 <res 00000004>          	.PanVal		resd 1
+    28 0000001C <res 00000004>          	.lastins	resd 1 	; instrument # for each channel (to remember)
+    29 00000020 <res 00000004>          	.lastnot	resd 1	; last note set in channel (to remember)
+    30 00000024 <res 00000004>          	.lastper	resd 1	; last period set in channel (to remember)
+    31                                  
+    32 00000028 <res 00000004>          	.restart	resd 1	; flag whether to play sample or not
+    33 0000002C <res 00000004>          	.start		resd 1	; where to start in sample
+    34                                  	
+    35 00000030 <res 00000004>          	.soffset	resd 1	; amount to sample offset by
+    36 00000034 <res 00000004>          	.porto		resd 1	; note to port to value (signed word)
+    37                                  
+    38 00000038 <res 00000004>          	.portsp		resd 1	; porta speed
+    39 0000003C <res 00000004>          	.vibpos		resd 1	; vibrato position
+    40 00000040 <res 00000004>          	.vibspe		resd 1	; vibrato speed
+    41 00000044 <res 00000004>          	.vibdep		resd 1	; vibrato depth
+    42                                  
+    43 00000048 <res 00000004>          	.trempos	resd 1	; tremolo position
+    44 0000004C <res 00000004>          	.tremspe	resd 1	; tremolo speed
+    45 00000050 <res 00000004>          	.tremdep	resd 1	; tremolo depth
+    46 00000054 <res 00000004>          	.patlooprow	resd 1  ;
+    47                                  
+    48 00000058 <res 00000004>          	.patloopno	resd 1	; pattern loop variables for effect  E6x
+    49 0000005C <res 00000004>          	.wavecon	resd 1	; waveform type for vibrato and tremolo (4bits each)
+    50                                  	
+    51 00000060 <res 00000020>          	.filler		resd 8
+    52                                  	.size
+    53                                  endstruc
+    54                                  
+    55                                  
+    56                                  
+    57                                  struc	module
+    58 00000000 <res 00000004>          	.ModAddress	resd 1
+    59 00000004 <res 00000004>          	.Opened		resd 1
+    60 00000008 <res 00000004>          	.Playing	resd 1
+    61                                  	
+    62 0000000C <res 00000004>          	.tick		resd 1
+    63 00000010 <res 00000004>          	.speed		resd 1
+    64 00000014 <res 00000004>          	.row		resd 1
+    65 00000018 <res 00000004>          	.ord		resd 1
+    66 0000001C <res 00000004>          	.patdelay	resd 1
+    67                                  
+    68 00000020 <res 00000004>          	.POSnum		resd 1
+    69 00000024 <res 00000004>          	.PATnum		resd 1
+    70 00000028 <res 00000004>          	.INSnum		resd 1
+    71 0000002C <res 00000004>          	.SMPptr		resd 1
+    72                                  	
+    73 00000030 <res 00000004>          	.Restart	resd 1
+    74 00000034 <res 00000004>          	.Flags		resd 1
+    75                                  	.size
+    76                                  endstruc
+    77                                  
+    78                                  
+    79                                  ;- - - - - - - - - - - - - - - - - - - - - - - 
+    80                                  
+    81                                  extern	_paulaOpen@8
+    82                                  extern	_paulaMasterVol@4
+    83                                  extern	_paulaStart@0
+    84                                  extern	_paulaClose@0
+    85                                  extern	_paulaReset@0
+    86                                  extern	_paulaSelectVoice@4
+    87                                  extern	_paulaSetPeriod@4
+    88                                  extern	_paulaSetVolume@4
+    89                                  extern	_paulaSetSamplePos@4
+    90                                  extern	_paulaSetSampleLen@4
+    91                                  extern	_paulaSetVoice@4
+    92                                  
+    93                                  global	_CHP_Open@8
+    94                                  global	_CHP_InitModule@4
+    95                                  global	_CHP_Start@0
+    96                                  global	_CHP_Close@0
+    97                                  global	_CHP_Update@0
+    98                                  global	_CHP_GetSamplesPtr@0
+    99                                  
+   100 00000000 <res 00000038>          CHPinfo: resb module.size
+   101 00000038 <res 00000200>          VOCdata: resb (chan.size*4)
+   102 00000238 <res 00000080>          POSinfo: resb (128)
+   103 000002B8 <res 00000400>          INSinfo: resb (instr.size*32)
+   104 000006B8 <res 00040000>          PATinfo: resb (1024*256)
+   105 000406B8 <res 00040000>          SMPinfo: resb (256*1024)
+   106                                  sizeAll  equ $-CHPinfo
+   107                                  
+   108                                  
+   109                                  
+   110                                  ;============
+   111                                  SECTION .code
+   112                                  ;============
+   113                                  
+   114                                  
+   115 00000000 006B0065405F005AC0-     	dw 6B00h, 6500h, 5F40h, 5A00h, 54C0h, 5000h, 4B80h, 4740h, 4340h, 3F80h, 3C00h, 38A0h 
+   116 00000009 540050804B40474043-
+   117 00000012 803F003CA038       
+   118 00000018 80358032A02F002D60-     	dw 3580h, 3280h, 2FA0h, 2D00h, 2A60h, 2800h, 25C0h, 23A0h, 21A0h, 1FC0h, 1E00h, 1C50h 
+   119 00000021 2A0028C025A023A021-
+   120 0000002A C01F001E501C       
+   121                                  	
+   122 00000030 C01A4019D017801630-     	dw 1AC0h, 1940h, 17D0h, 1680h, 1530h, 1400h, 12E0h, 11D0h, 10D0h, 0FE0h, 0F00h, 0E28h 
+   123 00000039 150014E012D011D010-
+   124 00000042 E00F000F280E       
+   125 00000048 600DA00CE80B400B98-     	dw 0D60h, 0CA0h, 0BE8h, 0B40h, 0A98h, 0A00h, 0970h, 08E8h, 0868h, 07F0h, 0780h, 0714h 
+   126 00000051 0A000A7009E8086808-
+   127 0000005A F00780071407       
+   128 00000060 B0065006F405A0054C-     	dw 06B0h, 0650h, 05F4h, 05A0h, 054Ch, 0500h, 04B8h, 0474h, 0434h, 03F8h, 03C0h, 038Ah 
+   129 00000069 050005B80474043404-
+   130 00000072 F803C0038A03       
+   131                                  	
+   132 00000078 58032803FA02D002A6-     Periods	dw 0358h, 0328h, 02FAh, 02D0h, 02A6h, 0280h, 025Ch, 023Ah, 021Ah, 01FCh, 01E0h, 01C5h 
+   133 00000081 0280025C023A021A02-
+   134 0000008A FC01E001C501       
+   135 00000090 AC0194017D01680153-     	dw 01ACh, 0194h, 017Dh, 0168h, 0153h, 0140h, 012Eh, 011Dh, 010Dh, 00FEh, 00F0h, 00E2h 
+   136 00000099 0140012E011D010D01-
+   137 000000A2 FE00F000E200       
+   138 000000A8 D600CA00BE00B400AA-     	dw 00D6h, 00CAh, 00BEh, 00B4h, 00AAh, 00A0h, 0097h, 008Fh, 0087h, 007Fh, 0078h, 0071h 
+   139 000000B1 00A00097008F008700-
+   140 000000BA 7F0078007100       
+   141                                  	
+   142 000000C0 6B0065005F005A0055-     	dw 006Bh, 0065h, 005Fh, 005Ah, 0055h, 0050h, 004Bh, 0047h, 0043h, 003Fh, 003Ch, 0038h 
+   143 000000C9 0050004B0047004300-
+   144 000000D2 3F003C003800       
+   145 000000D8 350032002F002D002A-     	dw 0035h, 0032h, 002Fh, 002Dh, 002Ah, 0028h, 0025h, 0023h, 0021h, 001Fh, 001Eh, 001Ch 
+   146 000000E1 002800250023002100-
+   147 000000EA 1F001E001C00       
+   148 000000F0 1A0019001700160015-     	dw 001Ah, 0019h, 0017h, 0016h, 0015h, 0014h, 0012h, 0011h, 0010h, 000Fh, 000Fh, 000Eh
+   149 000000F9 001400120011001000-
+   150 00000102 0F000F000E00       
+   151                                  	
+   152 00000108 000000000000000000-     	dw 0000h, 0000h, 0000h, 0000h, 0000h, 0000h, 0000h, 0000h, 0000h, 0000h, 0000h, 0000h
+   153 00000111 000000000000000000-
+   154 0000011A 000000000000       
+   155                                  	
+   156                                  	
+   157                                  
+   158 00000120 0018314A61788DA1B4-     Sintab	db   0, 24, 49, 74,  97,120,141,161, 180,197,212,224, 235,244,250,253
+   159 00000129 C5D4E0EBF4FAFD     
+   160 00000130 FFFDFAF4EBE0D4C5B4-     	db 255,253,250,244, 235,224,212,197, 180,161,141,120,  97, 74, 49, 24
+   161 00000139 A18D78614A3118     
+   162                                  
+   163                                  
+   164                                  
+   165 00000140 AB20DD200F21512185-     FineHz	dw 8363, 8413, 8463, 8529, 8581, 8651, 8723, 8757
+   166 00000149 21CB2113223522     
+   167 00000150 D71E051F311F6E1FAB-     	dw 7895, 7941, 7985, 8046, 8107, 8169, 8232, 8280
+   168 00000159 1FE91F28205820     
+   169                                  	
+   170 00000160 0081C1E1F1F9FDFF00-     LOGtab	db 000h, 081h, 0C1h, 0E1h, 0F1h, 0F9h, 0FDh, 0FFh, 000h, 001h, 003h, 007h, 00Fh, 01Fh, 03Fh, 07Fh
+   171 00000169 0103070F1F3F7F     
+   172                                  
+   173                                  
+   174                                  ;---------------------------------
+   175                                  ;UnPacked Note are 3bytes long.
+   176                                  ;---------------------------------
+   177                                  ;0000-0000  0000-0000  0000-0000
+   178                                  ;|\     /\     / \  /   \      /
+   179                                  ;| note.  sampl   Fx     Fx Arg
+   180                                  ;| numbr  numbr  (4)      (8)
+   181                                  ;|  (6)   (5)
+   182                                  ;|
+   183                                  ;description bit 
+   184                                  ;set to 0 (if note) or 1 (if rep)
+   185                                  ;---------------------------------
+   186                                  
+   187                                  ; in:  esi = ptr packed note
+   188                                  ; out: eax = unpacked note   ( FXA FXC SMP NOT )
+   189                                  align 4
+   190                                  ;------------------------------------------------------------------------
+   191                                  UnpackNote:
+   192                                  ;------------------------------------------------------------------------
+   193 00000170 53                      	push	ebx
+   194                                  	
+   195                                  	
+   196 00000171 8A1E                    	mov	bl,[esi]
+   197 00000173 D0EB                    	shr	bl,1
+   198 00000175 80E33F                  	and	bl,3Fh
+   199 00000178 C1CB08                  	ror	ebx,8			; get note num
+   200                                  
+   201 0000017B 8A06                    	mov	al,[esi]
+   202 0000017D 2401                    	and	al,1
+   203 0000017F C0E004                  	shl	al,4
+   204 00000182 8A5E01                  	mov	bl,[esi+1]
+   205 00000185 C0EB04                  	shr	bl,4
+   206 00000188 08C3                    	or	bl,al		
+   207 0000018A C1CB08                  	ror	ebx,8			; get sample num
+   208                                  
+   209 0000018D 8A5E01                  	mov	bl,[esi+1]
+   210 00000190 80E30F                  	and	bl,0Fh
+   211 00000193 C1CB08                  	ror	ebx,8
+   212                                  
+   213 00000196 8A5E02                  	mov	bl,[esi+2]
+   214 00000199 C1CB08                  	ror	ebx,8
+   215                                  	
+   216 0000019C 89D8                    	mov	eax,ebx
+   217 0000019E 5B                      	pop	ebx
+   218 0000019F C3                      	ret
+   219                                  
+   220                                  
+   221                                  align 4
+   222                                  ;------------------------------------------------------------------------
+   223                                  UnpackChn:
+   224                                  ;------------------------------------------------------------------------
+   225 000001A0 53                      	push	ebx
+   226 000001A1 51                      	push	ecx
+   227 000001A2 52                      	push	edx
+   228 000001A3 57                      	push	edi
+   229                                  	
+   230 000001A4 31D2                    	xor	edx,edx
+   231 000001A6 B940000000              	mov	ecx,64
+   232                                  .anNote:
+   233 000001AB 8A06                    	mov	al,[esi]
+   234 000001AD 3C7F                    	cmp	al,7Fh
+   235 000001AF 7718                    	ja	short .RepLast	
+   236                                  
+   237 000001B1 E8BAFFFFFF              	call	UnpackNote
+   238 000001B6 89C2                    	mov	edx,eax
+   239 000001B8 8907                    	mov	[edi],eax
+   240 000001BA 81C710000000            	add	edi,16
+   241 000001C0 49                      	dec	ecx
+   242 000001C1 81C603000000            	add	esi,3
+   243                                  	
+   244 000001C7 EB14                    	jmp	short .nxtNote	
+   245                                  
+   246                                  .RepLast:
+   247 000001C9 257F000000              	and	eax,7Fh
+   248 000001CE 29C1                    	sub	ecx,eax
+   249                                  	
+   250 000001D0 8917                    .rpL:	mov	[edi],edx
+   251 000001D2 81C710000000            	add	edi,16
+   252 000001D8 FEC8                    	dec	al
+   253 000001DA 75F4                    	jnz	short .rpL
+   254                                  	
+   255 000001DC 46                      	inc	esi
+   256                                  .nxtNote:
+   257 000001DD 09C9                    	or	ecx,ecx
+   258 000001DF 7FCA                    	jg	short .anNote
+   259                                  	
+   260 000001E1 5F                      	pop 	edi
+   261 000001E2 5A                      	pop 	edx
+   262 000001E3 59                      	pop 	ecx
+   263 000001E4 5B                      	pop 	ebx
+   264 000001E5 C3                      	ret
+   265                                  
+   266                                  
+   267 000001E6 90<rept>                align 4
+   268                                  ;------------------------------------------------------------------------
+   269                                  ClearGlobal:
+   270                                  ;------------------------------------------------------------------------
+   271 000001E8 60                      	pushad
+   272 000001E9 8D3D[00000000]          	lea	edi,[CHPinfo]
+   273 000001EF B9B8060800              	mov	ecx, sizeAll
+   274 000001F4 31C0                    	xor	eax, eax
+   275 000001F6 FC                      	cld
+   276 000001F7 F3AA                    	rep	stosb
+   277 000001F9 61                      	popad
+   278 000001FA C3                      	ret
+   279                                  
+   280                                  
+   281 000001FB 90                      align 4
+   282                                  ;------------------------------------------------------------------------
+   283                                  CopyMem:
+   284                                  ;------------------------------------------------------------------------
+   285 000001FC 51                      	push	ecx
+   286 000001FD 56                      	push	esi
+   287 000001FE 57                      	push	edi
+   288                                  	
+   289 000001FF 51                      	push	ecx
+   290 00000200 FC                      	cld
+   291 00000201 C1E902                  	shr	ecx,2
+   292 00000204 F3A5                    	rep	movsd
+   293 00000206 59                      	pop	ecx
+   294 00000207 81E103000000            	and	ecx,3
+   295 0000020D F3A4                    	rep	movsb
+   296                                  
+   297 0000020F 5F                      	pop	edi
+   298 00000210 5E                      	pop	esi
+   299 00000211 59                      	pop	ecx
+   300 00000212 C3                      	ret
+   301                                  
+   302                                  
+   303                                  
+   304                                  ;------------------------------------------------------------------------
+   305                                  _CHP_GetSamplesPtr@0:
+   306                                  ;------------------------------------------------------------------------
+   307 00000213 55                      	push	ebp
+   308 00000214 89E5                    	mov	ebp,esp
+   309 00000216 5D                      	pop	ebp
+   310 00000217 8D05[B8060400]          	lea	eax,[SMPinfo]
+   311 0000021D C3                      	ret
+   312                                  
+   313                                  
+   314                                  ;------------------------------------------------------------------------
+   315                                  _CHP_Update@0:
+   316                                  ;------------------------------------------------------------------------
+   317 0000021E 55                      	push	ebp
+   318 0000021F 89E5                    	mov	ebp,esp
+   319 00000221 60                      	pushad
+   320                                  
+   321 00000222 E86D020000              	call	CHP_Update
+   322                                  	
+   323 00000227 61                      	popad
+   324 00000228 5D                      	pop	ebp
+   325 00000229 C3                      	ret
+   326                                  
+   327                                  
+   328 0000022A 90<rept>                align 4
+   329                                  ;------------------------------------------------------------------------
+   330                                  _CHP_Open@8:
+   331                                  ;------------------------------------------------------------------------
+   332 0000022C 55                      	push	ebp
+   333 0000022D 89E5                    	mov	ebp,esp
+   334 0000022F 60                      	pushad
+   335                                  	
+   336 00000230 8D1D[00000000]          	lea	ebx,[CHPinfo]
+   337                                  	
+   338 00000236 E8ADFFFFFF              	call	ClearGlobal
+   339                                  
+   340 0000023B 8B4508                  	mov	eax,[ebp+8]
+   341 0000023E 50                      	push	eax
+   342 0000023F 8D05[94040000]          	lea	eax,[CHP_Update]
+   343 00000245 50                      	push	eax
+   344 00000246 E8(00000000)            	call	_paulaOpen@8
+   345 0000024B 8B450C                  	mov	eax,[ebp+12]
+   346 0000024E 50                      	push	eax
+   347 0000024F E8(00000000)            	call	_paulaMasterVol@4
+   348                                  	
+   349 00000254 C6430401                	mov	byte [ebx + module.Opened],1
+   350                                  
+   351 00000258 61                      	popad
+   352 00000259 5D                      	pop	ebp
+   353 0000025A C20800                  	ret	8h
+   354                                  
+   355                                  
+   356 0000025D 90<rept>                align 4
+   357                                  ;---------------------------------
+   358                                  _CHP_Close@0:
+   359                                  ;---------------------------------
+   360 00000260 60                      	pushad
+   361                                  
+   362 00000261 E8(00000000)            	call	_paulaClose@0
+   363                                  
+   364 00000266 E87DFFFFFF              	call	ClearGlobal
+   365                                  
+   366 0000026B 61                      	popad
+   367 0000026C C3                      	ret
+   368                                  
+   369                                  
+   370                                  
+   371 0000026D 90<rept>                align 4
+   372                                  ;---------------------------------
+   373                                  _CHP_Start@0:
+   374                                  ;---------------------------------
+   375 00000270 60                      	pushad
+   376 00000271 8D1D[00000000]          	lea	ebx,[CHPinfo]
+   377                                  
+   378 00000277 807B0400                	cmp	byte [ebx + module.Opened],0
+   379 0000027B 7409                    	jz	short .exit
+   380                                  	
+   381 0000027D C6430801                	mov	byte [ebx + module.Playing],1
+   382                                  	
+   383 00000281 E8(00000000)            	call	_paulaStart@0
+   384                                  	
+   385                                  .exit:	
+   386 00000286 61                      	popad
+   387 00000287 C3                      	ret
+   388                                  
+   389                                  
+   390                                  
+   391                                  
+   392                                  
+   393                                  
+   394                                  
+   395                                  
+   396                                  
+   397                                  
+   398                                  align 4
+   399                                  ;-------------------------------------------------
+   400                                  _CHP_InitModule@4:
+   401                                  ;-------------------------------------------------
+   402 00000288 55                      	push	ebp
+   403 00000289 89E5                    	mov	ebp,esp
+   404 0000028B 60                      	pushad
+   405 0000028C 8D1D[00000000]          	lea	ebx,[CHPinfo]
+   406                                  	
+   407 00000292 8B7508                  	mov	esi,[ebp+8]
+   408 00000295 8933                    	mov	[ebx + module.ModAddress],esi
+   409 00000297 89DD                    	mov	ebp,ebx
+   410                                  
+   411 00000299 31C0                    	xor	eax,eax
+   412                                  	
+   413                                  
+   414 0000029B 8A460F                  	mov	al,[esi+0Fh]
+   415 0000029E 247F                    	and	al,7Fh
+   416 000002A0 894520                  	mov	[ebp + module.POSnum],eax
+   417 000002A3 88C1                    	mov	cl,al
+   418                                  
+   419 000002A5 8A4606                  	mov	al,[esi+06h]
+   420 000002A8 38C8                    	cmp	al,cl
+   421 000002AA 7202                    	jb	short .noRSTAj
+   422 000002AC 31C0                    	xor	eax,eax
+   423                                  .noRSTAj:
+   424 000002AE 894530                  	mov	[ebp + module.Restart],eax
+   425                                  
+   426 000002B1 8A4607                  	mov	al,[esi+07h]
+   427 000002B4 894524                  	mov	[ebp + module.PATnum],eax
+   428                                  
+   429 000002B7 8B4608                  	mov	eax,[esi+08h]
+   430 000002BA 01F0                    	add	eax,esi
+   431 000002BC 89452C                  	mov	[ebp + module.SMPptr],eax
+   432                                  	
+   433                                  	
+   434 000002BF 0FB6460E                	movzx	eax,byte [esi+0Eh]
+   435 000002C3 894528                  	mov	[ebp + module.INSnum],eax
+   436 000002C6 88C3                    	mov	bl,al
+   437                                  
+   438                                  
+   439                                  ;---- POSITIONS
+   440                                  
+   441 000002C8 8B4D20                  	mov	ecx, [ebp + module.POSnum]
+   442 000002CB 81C610000000            	add	esi,10h			; skip header
+   443 000002D1 8D3D[38020000]          	lea	edi,[POSinfo]
+   444 000002D7 FC                      	cld
+   445 000002D8 F3A4                    	rep	movsb
+   446                                  
+   447                                  
+   448                                  ;---- INSTRUMENTS
+   449                                  
+   450 000002DA 55                      	push	ebp	
+   451                                  	
+   452 000002DB 0FB6CB                  	movzx	ecx,bl
+   453 000002DE 8D3D[B8020000]          	lea	edi,[INSinfo]
+   454 000002E4 31C0                    	xor	eax,eax
+   455                                  	
+   456 000002E6 8D2D[B8060400]          	lea	ebp,[SMPinfo]
+   457 000002EC 8D1D[40010000]          	lea	ebx,[FineHz]
+   458                                  
+   459                                  .SetInstr:
+   460 000002F2 892F                    	mov	[edi + instr.Start],ebp
+   461                                  	
+   462 000002F4 668B06                  	mov	ax,[esi]		; get SampleSize / 2
+   463 000002F7 894704                  	mov	[edi + instr.Len],eax
+   464 000002FA 01C0                    	add	eax,eax
+   465 000002FC 01C5                    	add	ebp,eax
+   466                                  	
+   467 000002FE 0FB64602                	movzx	eax,byte [esi+2]	; get Finetune
+   468 00000302 0FB70443                	movzx	eax,word [ebx + eax*2]
+   469 00000306 894714                  	mov	[edi + instr.C2Spd],eax
+   470                                  	
+   471 00000309 31C0                    	xor	eax,eax
+   472 0000030B 8A4603                  	mov	al,[esi+3]		; get Volume
+   473 0000030E 247F                    	and	al,7Fh
+   474 00000310 3C40                    	cmp	al,40h
+   475 00000312 7E02                    	jle	.najVl
+   476 00000314 B040                    	mov	al,40h
+   477 00000316 894710                  .najVl:	mov	[edi + instr.Volume],eax
+   478                                  
+   479                                  	
+   480 00000319 0FB74604                	movzx	eax,word [esi+4]	; LoopSta / 2
+   481 0000031D 01C0                    	add	eax,eax
+   482 0000031F 0307                    	add	eax,[edi + instr.Start]
+   483 00000321 894708                  	mov	[edi + instr.LoopSta],eax
+   484                                  	
+   485 00000324 0FB74606                	movzx	eax,word [esi+6]	; LoopSize / 2
+   486 00000328 89470C                  	mov	[edi + instr.LoopLen],eax
+   487                                  	
+   488 0000032B 81C608000000            	add	esi,8
+   489 00000331 81C720000000            	add	edi,instr.size
+   490                                  	
+   491 00000337 E2B9                    	loop	.SetInstr
+   492                                  	
+   493                                  
+   494 00000339 5D                      	pop	ebp
+   495                                  	
+   496                                  ;---- PATTERNS
+   497                                  	
+   498 0000033A 8D3D[B8060000]          	lea	edi,[PATinfo]
+   499 00000340 8B4D24                  	mov	ecx,[ebp + module.PATnum]
+   500                                  
+   501                                  .unpackPAT:	
+   502 00000343 57                      	push	edi
+   503 00000344 E857FEFFFF              	call	UnpackChn
+   504 00000349 81C704000000            	add	edi,4
+   505 0000034F E84CFEFFFF              	call	UnpackChn
+   506 00000354 81C704000000            	add	edi,4
+   507 0000035A E841FEFFFF              	call	UnpackChn
+   508 0000035F 81C704000000            	add	edi,4
+   509 00000365 E836FEFFFF              	call	UnpackChn
+   510 0000036A 5F                      	pop	edi
+   511 0000036B 81C700040000            	add	edi,1024
+   512 00000371 E2D0                    	loop	.unpackPAT
+   513                                  
+   514                                  
+   515                                  ;---- SAMPLES
+   516                                  
+   517                                  ; RL-Delta (RLE/Log/Delta) UnPacking
+   518                                  
+   519 00000373 8B4D28                  	mov	ecx,[ebp + module.INSnum]
+   520 00000376 55                      	push	ebp
+   521                                  	
+   522 00000377 8D1D[B8020000]          	lea	ebx,[INSinfo]
+   523 0000037D 8D3D[B8060400]          	lea	edi,[SMPinfo]
+   524 00000383 8D2D[60010000]          	lea	ebp,[LOGtab]
+   525 00000389 FC                      	cld
+   526                                  .nextINS:
+   527 0000038A 51                      	push	ecx
+   528 0000038B 8B4B04                  	mov	ecx,[ebx + instr.Len]
+   529 0000038E 53                      	push	ebx
+   530 0000038F 31D2                    	xor	edx,edx
+   531 00000391 31C0                    	xor	eax,eax
+   532 00000393 31DB                    	xor	ebx,ebx			; bl = RLE_last
+   533                                  
+   534                                  
+   535                                  ;--- > UNPACK START < ---
+   536                                  .decINS:
+   537 00000395 AC                      	lodsb
+   538 00000396 3C0F                    	cmp	al,0Fh
+   539 00000398 7715                    	ja	short .noREP
+   540                                  
+   541 0000039A FEC0                    	inc	al
+   542 0000039C 29C1                    	sub	ecx,eax
+   543 0000039E 88C7                    	mov	bh,al
+   544 000003A0 88D8                    	mov	al,bl
+   545 000003A2 E84D000000              .unpkR:	call	unpackSampleByte
+   546 000003A7 FECF                    	dec	bh
+   547 000003A9 75F7                    	jnz	short .unpkR
+   548                                  
+   549 000003AB 09C9                    	or	ecx,ecx
+   550 000003AD EB08                    	jmp	short .decData
+   551                                  .noREP:	
+   552 000003AF 88C3                    	mov	bl,al			; RLElast = val
+   553 000003B1 E83E000000              	call	unpackSampleByte
+   554                                  	
+   555 000003B6 49                      	dec	ecx
+   556                                  .decData:
+   557 000003B7 7FDC                    	jg	short .decINS
+   558                                  	
+   559                                  ;--- > UNPACK END < ---
+   560                                  
+   561                                  .unpInsEnd:
+   562                                  
+   563 000003B9 5B                      	pop	ebx
+   564 000003BA 59                      	pop	ecx
+   565 000003BB 81C320000000            	add	ebx,instr.size
+   566                                  .decSMP:
+   567 000003C1 E2C7                    	loop	.nextINS
+   568 000003C3 5D                      	pop	ebp
+   569                                  
+   570                                  ;-----
+   571                                  ; VOC RESET HERE!
+   572                                  ;-----
+   573 000003C4 8D1D[38000000]          	lea	ebx,[VOCdata]
+   574 000003CA 31C0                    	xor	eax,eax
+   575 000003CC 8803                    .inVoc:	mov	[ebx + chan.VoiceN],al
+   576 000003CE 81C380000000            	add	ebx, chan.size
+   577 000003D4 FEC0                    	inc	al
+   578 000003D6 3C04                    	cmp	al,4
+   579 000003D8 7CF2                    	jl	short .inVoc
+   580                                  
+   581                                  
+   582                                  	
+   583 000003DA 31C0                    	xor	eax,eax
+   584 000003DC B006                    	mov	al,6
+   585 000003DE 89450C                  	mov	[ebp + module.tick],eax
+   586 000003E1 894510                  	mov	[ebp + module.speed],eax
+   587 000003E4 B040                    	mov	al,64
+   588 000003E6 894514                  	mov	[ebp + module.row],eax
+   589 000003E9 8B4520                  	mov	eax,[ebp + module.POSnum]
+   590 000003EC 894518                  	mov	[ebp + module.ord],eax
+   591                                  
+   592                                  
+   593 000003EF 61                      	popad
+   594 000003F0 5D                      	pop	ebp
+   595 000003F1 C20400                  	ret	4
+   596                                  
+   597                                  
+   598                                  
+   599                                  
+   600                                  ;---------------------------
+   601                                  ;---------------------------
+   602                                  align 4
+   603                                  unpackSampleByte:
+   604                                  ;---------------------------
+   605                                  ;---------------------------
+   606 000003F4 50                      	push	eax
+   607 000003F5 C0E804                  	shr	al,4
+   608 000003F8 02540500                	add	dl,[ebp + eax]
+   609 000003FC 58                      	pop	eax
+   610 000003FD 8817                    	mov	[edi],dl
+   611 000003FF 50                      	push	eax
+   612 00000400 240F                    	and	al,00Fh
+   613 00000402 02540500                	add	dl,[ebp + eax]
+   614 00000406 58                      	pop	eax
+   615 00000407 885701                  	mov	[edi+1],dl
+   616 0000040A 81C702000000            	add	edi,2
+   617 00000410 C3                      	ret
+   618                                  
+   619                                  
+   620                                  
+   621                                  ; in: eax = instrument num
+   622                                  ;out: eax = instrument ptr
+   623 00000411 90<rept>                align 4
+   624                                  ;---------------------------
+   625                                  getInstrPtr:
+   626                                  ;---------------------------
+   627 00000414 53                      	push	ebx
+   628 00000415 51                      	push	ecx
+   629 00000416 52                      	push	edx
+   630                                  	
+   631 00000417 B920000000              	mov	ecx,instr.size
+   632 0000041C 31D2                    	xor	edx,edx
+   633 0000041E F7E1                    	mul	ecx
+   634 00000420 8D1D[B8020000]          	lea	ebx,[INSinfo]
+   635 00000426 01D8                    	add	eax,ebx
+   636                                  	
+   637 00000428 5A                      	pop	edx
+   638 00000429 59                      	pop	ecx
+   639 0000042A 5B                      	pop	ebx
+   640 0000042B C3                      	ret
+   641                                  
+   642                                  
+   643                                  ;out: eax = row ptr
+   644                                  ;---------------------------
+   645                                  getRowPtr:
+   646                                  ;---------------------------
+   647 0000042C 51                      	push	ecx
+   648 0000042D 57                      	push	edi
+   649                                  	
+   650 0000042E 8D3D[00000000]          	lea	edi,[CHPinfo]
+   651 00000434 8D05[38020000]          	lea	eax,[POSinfo]
+   652 0000043A 034718                  	add	eax,[edi + module.ord]
+   653 0000043D 0FB600                  	movzx	eax, byte [eax]
+   654 00000440 C1E00A                  	shl	eax,10
+   655 00000443 8D0D[B8060000]          	lea	ecx,[PATinfo]
+   656 00000449 01C8                    	add	eax,ecx
+   657 0000044B 8B4F14                  	mov	ecx,[edi + module.row]
+   658 0000044E C1E104                  	shl	ecx,4
+   659 00000451 01C8                    	add	eax,ecx
+   660                                  
+   661 00000453 5F                      	pop	edi
+   662 00000454 59                      	pop	ecx
+   663 00000455 C3                      	ret
+   664                                  
+   665                                  
+   666                                  ; in: ecx = note
+   667 00000456 90<rept>                align 4
+   668                                  ;---------------------------
+   669                                  updateLastPeriod:
+   670                                  ;---------------------------
+   671 00000458 60                      	pushad
+   672                                  
+   673 00000459 81E1FF000000            	and	ecx,000000FFh
+   674 0000045F 01C9                    	add	ecx,ecx
+   675 00000461 8D05[78000000]          	lea	eax,[Periods]
+   676 00000467 01C8                    	add	eax,ecx
+   677 00000469 0FB700                  	movzx	eax,word [eax]
+   678 0000046C B9AB200000              	mov	ecx,8363
+   679 00000471 31D2                    	xor	edx,edx
+   680 00000473 F7E1                    	mul	ecx
+   681                                  
+   682 00000475 50                      	push	eax
+   683                                  	
+   684 00000476 8D3D[38000000]          	lea	edi,[VOCdata]
+   685 0000047C 8B471C                  	mov	eax,[edi + chan.lastins]
+   686 0000047F E890FFFFFF              	call	getInstrPtr
+   687 00000484 8B4814                  	mov	ecx,[eax + instr.C2Spd]
+   688                                  
+   689 00000487 58                      	pop	eax
+   690                                  	
+   691 00000488 31D2                    	xor	edx,edx
+   692 0000048A F7F1                    	div	ecx
+   693                                  
+   694 0000048C 894724                  	mov	[edi + chan.lastper],eax
+   695                                  
+   696 0000048F 61                      	popad
+   697 00000490 C3                      	ret
+   698                                  
+   699                                  	
+   700                                  	
+   701                                  	
+   702                                  
+   703                                  
+   704 00000491 90<rept>                align 4
+   705                                  ;---------------------------
+   706                                  CHP_Update:
+   707                                  ;---------------------------
+   708 00000494 60                      	pushad
+   709 00000495 8D1D[00000000]          	lea	ebx,[CHPinfo]
+   710                                  
+   711 0000049B 31C0                    	xor	eax,eax
+   712 0000049D 394304                  	cmp	[ebx + module.Opened],eax
+   713 000004A0 7450                    	jz	.exit
+   714 000004A2 394308                  	cmp	[ebx + module.Playing],eax
+   715 000004A5 744B                    	jz	.exit
+   716                                  ;----
+   717 000004A7 8B430C                  	mov	eax,[ebx + module.tick]
+   718 000004AA 40                      	inc	eax
+   719 000004AB 3B4310                  	cmp	eax,[ebx + module.speed]
+   720 000004AE 7C3A                    	jl	short .doeffects
+   721                                  
+   722 000004B0 31C0                    	xor	eax,eax	
+   723 000004B2 89430C                  	mov	[ebx + module.tick],eax
+   724                                  
+   725                                  ;---------
+   726                                  
+   727 000004B5 8B4314                  	mov	eax,[ebx + module.row]
+   728 000004B8 3D40000000              	cmp	eax,64
+   729 000004BD 7C14                    	jl	short .noRowRst
+   730                                  
+   731 000004BF 31C0                    	xor	eax,eax
+   732 000004C1 894314                  	mov	[ebx + module.row],eax
+   733                                  
+   734 000004C4 8B4318                  	mov	eax,[ebx + module.ord]
+   735 000004C7 40                      	inc	eax
+   736 000004C8 3B4320                  	cmp	eax,[ebx + module.POSnum]
+   737 000004CB 7C03                    	jl	short .noOrdRst
+   738 000004CD 8B4330                  	mov	eax,[ebx + module.Restart]
+   739                                  .noOrdRst:
+   740 000004D0 894318                  	mov	[ebx + module.ord],eax
+   741                                  	
+   742                                  .noRowRst:	
+   743 000004D3 8B431C                  	mov	eax,[ebx + module.patdelay]
+   744 000004D6 09C0                    	or	eax,eax
+   745 000004D8 750A                    	jnz	short .decdelay
+   746                                  
+   747 000004DA E87D000000              	call	NewNote
+   748                                  
+   749 000004DF FE4314                  	inc	byte [ebx + module.row]
+   750 000004E2 EB0E                    	jmp	short .exit
+   751                                  
+   752                                  .decdelay:
+   753 000004E4 48                      	dec	eax
+   754 000004E5 89431C                  	mov	[ebx + module.patdelay],eax
+   755 000004E8 EB08                    	jmp	short .exit
+   756                                  	
+   757                                  
+   758                                  .doeffects:
+   759 000004EA 89430C                  	mov	[ebx + module.tick],eax
+   760 000004ED E8AE010000              	call	Effects
+   761                                  
+   762                                  .exit:
+   763 000004F2 61                      	popad
+   764 000004F3 C3                      	ret
+   765                                  
+   766                                  
+   767                                  
+   768                                  
+   769                                  
+   770                                  align 4
+   771                                  _CHP_Update:
+   772 000004F4 60                      	pushad
+   773 000004F5 8D1D[00000000]          	lea	ebx,[CHPinfo]
+   774 000004FB 31C0                    	xor	eax,eax
+   775 000004FD 394304                  	cmp	[ebx + module.Opened],eax
+   776 00000500 7455                    	jz	.exit
+   777 00000502 394308                  	cmp	[ebx + module.Playing],eax
+   778 00000505 7450                    	jz	.exit
+   779                                  
+   780 00000507 8D2D[38000000]          	lea	ebp,[VOCdata]
+   781                                  
+   782 0000050D 807D2800                	cmp	byte [ebp + chan.restart],0
+   783 00000511 7544                    	jnz	short .noSetVoice
+   784                                  
+   785 00000513 B000                    	mov	al,0
+   786 00000515 E8FAFEFFFF              	call	getInstrPtr
+   787 0000051A 89C6                    	mov	esi,eax
+   788                                  	
+   789                                  	
+   790 0000051C FF7610                  	push	dword [esi + instr.Volume]
+   791 0000051F E8(00000000)            	call	_paulaSetVolume@4
+   792                                  	
+   793 00000524 68D0020000              	push	dword 02D0h
+   794 00000529 E8(00000000)            	call	_paulaSetPeriod@4
+   795                                  
+   796                                  
+   797 0000052E FF36                    	push	dword [esi + instr.Start]
+   798 00000530 E8(00000000)            	call	_paulaSetSamplePos@4
+   799                                  	
+   800 00000535 FF7604                  	push	dword [esi + instr.Len]
+   801 00000538 E8(00000000)            	call	_paulaSetSampleLen@4
+   802                                  
+   803 0000053D 6801000000              	push	dword 1
+   804 00000542 E8(00000000)            	call	_paulaSetVoice@4
+   805                                  
+   806 00000547 FF7608                  	push	dword [esi + instr.LoopSta]
+   807 0000054A E8(00000000)            	call	_paulaSetSamplePos@4
+   808                                  
+   809 0000054F FF760C                  	push	dword [esi + instr.LoopLen]
+   810 00000552 E8(00000000)            	call	_paulaSetSampleLen@4
+   811                                  
+   812                                  .exit:
+   813                                  .noSetVoice:
+   814 00000557 61                      	popad
+   815 00000558 C3                      	ret
+   816                                  	
+   817                                  
+   818 00000559 90<rept>                align 4
+   819                                  ;---------------------------------------------------------	
+   820                                  ;---------------------------------------------------------	
+   821                                  ;---------------------------------------------------------	
+   822                                  NewNote:
+   823                                  ;---------------------------------------------------------	
+   824                                  ;---------------------------------------------------------	
+   825                                  ;---------------------------------------------------------	
+   826 0000055C 60                      	pushad
+   827                                  	
+   828 0000055D 8B3D[00000000]          	mov	edi,[CHPinfo]
+   829 00000563 8D2D[38000000]          	lea	ebp,[VOCdata]
+   830 00000569 55                      	push	ebp
+   831                                  	
+   832 0000056A 31C0                    	xor	eax,eax
+   833                                  .doVoice:
+   834 0000056C 50                      	push	eax
+   835 0000056D E8(00000000)            	call	_paulaSelectVoice@4
+   836                                  
+   837                                  
+   838 00000572 E865000000              	call	NewNote_CHN
+   839                                  	
+   840 00000577 81C580000000            	add	ebp, chan.size	
+   841                                  
+   842 0000057D FEC0                    	inc	al
+   843 0000057F 3C04                    	cmp	al,4
+   844 00000581 7CE9                    	jl	short .doVoice
+   845                                  	
+   846                                  	
+   847                                  ;-----------------------------------------------
+   848                                  
+   849 00000583 5D                      	pop	ebp
+   850 00000584 31C0                    	xor	eax,eax
+   851                                  .doVoice2:
+   852 00000586 50                      	push	eax
+   853                                  	
+   854 00000587 50                      	push	eax
+   855 00000588 E8(00000000)            	call	_paulaSelectVoice@4
+   856                                  
+   857 0000058D 807D2800                	cmp	byte [ebp + chan.restart],0
+   858 00000591 743A                    	jz	short .noSetVoice
+   859                                  
+   860                                  ;--- PLAY VOICE STA ---
+   861                                  
+   862 00000593 8B451C                  	mov	eax, [ebp + chan.lastins]
+   863 00000596 E879FEFFFF              	call	getInstrPtr
+   864 0000059B 89C6                    	mov	esi,eax
+   865                                  	
+   866 0000059D 8B452C                  	mov	eax,[ebp + chan.start]
+   867 000005A0 50                      	push	eax
+   868 000005A1 E8(00000000)            	call	_paulaSetSamplePos@4
+   869                                  	
+   870 000005A6 2B06                    	sub	eax,[esi + instr.Start]
+   871 000005A8 8B5E04                  	mov	ebx,[esi + instr.Len]
+   872 000005AB 29C3                    	sub	ebx,eax
+   873 000005AD 53                      	push	ebx
+   874 000005AE E8(00000000)            	call	_paulaSetSampleLen@4
+   875 000005B3 6801000000              	push	dword 1
+   876 000005B8 E8(00000000)            	call	_paulaSetVoice@4
+   877                                  
+   878                                  
+   879 000005BD FF7608                  	push	dword [esi + instr.LoopSta]
+   880 000005C0 E8(00000000)            	call	_paulaSetSamplePos@4
+   881                                  
+   882 000005C5 FF760C                  	push	dword [esi + instr.LoopLen]
+   883 000005C8 E8(00000000)            	call	_paulaSetSampleLen@4
+   884                                  
+   885                                  ;--- PLAY VOICE END ---
+   886                                  
+   887                                  .noSetVoice:	
+   888 000005CD 81C580000000            	add	ebp, chan.size	
+   889 000005D3 58                      	pop	eax
+   890 000005D4 FEC0                    	inc	al
+   891 000005D6 3C04                    	cmp	al,4
+   892 000005D8 7CAC                    	jl	short .doVoice2
+   893                                  
+   894 000005DA 61                      	popad
+   895 000005DB C3                      	ret
+   896                                  
+   897                                  
+   898                                  
+   899                                  align 4
+   900                                  ;---------------------------------------------------------	
+   901                                  ;---------------------------------------------------------	
+   902                                  ;---------------------------------------------------------	
+   903                                  NewNote_CHN:
+   904                                  ;---------------------------------------------------------	
+   905                                  ;---------------------------------------------------------	
+   906                                  ;---------------------------------------------------------	
+   907 000005DC 60                      	pushad
+   908                                  
+   909 000005DD E84AFEFFFF              	call	getRowPtr
+   910 000005E2 8B4D00                  	mov	ecx,[ebp + chan.VoiceN]
+   911 000005E5 C1E102                  	shl	ecx,2
+   912 000005E8 01C8                    	add	eax,ecx
+   913 000005EA 8B08                    	mov	ecx,[eax]			; ecx = Note (FXA FXC INS NOT)
+   914 000005EC 894D14                  	mov	[ebp + chan.current],ecx
+   915                                  	
+   916 000005EF 08ED                    	or	ch,ch				; Gotta instrument number?
+   917 000005F1 741C                    	jz	short .skipIns
+   918                                  	
+   919                                  ; INSTRUMENT GIVEN!
+   920                                  
+   921 000005F3 0FB6C5                  	movzx	eax,ch
+   922 000005F6 48                      	dec	eax
+   923 000005F7 89451C                  	mov	[ebp + chan.lastins],eax
+   924                                  	
+   925 000005FA 0FC9                    	bswap	ecx
+   926 000005FC 6689C8                  	mov	ax,cx				; ax = FXC FXA
+   927 000005FF 0FC9                    	bswap	ecx
+   928                                  
+   929                                  ;	cmp	ah,0Eh
+   930                                  ;	jne	short .skipIns
+   931                                  ;	shr	al,4
+   932                                  ;	cmp	al,0Dh
+   933                                  ;	je	short .skipIns
+   934                                  	
+   935 00000601 8B451C                  	mov	eax,[ebp + chan.lastins]
+   936 00000604 E80BFEFFFF              	call	getInstrPtr
+   937 00000609 8B4010                  	mov	eax,[eax + instr.Volume]
+   938 0000060C 894508                  	moV	[ebp + chan.Volume],eax
+   939                                  	
+   940                                  .skipIns:
+   941                                  
+   942                                  ;---
+   943                                  
+   944 0000060F 31C0                    	xor	eax,eax
+   945 00000611 894528                  	mov	[ebp + chan.restart],eax	; default = dont retrig note!
+   946                                  	
+   947 00000614 08C9                    	or	cl,cl
+   948 00000616 7455                    	jz	short .nonote
+   949 00000618 FEC9                    	dec	cl
+   950 0000061A 80F924                  	cmp	cl,36
+   951 0000061D 734E                    	jae	short .nonote
+   952                                  
+   953 0000061F 884D20                  	mov	[ebp + chan.lastnot],cl
+   954 00000622 E831FEFFFF              	call	updateLastPeriod
+   955                                  
+   956 00000627 FEC0                    	inc	al
+   957 00000629 894528                  	mov	[ebp + chan.restart],eax	; restart = 1, retrig note!
+   958                                  
+   959 0000062C 8B451C                  	mov	eax,[ebp + chan.lastins]
+   960 0000062F E8E0FDFFFF              	call	getInstrPtr
+   961 00000634 8B00                    	mov	eax,[eax + instr.Start]
+   962 00000636 89452C                  	mov	[ebp + chan.start],eax
+   963                                  
+   964                                  
+   965                                  
+   966                                  
+   967                                  
+   968 00000639 31DB                    	xor	ebx,ebx
+   969 0000063B B30F                    	mov	bl,0Fh
+   970 0000063D 8A455C                  	mov	al,[ebp + chan.wavecon]
+   971 00000640 50                      	push	eax
+   972 00000641 20D8                    	and	al,bl
+   973 00000643 3C04                    	cmp	al,4
+   974 00000645 7303                    	jae	short .noRSTvibpos
+   975 00000647 887D3C                  	mov	byte [ebp + chan.vibpos],bh
+   976                                  .noRSTvibpos:
+   977 0000064A 58                      	pop	eax
+   978 0000064B C0E804                  	shr	al,4
+   979 0000064E 3C04                    	cmp	al,4
+   980 00000650 7303                    	jae	short .noRSTtrmpos
+   981 00000652 887D48                  	mov	byte [ebp + chan.trempos],bh
+   982                                  .noRSTtrmpos:
+   983                                  
+   984                                  
+   985                                  
+   986                                  
+   987 00000655 0FC9                    	bswap	ecx
+   988 00000657 88E8                    	mov	al,ch
+   989 00000659 0FC9                    	bswap	ecx
+   990 0000065B 3C03                    	cmp	al,03h
+   991 0000065D 740E                    	je	short .nonote
+   992 0000065F 3C05                    	cmp	al,05h
+   993 00000661 740A                    	je	short .nonote
+   994 00000663 3C16                    	cmp	al,16h
+   995 00000665 7406                    	je	short .nonote
+   996                                  	
+   997 00000667 8B4524                  	mov	eax,[ebp + chan.lastper]
+   998 0000066A 894510                  	mov	[ebp + chan.freq],eax
+   999                                  	
+  1000                                  .nonote:
+  1001                                  	
+  1002                                  	
+  1003 0000066D 50                      	push	eax
+  1004 0000066E 51                      	push	ecx
+  1005                                  
+  1006 0000066F 0FC9                    	bswap	ecx
+  1007 00000671 0FB6C5                  	movzx	eax,ch				; al = FXC
+  1008                                  	
+  1009 00000674 8D0D[D0060000]          	lea	ecx,[FXtable1]			; point to FXtable1
+  1010 0000067A 8B0481                  	mov	eax,[ecx + eax*4]		; get function address
+  1011 0000067D FFD0                    	call	eax				; call it!
+  1012                                  	
+  1013 0000067F 59                      	pop	ecx
+  1014 00000680 58                      	pop	eax
+  1015                                  
+  1016                                  
+  1017 00000681 0FC9                    	bswap	ecx
+  1018 00000683 80FD07                  	cmp	ch,07h
+  1019 00000686 7408                    	je	short .noSetVol
+  1020                                  
+  1021 00000688 FF7508                  	push	dword [ebp + chan.Volume]
+  1022 0000068B E8(00000000)            	call	_paulaSetVolume@4
+  1023                                  
+  1024                                  .noSetVol:
+  1025                                  
+  1026 00000690 8B4510                  	mov	eax,[ebp + chan.freq]
+  1027 00000693 09C0                    	or	eax,eax
+  1028 00000695 7406                    	jz	short .noSetFrq	
+  1029 00000697 50                      	push	eax
+  1030 00000698 E8(00000000)            	call	_paulaSetPeriod@4
+  1031                                  .noSetFrq:
+  1032                                  	
+  1033 0000069D 61                      	popad
+  1034 0000069E C3                      	ret
+  1035                                  
+  1036                                  
+  1037                                  
+  1038                                  
+  1039                                  
+  1040 0000069F 90                      align 4
+  1041                                  ;----------------------------
+  1042                                  Effects:
+  1043                                  ;----------------------------
+  1044 000006A0 60                      	pushad
+  1045 000006A1 8D3D[00000000]          	lea	edi,[CHPinfo]
+  1046 000006A7 8D2D[38000000]          	lea	ebp,[VOCdata]
+  1047                                  	
+  1048 000006AD 31C0                    	xor	eax,eax
+  1049                                  .doVoice2:	
+  1050 000006AF 50                      	push	eax
+  1051                                  
+  1052 000006B0 50                      	push	eax
+  1053 000006B1 E8(00000000)            	call	_paulaSelectVoice@4
+  1054                                  ;----	
+  1055                                  	
+  1056                                  	
+  1057                                  
+  1058                                  ;----	
+  1059 000006B6 81C580000000            	add	ebp, chan.size	
+  1060 000006BC 58                      	pop	eax
+  1061 000006BD FEC0                    	inc	al
+  1062 000006BF 3C04                    	cmp	al,4
+  1063 000006C1 7CEC                    	jl	short .doVoice2
+  1064                                  	
+  1065 000006C3 61                      	popad
+  1066 000006C4 C3                      	ret
+  1067                                  
+  1068                                  
+  1069                                  
+  1070                                  
+  1071                                  
+  1072                                  
+  1073                                  
+  1074                                  
+  1075                                  
+  1076                                  
+  1077                                  
+  1078 000006C5 90<rept>                align	16
+  1079 000006D0 [50070000]              FXtable1	dd      fx_null		; 0 - arpeggio
+  1080 000006D4 [50070000]                      	dd      fx_null         ; 1 - porta up
+  1081 000006D8 [50070000]                      	dd      fx_null         ; 2 - porta down
+  1082 000006DC [50070000]                      	dd      fx_null		; 3 - tone porta
+  1083 000006E0 [50070000]                      	dd      fx_null		; 4 - vibrato
+  1084 000006E4 [50070000]                      	dd      fx_null         ; 5 - tone+slide
+  1085 000006E8 [50070000]                      	dd      fx_null         ; 6 - vibrato+slide
+  1086 000006EC [50070000]                      	dd      fx_null         ; 7 - tremolo
+  1087 000006F0 [50070000]              	        dd      fx_null         ; 8 - unused
+  1088 000006F4 [50070000]                      	dd      fx_null         ; 9 - sample offset
+  1089 000006F8 [50070000]              	        dd      fx_null         ; A - volume slide
+  1090 000006FC [50070000]                      	dd      fx_null         ; B - pattern jump
+  1091 00000700 [50070000]              	        dd      fx_null         ; C - set volume
+  1092 00000704 [50070000]                      	dd      fx_null         ; D - break pattern
+  1093 00000708 [50070000]                      	dd      fx_null         ; E - extra effects
+  1094 0000070C [50070000]                      	dd      fx_null         ; F - set speed
+  1095                                  
+  1096 00000710 [50070000]              FXtable2	dd      fx_null		; 0 - arpeggio
+  1097 00000714 [50070000]                      	dd      fx_null         ; 1 - porta up
+  1098 00000718 [50070000]                      	dd      fx_null         ; 2 - porta down
+  1099 0000071C [50070000]                      	dd      fx_null		; 3 - tone porta
+  1100 00000720 [50070000]                      	dd      fx_null		; 4 - vibrato
+  1101 00000724 [50070000]                      	dd      fx_null         ; 5 - tone+slide
+  1102 00000728 [50070000]                      	dd      fx_null         ; 6 - vibrato+slide
+  1103 0000072C [50070000]                      	dd      fx_null         ; 7 - tremolo
+  1104 00000730 [50070000]              	        dd      fx_null         ; 8 - unused
+  1105 00000734 [50070000]                      	dd      fx_null         ; 9 - sample offset
+  1106 00000738 [50070000]              	        dd      fx_null         ; A - volume slide
+  1107 0000073C [50070000]                      	dd      fx_null         ; B - pattern jump
+  1108 00000740 [50070000]              	        dd      fx_null         ; C - set volume
+  1109 00000744 [50070000]                      	dd      fx_null         ; D - break pattern
+  1110 00000748 [50070000]                      	dd      fx_null         ; E - extra effects
+  1111 0000074C [50070000]                      	dd      fx_null         ; F - set speed
+  1112                                  
+  1113                                  align 4
+  1114                                  ;----------------------
+  1115                                  fx_null:
+  1116                                  ;----------------------
+  1117 00000750 C3                      	ret
+  1118                                  

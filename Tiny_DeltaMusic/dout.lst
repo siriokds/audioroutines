@@ -1,0 +1,600 @@
+     1                                  ; DOUT.ASM x NASM
+     2                                  
+     3                                  
+     4                                  DOUT_PRIMARY_FLAGS	equ 0x00000001	;(DSBCAPS_PRIMARYBUFFER)
+     5                                  DOUT_SECONDARY_FLAGS	equ 0x00018100	;(DSBCAPS_GETCURRENTPOSITION2 OR DSBCAPS_GLOBALFOCUS OR DSBCAPS_CTRLPOSITIONNOTIFY)
+     6                                  
+     7                                  DOUT_FREQUENCY		equ 44100
+     8                                  DOUT_SAMPLESIZ		equ 4
+     9                                  DOUT_BUFFERLEN		equ 8820	;(DOUT_FREQUENCY/50)
+    10                                  DOUT_BUFFERSIZ		equ DOUT_BUFFERLEN * DOUT_SAMPLESIZ
+    11                                  DOUT_BUFFERNUM		equ 4
+    12                                  DOUT_BUFFERTOT		equ DOUT_BUFFERSIZ * DOUT_BUFFERNUM
+    13                                  DOUT_WFXSIZE		equ 18
+    14                                  
+    15                                  
+    16                                  ;============
+    17                                  SECTION .bss
+    18                                  ;============
+    19                                  
+    20                                  
+    21                                  struc dsdata
+    22                                    
+    23 00000000 <res 00000004>          	.lpDSOUND	resd 1		; ptr to the IDirectSound instance
+    24 00000004 <res 00000004>          	.lpdsPrimary	resd 1		; ptr to the primary   IDirectSoundBuffer
+    25 00000008 <res 00000004>          	.lpdsBuffer	resd 1		; ptr to the secondary IDirectSoundBuffer
+    26 0000000C <res 00000004>          	.lpdsNotify	resd 1
+    27                                  
+    28 00000010 <res 00000004>          	.ThreadID	resd 1		; dummy dword for thread ID
+    29 00000014 <res 00000004>          	.ThreadHandle	resd 1		; handle of sound thread
+    30 00000018 <res 00000004>          	.ThreadXTReq	resd 1		; exit request flag for sound thread
+    31 0000001C <res 00000004>          	.ThreadEvent	resd 1		; event
+    32                                  
+    33 00000020 <res 00000004>          	.rPos		resd 1		; Read/Play Position
+    34 00000024 <res 00000004>          	.wPos		resd 1		; Write Position
+    35 00000028 <res 00000004>          	.nBuffer	resd 1		; Actual Buffer Number
+    36 0000002C <res 00000004>          	.Callback	resd 1		; External Callback
+    37                                  
+    38 00000030 <res 00000004>          	.buf1      	resd 1          ; 1st locked buffer address for streaming
+    39 00000034 <res 00000004>          	.len1      	resd 1          ; length of 1st buffer
+    40 00000038 <res 00000004>          	.buf2      	resd 1          ; 2st locked buffer address for streaming
+    41 0000003C <res 00000004>          	.len2      	resd 1          ; length of 2st buffer
+    42                                  	
+    43 00000040 <res 00000004>          	.bOpened	resd 1
+    44 00000044 <res 00000004>          	.Filler		resd 1
+    45                                  
+    46 00000048 <res 00000020>          	.dsbPosNotify	resd (DOUT_BUFFERNUM*2)
+    47                                  
+    48 00000068 <res 00000012>          	.tempwfx   	resb DOUT_WFXSIZE
+    49                                  
+    50                                  	.size
+    51                                  endstruc
+    52                                  
+    53                                  
+    54                                  
+    55                                  ;- - - - - - - - - - - - - - - - - - - - - - - 
+    56                                  
+    57                                  extern _DirectSoundCreate@12
+    58                                  extern _CreateEventA@16
+    59                                  extern _CreateThread@24
+    60                                  extern _SetThreadPriority@8
+    61                                  extern _ResumeThread@4
+    62                                  extern _WaitForSingleObject@8
+    63                                  extern _Sleep@4
+    64                                  
+    65                                  
+    66                                  global _DOut_Open@8
+    67                                  global _DOut_Start@0
+    68                                  global _DOut_BufferCopy@4
+    69                                  global _DOut_Close@0
+    70                                  
+    71 00000000 <res 0000007A>          globdat: resb dsdata.size
+    72                                  
+    73                                  ;============
+    74                                  SECTION .code
+    75                                  ;============
+    76                                  
+    77                                  
+    78                                  ;---------------------------------------------
+    79                                  CallbackRoutine:
+    80                                  ;---------------------------------------------
+    81 00000000 60                      	pushad
+    82 00000001 BB[00000000]            	mov	ebx, globdat	
+    83 00000006 8B432C                  	mov	eax, [ebx + dsdata.Callback]
+    84 00000009 09C0                    	or	eax,eax
+    85 0000000B 7402                    	jz	.noCallback
+    86 0000000D FFD0                    	call	eax
+    87                                  .noCallback:
+    88 0000000F 61                      	popad
+    89 00000010 C3                      	ret
+    90                                  	
+    91                                  	
+    92                                  ;---------------------------------------------
+    93                                  ThreadProcDS:
+    94                                  ;---------------------------------------------
+    95 00000011 60                      	pushad
+    96 00000012 BB[00000000]             	mov	ebx, globdat
+    97                                  .looping:
+    98                                  	; check for exit request
+    99 00000017 807B1800                	cmp     byte [ebx + dsdata.ThreadXTReq], 0
+   100 0000001B 7406                    	jz      .loopok
+   101 0000001D 61                      	popad
+   102 0000001E 31C0                    	xor     eax,eax
+   103 00000020 C20400                  	ret     4h
+   104                                  .loopok:
+   105                                  
+   106 00000023 68F4010000              	push    dword 500
+   107 00000028 8B431C                  	mov	eax, [ebx + dsdata.ThreadEvent]
+   108 0000002B 50                      	push    eax
+   109 0000002C E8(00000000)            	call    _WaitForSingleObject@8
+   110 00000031 3D02010000              	cmp	eax,0x00000102				; WAIT_TIMEOUT
+   111 00000036 74DF                    	je	.looping
+   112                                  
+   113                                  
+   114 00000038 6800000000              	push	dword 0
+   115 0000003D 8D4320                  	lea	eax, [ebx + dsdata.rPos]
+   116 00000040 50                      	push	eax
+   117 00000041 8B6B08                  	mov	ebp, [ebx + dsdata.lpdsBuffer]
+   118 00000044 55                      	push	ebp
+   119 00000045 8B5500                  	mov	edx, [ebp]				; vtbl
+   120 00000048 FF5210                  	call	[edx + 10h]				; IDirectSoundBuffer::GetCurrentPosition
+   121                                  
+   122                                  
+   123 0000004B 8B4320                  	mov	eax, [ebx + dsdata.rPos]
+   124 0000004E B9D0890000              	mov	ecx,DOUT_BUFFERSIZ
+   125 00000053 31D2                    	xor	edx,edx
+   126 00000055 F7F1                    	div	ecx
+   127 00000057 48                      	dec	eax
+   128 00000058 31D2                    	xor	edx,edx
+   129 0000005A B904000000              	mov	ecx,DOUT_BUFFERNUM
+   130 0000005F F7F1                    	div	ecx
+   131 00000061 895328                  	mov	[ebx + dsdata.nBuffer],edx		; nBuffer = ((rPos / DOUT_BUFFERSIZ) - 1) % DOUT_BUFFERNUM;
+   132                                  
+   133                                  
+   134 00000064 E897FFFFFF              	call	CallbackRoutine
+   135                                  	
+   136 00000069 E9A9FFFFFF              	jmp	.looping
+   137                                  
+   138                                  
+   139                                  		
+   140                                  
+   141                                  		
+   142                                  
+   143                                  
+   144                                  
+   145                                  ;---------------------------------------------
+   146                                  DSClose:
+   147                                  ;---------------------------------------------
+   148 0000006E 60                      	pushad
+   149 0000006F BB[00000000]            	mov	ebx, globdat
+   150 00000074 31C9                    	xor	ecx, ecx
+   151                                  
+   152 00000076 8B430C                  	mov	eax, [ebx + dsdata.lpdsNotify]
+   153 00000079 09C0                    	or	eax,eax
+   154 0000007B 7509                    	jnz	.noNotifyRelease
+   155                                  
+   156 0000007D 8B30                    	mov	esi, [eax]  				; vtbl
+   157 0000007F 50                      	push	eax					; lpdsNotify
+   158 00000080 FF5608                  	call	[esi + 08h]   				; IDirectSoundNotify::Release
+   159                                  	
+   160 00000083 894B0C                  	mov	[ebx + dsdata.lpdsNotify], ecx
+   161                                  
+   162                                  .noNotifyRelease:
+   163                                  
+   164 00000086 8B03                    	mov	eax, [ebx + dsdata.lpDSOUND]
+   165 00000088 09C0                    	or	eax,eax
+   166 0000008A 7508                    	jnz	.noDSOUNDRelease
+   167                                  
+   168 0000008C 8B30                    	mov	esi, [eax]  				; vtbl
+   169 0000008E 50                      	push	eax					; lpdsNotify
+   170 0000008F FF5608                  	call	[esi + 08h]   				; IDirectSound::Release
+   171                                  	
+   172 00000092 890B                    	mov	[ebx + dsdata.lpDSOUND], ecx
+   173                                  
+   174                                  .noDSOUNDRelease:
+   175                                  
+   176 00000094 61                      	popad
+   177 00000095 C3                      	ret
+   178                                  
+   179                                  
+   180                                  
+   181                                  
+   182                                  
+   183                                  
+   184                                  
+   185                                  
+   186                                  
+   187                                  
+   188                                  
+   189                                  ;int DOut_Open(void (*UserF)(void), DWORD hWnd);
+   190                                  
+   191                                  ;---------------------------------------------
+   192                                  _DOut_Open@8:
+   193                                  ;---------------------------------------------
+   194 00000096 55                      	push	ebp
+   195 00000097 89E5                    	mov	ebp,esp
+   196 00000099 60                      	pushad
+   197 0000009A BB[00000000]            	mov	ebx, globdat
+   198                                  
+   199                                  
+   200                                  	; clear global data
+   201 0000009F B97A000000              	mov	ecx, dsdata.size
+   202 000000A4 89DF                    	mov	edi, ebx
+   203 000000A6 31C0                    	xor	eax, eax
+   204 000000A8 FC                      	cld
+   205 000000A9 F3AA                    	rep	stosb
+   206                                  
+   207                                  
+   208 000000AB 8B4D08                  	mov	ecx, [ebp + 8]			; first parm (callback)
+   209 000000AE 894B2C                  	mov	[ebx + dsdata.Callback],ecx
+   210                                  
+   211                                  
+   212                                  	; DirectSound Object create and set
+   213                                  	
+   214 000000B1 50                      	push    eax				; NULL
+   215 000000B2 8D0B                    	lea     ecx, [ebx + dsdata.lpDSOUND]
+   216 000000B4 51                      	push	ecx				; LPDIRECTSOUND*
+   217 000000B5 50                      	push    eax				; NULL for Default Device
+   218 000000B6 E8(00000000)            	call    _DirectSoundCreate@12
+   219                                  
+   220 000000BB 09C0                    	or      eax, eax
+   221 000000BD 7524                    	jnz     .initfailgate
+   222                                  	
+   223                                  
+   224                                  	; set DSound cooperative level
+   225                                  	
+   226 000000BF B003                    	mov     al, 3       ; exclusive mode
+   227 000000C1 50                      	push    eax
+   228 000000C2 FF750C                  	push    dword [ebp + 12]		; second parm (hwnd)
+   229 000000C5 8B33                    	mov     esi, [ebx + dsdata.lpDSOUND]
+   230 000000C7 56                      	push	esi
+   231 000000C8 8B3E                    	mov	edi, [esi]  			; edi = vtbl
+   232 000000CA FF5718                  	call	[edi + 18h] 			; IDirectSound::SetCooperativeLevel
+   233                                  
+   234 000000CD 09C0                    	or	eax, eax
+   235 000000CF 7512                    	jnz	.initfailgate
+   236                                  		
+   237                                  
+   238                                  	; obtain primary buffer
+   239                                  	
+   240 000000D1 31C0                    	xor	eax,eax
+   241 000000D3 50                      	push    eax
+   242 000000D4 8D6B04                  	lea     ebp, [ebx + dsdata.lpdsPrimary]
+   243 000000D7 55                      	push    ebp
+   244 000000D8 68[FC020000]            	push    dword primdesc
+   245 000000DD 56                      	push    esi
+   246 000000DE FF570C                  	call    [edi + 0ch] 			; IDirectSound::CreateSoundBuffer
+   247                                  
+   248 000000E1 09C0                    	or       eax, eax
+   249                                  .initfailgate:
+   250 000000E3 7510                    	jnz      .gate2
+   251                                  
+   252                                  	; obtain secondary buffer
+   253                                  	
+   254 000000E5 50                      	push     eax
+   255 000000E6 8D5308                  	lea      edx, [ebx + dsdata.lpdsBuffer]
+   256 000000E9 52                      	push     edx
+   257 000000EA 68[E8020000]            	push     dword buffdesc
+   258 000000EF 56                      	push     esi
+   259 000000F0 FF570C                  	call     [edi + 0ch] 			; IDirectSound::CreateSoundBuffer
+   260                                  
+   261 000000F3 09C0                    	or       eax, eax
+   262                                  .gate2
+   263 000000F5 0F859C000000            	jnz      near .InitFailed
+   264                                  
+   265                                  
+   266                                  
+   267                                  
+   268                                  	; set primary buffer format
+   269                                  
+   270 000000FB 8D7B68                  	lea     edi, [ebx + dsdata.tempwfx]
+   271 000000FE 57                      	push    edi
+   272                                  
+   273 000000FF 8D35[D4020000]          	lea     esi, [wfxprimary]
+   274 00000105 B912000000              	mov	ecx, DOUT_WFXSIZE
+   275 0000010A F3A4                    	rep     movsb
+   276                                  
+   277 0000010C 8B7500                  	mov     esi, [ebp]
+   278 0000010F 56                      	push    esi
+   279 00000110 8B3E                    	mov     edi, [esi]  			; edx = vtbl
+   280 00000112 FF5738                  	call    [edi + 38h] 			; IDirectSoundBuffer::SetFormat
+   281                                  
+   282                                  
+   283                                  
+   284                                  	; Events
+   285                                  
+   286 00000115 31C0                    	xor	eax,eax
+   287 00000117 50                      	push	eax
+   288 00000118 50                      	push	eax
+   289 00000119 50                      	push	eax
+   290 0000011A 50                      	push	eax
+   291 0000011B E8(00000000)            	call	_CreateEventA@16
+   292 00000120 89431C                  	mov	[ebx + dsdata.ThreadEvent],eax
+   293                                  
+   294                                  	
+   295                                  
+   296 00000123 BACC890000              	mov	edx,(DOUT_BUFFERSIZ-DOUT_SAMPLESIZ)
+   297 00000128 B904000000              	mov	ecx,DOUT_BUFFERNUM
+   298 0000012D 8D7B48                  	lea	edi, [ebx + dsdata.dsbPosNotify]
+   299 00000130 8917                    .EvIni:	mov	[edi],edx				; dwOffset
+   300 00000132 894704                  	mov	[edi+4],eax				; hEventNotify
+   301 00000135 81C2D0890000            	add	edx,DOUT_BUFFERSIZ
+   302 0000013B 81C708000000            	add	edi,8
+   303 00000141 E2ED                    	loop	.EvIni
+   304                                  	
+   305                                  
+   306 00000143 8D430C                  	lea	eax, [ebx + dsdata.lpdsNotify]
+   307 00000146 50                      	push	eax
+   308 00000147 68[C4020000]            	push    dword DSound_IID
+   309 0000014C 8B6B08                  	mov	ebp, [ebx + dsdata.lpdsBuffer]
+   310 0000014F 8B7500                  	mov	esi, [ebp]  				; vtbl
+   311 00000152 55                      	push	ebp					; lpdsBuffer
+   312 00000153 FF16                    	call	[esi + 00h]   				; IDirectSoundBuffer::QueryInterface
+   313                                  
+   314                                  
+   315 00000155 8D4348                  	lea	eax, [ebx + dsdata.dsbPosNotify]
+   316 00000158 50                      	push	eax
+   317 00000159 6804000000              	push	dword DOUT_BUFFERNUM
+   318 0000015E 8B6B0C                  	mov	ebp,[ebx + dsdata.lpdsNotify]
+   319 00000161 8B7500                  	mov	esi, [ebp]  				; vtbl
+   320 00000164 55                      	push	ebp					; lpdsNotify
+   321 00000165 FF560C                  	call	[esi + 0ch]   				; IDirectSoundNotify::SetNotificationPositions
+   322                                  	
+   323                                  
+   324                                  
+   325                                  	; Create MainThread
+   326                                  
+   327 00000168 31C0                    	xor	eax,eax
+   328 0000016A 8D5310                  	lea     edx, [ebx + dsdata.ThreadID]
+   329 0000016D 52                         	push    edx
+   330 0000016E 6804000000                  	push	dword 00000004h				; CREATE_SUSPENDED
+   331 00000173 50                          	push	eax
+   332 00000174 68[11000000]            	push    dword ThreadProcDS
+   333 00000179 50                      	push    eax
+   334 0000017A 50                      	push    eax
+   335 0000017B E8(00000000)            	call     _CreateThread@24
+   336 00000180 894314                  	mov     [ebx + dsdata.ThreadHandle], eax
+   337 00000183 680F000000              	push	dword 15
+   338 00000188 50                      	push	eax
+   339 00000189 E8(00000000)            	call    _SetThreadPriority@8
+   340                                  
+   341                                  
+   342                                  	; ok, everything's done
+   343                                  	
+   344 0000018E C7434001000000          	mov	dword [ebx + dsdata.bOpened],1	
+   345 00000195 EB05                    	jmp     short .initends
+   346                                  
+   347                                  .InitFailed:
+   348 00000197 E8D2FEFFFF              	call     DSClose
+   349                                  	
+   350                                  .initends:
+   351 0000019C 61                      	popad
+   352 0000019D 5D                      	pop	ebp
+   353 0000019E 31C0                    	xor	eax,eax
+   354 000001A0 C20800                  	ret     8h
+   355                                  
+   356                                  
+   357                                  
+   358                                  
+   359                                  	
+   360                                  
+   361                                  
+   362                                  
+   363                                  
+   364                                  ;---------------------------------------------
+   365                                  _DOut_Start@0:
+   366                                  ;---------------------------------------------
+   367 000001A3 60                      	pushad
+   368 000001A4 BB[00000000]            	mov	ebx,globdat
+   369 000001A9 31C0                    	xor	eax,eax
+   370                                  	
+   371 000001AB 394340                  	cmp	[ebx + dsdata.bOpened],eax
+   372 000001AE 7503                    	jnz	.doStart
+   373                                  
+   374 000001B0 40                      	inc	eax
+   375 000001B1 61                      	popad
+   376 000001B2 C3                      	ret
+   377                                  	
+   378                                  .doStart:
+   379                                  
+   380                                  
+   381                                  ; * Fill Pre-Buffers
+   382 000001B3 31C0                    	xor	eax,eax	
+   383 000001B5 894328                  	mov	[ebx + dsdata.nBuffer],eax
+   384                                  	
+   385 000001B8 B904000000              	mov	ecx,DOUT_BUFFERNUM
+   386 000001BD E83EFEFFFF              .pre:	call	CallbackRoutine
+   387 000001C2 FF4328                  	inc	dword [ebx + dsdata.nBuffer]
+   388 000001C5 E2F6                    	loop	.pre
+   389                                  
+   390                                  
+   391 000001C7 31C0                    	xor	eax,eax	
+   392 000001C9 894328                  	mov	[ebx + dsdata.nBuffer],eax
+   393                                  
+   394                                  
+   395                                  ; * Resume Thread  +  Rewind to 0  +  Play
+   396                                  
+   397 000001CC 6800000000              	push	dword 0					; position = 0
+   398 000001D1 8B6B08                  	mov	ebp, [ebx + dsdata.lpdsBuffer]
+   399 000001D4 8B7500                  	mov	esi, [ebp]  				; vtbl
+   400 000001D7 55                      	push	ebp					; lpdsBuffer
+   401 000001D8 FF5634                  	call	[esi + 34h]   				; IDirectSoundBuffer::SetCurrentPosition
+   402                                  
+   403                                  
+   404 000001DB 8B6B14                  	mov	ebp, [ebx + dsdata.ThreadHandle]
+   405 000001DE 55                      	push	ebp
+   406 000001DF E8(00000000)            	call	_ResumeThread@4
+   407                                  
+   408                                  
+   409 000001E4 6801000000              	push	dword 1					; DSBPLAY_LOOPING = 1
+   410 000001E9 31C0                    	xor	eax,eax
+   411 000001EB 50                      	push	eax					; RESERVED 
+   412 000001EC 50                      	push	eax					; PRIORITY
+   413 000001ED 8B6B08                  	mov	ebp, [ebx + dsdata.lpdsBuffer]
+   414 000001F0 8B7500                  	mov	esi, [ebp]  				; vtbl
+   415 000001F3 55                      	push	ebp					; lpdsBuffer
+   416 000001F4 FF5630                  	call	[esi + 30h]   				; IDirectSoundBuffer::Play
+   417                                  	
+   418 000001F7 31C0                    	xor	eax,eax
+   419 000001F9 61                      	popad
+   420 000001FA C3                      	ret
+   421                                  
+   422                                  
+   423                                  
+   424                                  
+   425                                  
+   426                                  
+   427                                  
+   428                                  ;---------------------------------------------
+   429                                  _DOut_Close@0:
+   430                                  ;---------------------------------------------
+   431 000001FB 60                      	pushad
+   432 000001FC BB[00000000]            	mov	ebx,globdat
+   433 00000201 31C0                    	xor	eax,eax
+   434                                  	
+   435 00000203 394340                  	cmp	[ebx + dsdata.bOpened],eax
+   436 00000206 7503                    	jnz	.doStart
+   437                                  
+   438 00000208 40                      	inc	eax
+   439 00000209 61                      	popad
+   440 0000020A C3                      	ret
+   441                                  .doStart:
+   442                                  
+   443 0000020B 8B6B08                  	mov	ebp, [ebx + dsdata.lpdsBuffer]
+   444 0000020E 8B7500                  	mov	esi, [ebp]  				; vtbl
+   445 00000211 55                      	push	ebp					; lpdsBuffer
+   446 00000212 FF5648                  	call	[esi + 48h]   				; IDirectSoundBuffer::Stop
+   447                                  
+   448                                  
+   449 00000215 C6431801                	mov	byte [ebx + dsdata.ThreadXTReq],1	; signal thread to quit!
+   450                                  
+   451                                  	; give the thread a chance to finish
+   452                                  
+   453 00000219 68D0070000              	push    dword 2000
+   454 0000021E 8B4314                  	mov	eax, [ebx + dsdata.ThreadHandle]
+   455 00000221 50                      	push    eax
+   456 00000222 E8(00000000)            	call    _WaitForSingleObject@8
+   457                                  
+   458 00000227 E842FEFFFF              	call	DSClose
+   459                                  
+   460 0000022C C7434000000000          	mov	dword [ebx + dsdata.bOpened],0
+   461 00000233 31C0                    	xor	eax,eax
+   462 00000235 61                      	popad
+   463 00000236 C3                      	ret
+   464                                  
+   465                                  
+   466                                  
+   467                                  
+   468                                  
+   469                                  ;---------------------------------------------
+   470                                  _DOut_BufferCopy@4
+   471                                  ;---------------------------------------------
+   472 00000237 55                      	push	ebp
+   473 00000238 89E5                    	mov	ebp,esp
+   474 0000023A 60                      	pushad
+   475 0000023B BB[00000000]            	mov	ebx,globdat
+   476                                  	
+   477 00000240 8B4340                  	mov	eax, [ebx + dsdata.bOpened]
+   478 00000243 09C0                    	or	eax,eax
+   479 00000245 7505                    	jnz	.TryLock
+   480                                  	
+   481 00000247 61                      	popad
+   482 00000248 5D                      	pop	ebp
+   483 00000249 C20400                  	ret	4h
+   484                                  
+   485                                  
+   486                                  
+   487                                  .TryLock:
+   488                                  
+   489 0000024C 6800000000              	push	DWORD 0
+   490                                  
+   491 00000251 8D433C                  	lea	eax, [ebx + dsdata.len2]
+   492 00000254 50                      	push	eax
+   493                                  	
+   494 00000255 8D4338                  	lea	eax, [ebx + dsdata.buf2]
+   495 00000258 50                      	push	eax
+   496                                  	
+   497 00000259 8D4334                  	lea	eax, [ebx + dsdata.len1]
+   498 0000025C 50                      	push	eax
+   499                                  	
+   500 0000025D 8D4330                  	lea	eax, [ebx + dsdata.buf1]
+   501 00000260 50                      	push	eax
+   502                                  	
+   503 00000261 B8D0890000              	mov	eax, DOUT_BUFFERSIZ
+   504 00000266 50                      	push	eax
+   505                                  	
+   506 00000267 8B4B28                  	mov	ecx, [ebx + dsdata.nBuffer]
+   507 0000026A F7E1                    	mul	ecx
+   508 0000026C 50                      	push	eax
+   509                                  
+   510                                  	
+   511 0000026D 8B7B08                  	mov	edi, [ebx + dsdata.lpdsBuffer]
+   512 00000270 8B37                    	mov	esi, [edi]    			; vtbl
+   513 00000272 57                      	push	edi
+   514 00000273 FF562C                  	call	[esi + 2ch]   			; IDirectSoundBuffer::Lock
+   515                                  
+   516                                  	
+   517 00000276 3D96007888              	cmp     eax, 88780096h  		; DSERR_BUFFERLOST
+   518 0000027B 750E                    	jne	.locked
+   519                                  	
+   520 0000027D 8B7B08                  	mov	edi, [ebx + dsdata.lpdsBuffer]
+   521 00000280 8B37                    	mov	esi, [edi]    			; vtbl
+   522 00000282 57                      	push	edi
+   523 00000283 FF5650                     	call    [esi + 50h]   			; IDirectSoundBuffer::Restore
+   524 00000286 E9C1FFFFFF                  	jmp     .TryLock
+   525                                  
+   526                                  .locked:
+   527                                  
+   528                                  
+   529 0000028B 09C0                    	or	eax,eax
+   530 0000028D 7530                    	jnz	.Exit
+   531                                  	
+   532 0000028F 8B7508                  	mov	esi, [ebp + 8]			; Source
+   533 00000292 8B7B30                  	mov	edi, [ebx + dsdata.buf1]	; Destination
+   534 00000295 B9D0890000              	mov	ecx,DOUT_BUFFERSIZ
+   535                                  
+   536                                  	
+   537                                  
+   538 0000029A 51                      	push	ecx
+   539 0000029B FC                      	cld
+   540 0000029C C1E902                  	shr	ecx,2
+   541 0000029F F3A5                    	rep	movsd
+   542 000002A1 59                      	pop	ecx
+   543 000002A2 81E103000000            	and	ecx,3
+   544 000002A8 F3A4                    	rep	movsb
+   545                                  
+   546                                  
+   547 000002AA FF733C                  	push	dword [ebx + dsdata.len2]
+   548 000002AD FF7338                  	push	dword [ebx + dsdata.buf2]
+   549 000002B0 FF7334                  	push	dword [ebx + dsdata.len1]
+   550 000002B3 FF7330                  	push	dword [ebx + dsdata.buf1]
+   551                                  
+   552 000002B6 8B7B08                  	mov	edi, [ebx + dsdata.lpdsBuffer]
+   553 000002B9 8B37                    	mov	esi, [edi]    			; vtbl
+   554 000002BB 57                      	push	edi
+   555 000002BC FF564C                      	call    [esi + 4ch]   			; IDirectSoundBuffer::Unlock
+   556                                  
+   557                                  .Exit:
+   558 000002BF 61                      	popad
+   559 000002C0 5D                      	pop	ebp
+   560 000002C1 C20400                  	ret	4h
+   561                                  
+   562                                  
+   563                                  
+   564                                  
+   565                                  
+   566                                  align 4
+   567                                  
+   568                                  DSound_IID:
+   569 000002C4 830721B0                    DD 0b0210783h
+   570 000002C8 CD89                        DW 089cdh
+   571 000002CA D011                        DW 011d0h
+   572 000002CC AF0800A0C925CD16            DB 0afh, 08h, 00h, 0a0h, 0c9h, 025h, 0cdh, 016h
+   573                                  
+   574                                  
+   575                                  wfxprimary:
+   576 000002D4 0100                        DW	1				; wFormatTag	  = 1 (WAVE_FORMAT_PCM)
+   577 000002D6 0200                        DW  2				; nChannels	  = 2 (STEREO)
+   578 000002D8 44AC0000                    DD	DOUT_FREQUENCY			; nSamplesPerSec  = 44100Hz
+   579 000002DC 10B10200                    DD	DOUT_FREQUENCY*DOUT_SAMPLESIZ	; nAvgBytesPerSec = 176400 = (44100 * 2 (16bit) * 2 (stereo))
+   580 000002E0 0400                        DW  4				; nBlockAlign	  = 4
+   581 000002E2 1000                        DW  16				; wBitsPerSample  = 16 (16bit)
+   582 000002E4 0000                        DW	0				; cbSize	  = 0
+   583 000002E6 0000                        DW  0				; (Dword Align)
+   584                                  
+   585                                  
+   586                                  buffdesc:
+   587 000002E8 14000000                    DD	20			; dwSize = 20 (struct size)
+   588 000002EC 00810100                    DD	DOUT_SECONDARY_FLAGS	; dwFlags
+   589 000002F0 40270200                    DD  DOUT_BUFFERTOT		; dwBufferBytes
+   590 000002F4 00000000                    DD  0			; dwReserved
+   591 000002F8 [D4020000]                  DD  wfxprimary		; lpwfxFormat = wfxprimary
+   592                                  
+   593                                  primdesc:
+   594 000002FC 14000000                    DD	20			; dwSize = 20 (struct size)
+   595 00000300 01000000                    DD  DOUT_PRIMARY_FLAGS	; dwFlags = 1 (DSBCAPS_PRIMARYBUFFER)
+   596 00000304 00000000                    DD	0			; dwBufferBytes
+   597 00000308 00000000                    DD  0			; dwReserved
+   598 0000030C 00000000                    DD	0			; lpwfxFormat
+   599                                  
+   600                                  
